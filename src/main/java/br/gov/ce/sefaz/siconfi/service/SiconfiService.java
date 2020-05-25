@@ -1,0 +1,101 @@
+package br.gov.ce.sefaz.siconfi.service;
+
+import java.util.Arrays;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+public abstract class SiconfiService <T> {
+
+	private static final Logger logger = LogManager.getLogger(SiconfiService.class);
+	
+	public static final List<Integer> EXERCICIOS_DISPONIVEIS = Arrays.asList(2020);
+	
+	public static final List<Integer> BIMESTRES = Arrays.asList(1);//1, 2, 3, 4, 5, 6);
+	
+	public static final List<Integer> QUADRIMESTRES = Arrays.asList(1); //1,2,3
+	
+	public static final List<Integer> SEMESTRES = Arrays.asList(1, 2);
+	
+	protected Client client;
+	 
+	protected WebTarget webTarget;
+ 
+	public static final String URL_SERVICE = "http://apidatalake.tesouro.gov.br/ords/siconfi/tt/";
+
+	private EntityManagerFactory emf;
+	
+	private EntityManager em;
+	
+	public SiconfiService(){
+		this.client = ClientBuilder.newClient();  		
+	}
+	
+	public abstract List<T> consultarNaApi();
+
+	protected abstract void excluirTodos();
+	
+	protected void exibirDadosNaConsole (List<T> listaEntidades) {
+		for (T entidade: listaEntidades) {
+			System.out.println(entidade.toString());
+		}
+	}
+
+	protected void salvarNoBancoDeDados(List<T> listaEntidades) {
+		getEntityManager().getTransaction().begin();		
+		excluirTodos();
+		persistir(listaEntidades);
+		commitTransaction();
+		fecharContextoPersistencia();		
+	}
+
+	protected EntityManager getEntityManager () {
+		logger.debug("Criando EntityManager");
+		if(em == null && getEntityManagerFactory()!=null) {
+			em = getEntityManagerFactory().createEntityManager();
+		}
+		return em;
+	}
+	
+	private EntityManagerFactory getEntityManagerFactory() {
+		logger.debug("Criando EntityManagerFactory");
+		if(this.emf == null) {
+			this.emf = Persistence.createEntityManagerFactory("siconfiUnit");
+		}
+		return emf;
+	}
+	
+	protected void fecharContextoPersistencia() {
+		if(em!=null) {
+			em.close();			
+		}
+		if(emf!=null) {
+			emf.close();			
+		}
+	}
+	
+	protected void commitTransaction() {
+		logger.debug("Fazendo commit...");
+		long ini = System.currentTimeMillis();
+		getEntityManager().getTransaction().commit();
+		long fim = System.currentTimeMillis();
+		logger.debug("Tempo para commit:" + (fim -ini));
+	}
+
+	protected void persistir(List<T> lista) {
+		int i=1;
+		logger.info("Persistindo os dados obtidos...");
+		for(T entity: lista) {
+			logger.debug("Inserindo registro " + (i++) + ":" + entity.toString());
+			getEntityManager().persist(entity);
+		}
+	}
+}
