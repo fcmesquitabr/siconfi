@@ -1,6 +1,7 @@
 package br.gov.ce.sefaz.siconfi.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.Query;
@@ -11,9 +12,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.Ente;
+import br.gov.ce.sefaz.siconfi.enums.Esfera;
 import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.response.EnteResponse;
 import br.gov.ce.sefaz.siconfi.util.CsvUtil;
+import br.gov.ce.sefaz.siconfi.util.FiltroBase;
 
 public class EnteService extends SiconfiService <Ente>{
 
@@ -90,4 +93,37 @@ public class EnteService extends SiconfiService <Ente>{
 		logger.debug("Tempo para consultar os entes na API:" + (fim -ini));
 		return enteResponse;
 	}
+	
+	public List<String> obterListaCodigosIbge(FiltroBase filtro) {
+		List<String> listaCodigoIbge = null;
+		
+		if(filtro.isExisteCodigosIbge()) {			
+			listaCodigoIbge = filtro.getCodigosIBGE();
+		} else {			
+			listaCodigoIbge = obterListaCodigoIbgePelaEsfera(filtro);
+		}
+		return listaCodigoIbge;
+	}
+
+	private List<String> obterListaCodigoIbgePelaEsfera(FiltroBase filtro) {
+		
+		List<Ente> listaEntes = null;
+	
+		if(filtro.getEsfera() == null || filtro.getEsfera().equals(Esfera.ESTADOS_E_DISTRITO_FEDERAL)) {
+			listaEntes = consultarEntesNaBase(Arrays.asList(Esfera.ESTADO.getCodigo(),Esfera.DISTRITO_FEDERAL.getCodigo()));				
+		} else {
+			listaEntes = consultarEntesNaBase(Arrays.asList(filtro.getEsfera().getCodigo()));
+		}
+		
+		return obterListaCodigoIbge(listaEntes);
+	}
+	
+	private List<String> obterListaCodigoIbge (List<Ente> listaEntes){
+		List<String> listaCodigoIbge = new ArrayList<String>();		
+		for(Ente ente: listaEntes) {
+			listaCodigoIbge.add(ente.getCod_ibge());
+		}
+		return listaCodigoIbge;
+	}
+
 }

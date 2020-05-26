@@ -11,9 +11,7 @@ import javax.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.entity.RelatorioGestaoFiscal;
-import br.gov.ce.sefaz.siconfi.enums.Esfera;
 import br.gov.ce.sefaz.siconfi.enums.Periodicidade;
 import br.gov.ce.sefaz.siconfi.enums.Poder;
 import br.gov.ce.sefaz.siconfi.enums.TipoDemonstrativoRGF;
@@ -32,6 +30,8 @@ public class RGFService extends SiconfiService <RelatorioGestaoFiscal>{
 			"cod_conta", "conta", "coluna", "rotulo", "populacao", "valorFormatado" };
 	
 	private static String NOME_PADRAO_ARQUIVO_CSV = "rgf.csv";
+
+	private EnteService enteService;
 
 	public RGFService() {
 		super();
@@ -72,52 +72,13 @@ public class RGFService extends SiconfiService <RelatorioGestaoFiscal>{
 		fecharContextoPersistencia();		
 	}
 
-	public void carregarRelatorioGestaoFiscalNaBaseDeDados(boolean apagarDadosExistentes) {
-		 
-		for (Integer exercicio: EXERCICIOS_DISPONIVEIS) {
-			carregarDadosQuadrimestraisNaBaseDeDados(apagarDadosExistentes, exercicio);
-		}		
-		fecharContextoPersistencia();
-	}
-	
-	private void carregarDadosQuadrimestraisNaBaseDeDados(boolean apagarDadosExistentes, Integer exercicio) {
-		for(Integer quadrimestre: QUADRIMESTRES) {
-			carregarDadosDosAnexosNaBaseDeDados(apagarDadosExistentes, exercicio, quadrimestre);
-		}			
-	}
-
-	private void carregarDadosDosAnexosNaBaseDeDados(boolean apagarDadosExistentes, Integer exercicio, Integer quadrimestre) {
-		
-		EnteService enteService = new EnteService();
-		List<Ente> listaEntes = enteService.consultarEntesNaBase(Arrays.asList(Esfera.ESTADO.getCodigo()));
-
-		for (Ente ente : listaEntes) {
-			for(Poder poder: Poder.values()) {
-				for (String anexo : ANEXOS_RGF) {
-					List<RelatorioGestaoFiscal> listaRGF = consultarNaApi(exercicio,
-							Periodicidade.QUADRIMESTRAL.getCodigo(), quadrimestre, TipoDemonstrativoRGF.RGF.getCodigo(),
-							anexo, poder.getCodigo(), ente.getCod_ibge());
-					
-					getEntityManager().getTransaction().begin();
-					
-					if (apagarDadosExistentes) {
-						excluirRGF(exercicio);
-					}
-					
-					persistir(listaRGF);
-					commitTransaction();
-				}				
-			}
-		}
-	}
-
 	protected void excluirTodos() {
 		logger.info("Excluindo dados do banco de dados...");		
 		int i = getEntityManager().createQuery("DELETE FROM RelatorioGestaoFiscal rgf").executeUpdate();
 		logger.info("Linhas excluídas:" + i);
 	}
 
-	private void excluirRGF(Integer exercicio) {
+	public void excluirRGF(Integer exercicio) {
 		logger.info("Excluindo dados do banco de dados...");
 		int i = getEntityManager().createQuery("DELETE FROM RelatorioGestaoFiscal rgf WHERE rgf.exercicio="+exercicio).executeUpdate();
 		logger.info("Linhas excluídas:" + i);
@@ -128,34 +89,35 @@ public class RGFService extends SiconfiService <RelatorioGestaoFiscal>{
 		
 		StringBuilder queryBuilder = new StringBuilder("DELETE FROM RelatorioGestaoFiscal rgf WHERE rgf.exercicio IN (:exercicios) ");
 
-		if (filtro.getQuadrimestres() != null && !filtro.getQuadrimestres().isEmpty()) {
+		if (!filtro.isListaQuadrimestresVazia()) {
 			queryBuilder.append(" AND rgf.periodo IN (:periodos)");
 		}
 
-		if (filtro.getCodigosIBGE() != null && !filtro.getCodigosIBGE().isEmpty()) {
+		if (filtro.isExisteCodigosIbge()) {
 			queryBuilder.append(" AND rgf.cod_ibge IN (:codigosIbge)");
 		}
 
-		if (filtro.getListaPoderes() != null && !filtro.getListaPoderes().isEmpty()) {
+		if (!filtro.isListaPoderesVazia()) {
 			queryBuilder.append(" AND rgf.co_poder IN (:listaPoderes)");
 		}
 
-		if (filtro.getListaAnexos() != null && !filtro.getListaAnexos().isEmpty()) {
+		if (!filtro.isListaAnexosVazia()) {
 			queryBuilder.append(" AND rgf.anexo IN (:listaAnexos)");
 		}
 		
-		Query query = getEntityManager().createQuery(queryBuilder.toString());
+		Query query = getEntityManager().createQuery(queryBuilder.toString());		
 		query.setParameter("exercicios", filtro.getExercicios());
-		if (filtro.getQuadrimestres() != null && !filtro.getQuadrimestres().isEmpty()) {
+		
+		if (!filtro.isListaQuadrimestresVazia()) {
 			query.setParameter("periodos", filtro.getQuadrimestres());
 		}
-		if(filtro.getCodigosIBGE()!=null && !filtro.getCodigosIBGE().isEmpty()) {
+		if(filtro.isExisteCodigosIbge()) {
 			query.setParameter("codigosIbge", filtro.getCodigosIBGE());
 		}
-		if (filtro.getListaPoderes() != null && !filtro.getListaPoderes().isEmpty()) {
+		if (!filtro.isListaPoderesVazia()) {
 			query.setParameter("listaPoderes", Poder.getListaCodigoPoder(filtro.getListaPoderes()));
 		}
-		if(filtro.getListaAnexos()!=null && !filtro.getListaAnexos().isEmpty()) {
+		if(!filtro.isListaAnexosVazia()) {
 			query.setParameter("listaAnexos", filtro.getListaAnexos());
 		}
 
@@ -169,47 +131,63 @@ public class RGFService extends SiconfiService <RelatorioGestaoFiscal>{
 
 	public List<RelatorioGestaoFiscal> consultarNaApi(FiltroRGF filtroRGF){
 		
-		List<Integer> listaExercicios = (filtroRGF.getExercicios()!=null?filtroRGF.getExercicios():EXERCICIOS_DISPONIVEIS);
-		List<Integer> listaQuadrimestres = (filtroRGF.getQuadrimestres()!=null?filtroRGF.getQuadrimestres():QUADRIMESTRES);
-		List<Poder> listaPoder = (filtroRGF.getListaPoderes()!=null?filtroRGF.getListaPoderes():Arrays.asList(Poder.values()));
-		List<String> listaAnexos = filtroRGF.getListaAnexos() != null && !filtroRGF.getListaAnexos().isEmpty()
-				? filtroRGF.getListaAnexos()
-				: ANEXOS_RGF;
-		List<String> listaCodigoIbge = null;
-		if(filtroRGF.getCodigosIBGE()!=null && !filtroRGF.getCodigosIBGE().isEmpty()) {
-			listaCodigoIbge = filtroRGF.getCodigosIBGE();
-		} else {
-			EnteService enteService = new EnteService();
-			List<Ente> listaEntes = null;
-			if(filtroRGF.getEsfera() == null || filtroRGF.getEsfera().equals(Esfera.ESTADOS_E_DISTRITO_FEDERAL)) {
-				listaEntes = enteService.consultarEntesNaBase(Arrays.asList(Esfera.ESTADO.getCodigo(),Esfera.DISTRITO_FEDERAL.getCodigo()));				
-			} else {
-				listaEntes = enteService.consultarEntesNaBase(Arrays.asList(filtroRGF.getEsfera().getCodigo()));
-			}
-			
-			listaCodigoIbge = new ArrayList<String>();
-			for(Ente ente: listaEntes) {
-				listaCodigoIbge.add(ente.getCod_ibge());
-			}
-		}
-				
+		List<Integer> listaExercicios = !filtroRGF.isListaExerciciosVazia() ? filtroRGF.getExercicios()
+				: EXERCICIOS_DISPONIVEIS;					
 		List<RelatorioGestaoFiscal> listaRGF = new ArrayList<>();
 		
 		for (Integer exercicio : listaExercicios) {
-			for (Integer quadrimestre : listaQuadrimestres) {
-				for (String codigoIbge : listaCodigoIbge) {
-					for (Poder poder : listaPoder) {
-						for (String anexo : listaAnexos) {
-							List<RelatorioGestaoFiscal> listaRGFParcial = consultarNaApi(exercicio,
-									Periodicidade.QUADRIMESTRAL.getCodigo(), quadrimestre,
-									TipoDemonstrativoRGF.RGF.getCodigo(), anexo, poder.getCodigo(), codigoIbge);
-							listaRGF.addAll(listaRGFParcial);
-						}
-					}
-				}
-			}
+			listaRGF.addAll(consultarNaApi(filtroRGF, exercicio));
 		}
 		return listaRGF;
+	}
+
+	private List<RelatorioGestaoFiscal> consultarNaApi(FiltroRGF filtroRGF, Integer exercicio){
+
+		List<Integer> listaQuadrimestres = !filtroRGF.isListaQuadrimestresVazia() ? filtroRGF.getQuadrimestres()
+				: QUADRIMESTRES;
+		List<RelatorioGestaoFiscal> listaRGF = new ArrayList<>();
+		
+		for (Integer quadrimestre : listaQuadrimestres) {
+			listaRGF.addAll(consultarNaApi(filtroRGF, exercicio, quadrimestre));
+		}
+		return listaRGF;
+	}
+	
+	private List<RelatorioGestaoFiscal> consultarNaApi(FiltroRGF filtroRGF, Integer exercicio, Integer quadrimestre){
+
+		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbge(filtroRGF);
+		List<RelatorioGestaoFiscal> listaRGF = new ArrayList<>();
+		
+		for (String codigoIbge : listaCodigoIbge) {
+			listaRGF.addAll(consultarNaApi(filtroRGF, exercicio, quadrimestre, codigoIbge));
+		}
+		return listaRGF;		
+	}
+
+	private List<RelatorioGestaoFiscal> consultarNaApi(FiltroRGF filtroRGF, Integer exercicio, Integer quadrimestre, String codigoIbge){
+		
+		List<Poder> listaPoder = !filtroRGF.isListaPoderesVazia() ? filtroRGF.getListaPoderes()
+				: Arrays.asList(Poder.values());
+		List<RelatorioGestaoFiscal> listaRGF = new ArrayList<>();
+		
+		for (Poder poder : listaPoder) {
+			listaRGF.addAll(consultarNaApi(filtroRGF, exercicio, quadrimestre, codigoIbge, poder));
+		}
+		return listaRGF;		
+	}
+
+	private List<RelatorioGestaoFiscal> consultarNaApi(FiltroRGF filtroRGF, Integer exercicio, Integer quadrimestre, String codigoIbge, Poder poder){
+
+		List<String> listaAnexos = !filtroRGF.isListaAnexosVazia() ? filtroRGF.getListaAnexos() : ANEXOS_RGF;
+		List<RelatorioGestaoFiscal> listaRGF = new ArrayList<>();
+		
+		for (String anexo : listaAnexos) {
+			List<RelatorioGestaoFiscal> listaRGFParcial = consultarNaApi(exercicio,
+					Periodicidade.QUADRIMESTRAL.getCodigo(), quadrimestre, TipoDemonstrativoRGF.RGF.getCodigo(),
+					anexo, poder.getCodigo(), codigoIbge);
+			listaRGF.addAll(listaRGFParcial);
+		}
+		return listaRGF;		
 	}
 
 	public List<RelatorioGestaoFiscal> consultarNaApi(Integer exercicio, String indicadorPeriodicidade,
@@ -276,4 +254,12 @@ public class RGFService extends SiconfiService <RelatorioGestaoFiscal>{
 		}
 		return relatorioResponse;			
 	}
+	
+	private EnteService getEnteService() {
+		if(enteService == null) {
+			enteService = new EnteService();
+		}
+		return enteService;
+	}
+
 }

@@ -14,15 +14,18 @@ import br.gov.ce.sefaz.siconfi.entity.ExtratoEntrega;
 import br.gov.ce.sefaz.siconfi.response.ExtratoEntregaResponse;
 import br.gov.ce.sefaz.siconfi.util.CsvUtil;
 import br.gov.ce.sefaz.siconfi.util.FiltroExtratoEntrega;
+import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 
-	private static final Logger logger = LogManager.getLogger(EnteService.class);
+	private static final Logger logger = LogManager.getLogger(ExtratoEntregaService.class);
 
 	private static String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "cod_ibge", "populacao", "instituicao",
 			"entregavel", "periodo", "periodicidade", "status_relatorio", "data_status", "forma_envio", "tipo_relatorio" };
 	
 	private static String NOME_PADRAO_ARQUIVO_CSV = "D:\\extrato-entrega.csv";
+	
+	private EnteService enteService;
 	
 	public ExtratoEntregaService () {
 		super();
@@ -37,15 +40,18 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 			exibirDadosNaConsole(listaExtratoEntrega);
 			break;
 		case ARQUIVO:
-			String nomeArquivo = (filtroExtratoEntrega.getNomeArquivo() != null
-					&& !filtroExtratoEntrega.getNomeArquivo().trim().isEmpty()) ? filtroExtratoEntrega.getNomeArquivo()
-							: NOME_PADRAO_ARQUIVO_CSV;
+			String nomeArquivo = definirNomeArquivoCSV(filtroExtratoEntrega);
 			salvarArquivoCsv(listaExtratoEntrega, nomeArquivo);
 			break;
 		case BANCO:
 			salvarNoBancoDeDados(filtroExtratoEntrega, listaExtratoEntrega);
 			break;
 		}
+	}
+
+	private String definirNomeArquivoCSV(FiltroExtratoEntrega filtroExtratoEntrega) {
+		return !filtroExtratoEntrega.isNomeArquivoVazio() ? filtroExtratoEntrega.getNomeArquivo()
+						: NOME_PADRAO_ARQUIVO_CSV;
 	}
 
 	protected void salvarArquivoCsv(List<ExtratoEntrega> listaExtratoEntrega, String nomeArquivo) {
@@ -55,7 +61,8 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 	}
 
 	protected void salvarNoBancoDeDados(FiltroExtratoEntrega filtroExtratoEntrega, List<ExtratoEntrega> listaEntidades) {
-		if(listaEntidades == null || listaEntidades.isEmpty()) return;
+		if(Utils.isEmptyCollection(listaEntidades)) return;
+		
 		getEntityManager().getTransaction().begin();		
 		excluirExtratosEntrega(filtroExtratoEntrega);
 		persistir(listaEntidades);
@@ -68,13 +75,13 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 		logger.info("Excluindo dados do banco de dados...");
 		
 		StringBuilder queryBuilder = new StringBuilder("DELETE FROM ExtratoEntrega ee WHERE ee.exercicio IN (:exercicios) ");
-		if(filtroExtratoEntrega.getCodigosIBGE()!=null && !filtroExtratoEntrega.getCodigosIBGE().isEmpty()) {
+		if(filtroExtratoEntrega.isExisteCodigosIbge()) {
 			queryBuilder.append(" AND ee.cod_ibge IN (:codigosIbge)");
 		}
 		
 		Query query = getEntityManager().createQuery(queryBuilder.toString());
 		query.setParameter("exercicios", filtroExtratoEntrega.getExercicios());
-		if(filtroExtratoEntrega.getCodigosIBGE()!=null && !filtroExtratoEntrega.getCodigosIBGE().isEmpty()) {
+		if(filtroExtratoEntrega.isExisteCodigosIbge()) {
 			query.setParameter("codigosIbge", filtroExtratoEntrega.getCodigosIBGE());
 		}
 
@@ -95,17 +102,13 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 	public List<ExtratoEntrega> consultarNaApi(FiltroExtratoEntrega filtroExtratoEntrega){
 		
 		List<Integer> listaExercicios = (filtroExtratoEntrega.getExercicios()!=null?filtroExtratoEntrega.getExercicios():EXERCICIOS_DISPONIVEIS);
-		List<ExtratoEntrega> listaExtratos = new ArrayList<>();
+		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbge(filtroExtratoEntrega);
 		
-		for (Integer exercicio: listaExercicios) {
-			if(filtroExtratoEntrega.getCodigosIBGE()!=null && !filtroExtratoEntrega.getCodigosIBGE().isEmpty()) {
-				for(String codigoIbge: filtroExtratoEntrega.getCodigosIBGE()) {
-					List<ExtratoEntrega> listaExtratosParcial = consultarNaApi(exercicio, codigoIbge);	
-					listaExtratos.addAll(listaExtratosParcial);					
-				}				
-			} else {
-				// TODO
-				// Consultar baseado na Esfera e se não selecionada, consultar todos os extratos para Estados e Distrito
+		List<ExtratoEntrega> listaExtratos = new ArrayList<>();				
+		for (Integer exercicio : listaExercicios) {
+			for (String codigoIbge : listaCodigoIbge) {
+				List<ExtratoEntrega> listaExtratosParcial = consultarNaApi(exercicio, codigoIbge);
+				listaExtratos.addAll(listaExtratosParcial);
 			}
 		}
 		return listaExtratos;
@@ -125,7 +128,6 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 		}
 		
 		logger.debug("Tamanho da lista de extratos para o exercicio " + exercicio + ": " + listaExtratos.size());		
-		fecharContextoPersistencia();		
 		return listaExtratos;
 	}
 
@@ -146,5 +148,12 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 		long fim = System.currentTimeMillis();			
 		logger.debug("Tempo para consultar os entes na API:" + (fim -ini));	
 		return extratoEntregaResponse;
+	}
+	
+	private EnteService getEnteService() {
+		if(enteService == null) {
+			enteService = new EnteService();
+		}
+		return enteService;
 	}
 }

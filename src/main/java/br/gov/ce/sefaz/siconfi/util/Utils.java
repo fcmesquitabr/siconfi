@@ -2,6 +2,7 @@ package br.gov.ce.sefaz.siconfi.util;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Collection;
 import java.util.Locale;
 
 public class Utils {
@@ -18,8 +19,17 @@ public class Utils {
 
 	}
 	
+	public static boolean isStringVazia(String texto) {
+		return texto == null || texto.trim().isEmpty();
+	}
+	
 	public static String removerQuebrasLinha(String texto) {
 		if(texto == null) return null;
 		return texto.replaceAll("\n", "").replaceAll("\r", "");
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public static boolean isEmptyCollection(Collection collection) {
+		return collection == null || collection.isEmpty();
 	}
 }

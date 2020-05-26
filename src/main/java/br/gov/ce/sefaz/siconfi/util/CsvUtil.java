@@ -37,7 +37,7 @@ public class CsvUtil<T> {
 
 			StatefulBeanToCsvBuilder<T> builder = new StatefulBeanToCsvBuilder<>(writer);
 			StatefulBeanToCsv<T> beanWriter = builder.withMappingStrategy(mappingStrategy)
-					.withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+					.withSeparator("|".charAt(0))
 					.withLineEnd(CSVWriter.RFC4180_LINE_END)
 					.withEscapechar(CSVWriter.DEFAULT_ESCAPE_CHARACTER)
 					.withQuotechar(CSVWriter.DEFAULT_QUOTE_CHARACTER)

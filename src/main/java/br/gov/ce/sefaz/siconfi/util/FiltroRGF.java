@@ -2,13 +2,9 @@ package br.gov.ce.sefaz.siconfi.util;
 
 import java.util.List;
 
-import br.gov.ce.sefaz.siconfi.enums.Esfera;
-import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.enums.Poder;
 
-public class FiltroRGF {
-	
-	private List<Integer> exercicios;
+public class FiltroRGF extends FiltroBase {
 	
 	private List<Integer> quadrimestres;
 	
@@ -16,20 +12,16 @@ public class FiltroRGF {
 	
 	private List<Poder> listaPoderes;
 	
-	private Esfera esfera;
-	
-	private List<String> codigosIBGE;
-
-	private String nomeArquivo;
-
-	private OpcaoSalvamentoDados opcaoSalvamento;
-
-	public List<Integer> getExercicios() {
-		return exercicios;
+	public boolean isListaAnexosVazia() {
+		return Utils.isEmptyCollection(getListaAnexos());
 	}
 
-	public void setExercicios(List<Integer> exercicios) {
-		this.exercicios = exercicios;
+	public boolean isListaPoderesVazia() {
+		return Utils.isEmptyCollection(getListaPoderes());
+	}
+
+	public boolean isListaQuadrimestresVazia() {
+		return Utils.isEmptyCollection(getQuadrimestres());
 	}
 
 	public List<Integer> getQuadrimestres() {
@@ -54,37 +46,5 @@ public class FiltroRGF {
 
 	public void setListaPoderes(List<Poder> listaPoderes) {
 		this.listaPoderes = listaPoderes;
-	}
-
-	public Esfera getEsfera() {
-		return esfera;
-	}
-
-	public void setEsfera(Esfera esfera) {
-		this.esfera = esfera;
-	}
-
-	public List<String> getCodigosIBGE() {
-		return codigosIBGE;
-	}
-
-	public void setCodigosIBGE(List<String> codigosIBGE) {
-		this.codigosIBGE = codigosIBGE;
-	}
-
-	public String getNomeArquivo() {
-		return nomeArquivo;
-	}
-
-	public void setNomeArquivo(String nomeArquivo) {
-		this.nomeArquivo = nomeArquivo;
-	}
-
-	public OpcaoSalvamentoDados getOpcaoSalvamento() {
-		return opcaoSalvamento;
-	}
-
-	public void setOpcaoSalvamento(OpcaoSalvamentoDados opcaoSalvamento) {
-		this.opcaoSalvamento = opcaoSalvamento;
 	}
 }
