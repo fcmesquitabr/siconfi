@@ -13,16 +13,23 @@ import br.gov.ce.sefaz.siconfi.entity.AnexoRelatorio;
 import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.response.AnexoRelatorioResponse;
 import br.gov.ce.sefaz.siconfi.util.CsvUtil;
+import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio> {
 
 	private static final Logger logger = LogManager.getLogger(AnexoRelatorioService.class);
 	
+	private static String[] COLUNAS_ARQUIVO_CSV = new String[]{"esfera","demonstrativo","anexo"};
+	
+	private static String NOME_PADRAO_ARQUIVO_CSV = "anexos-relatorios.csv";
+	
+	private static String API_PATH_ANEXO_RELATORIO= "anexos-relatorios";
+	
 	public AnexoRelatorioService () {
 		super();
 	}
 	
-	public void carregarDados(OpcaoSalvamentoDados opcaoSalvamento) {
+	public void carregarDados(OpcaoSalvamentoDados opcaoSalvamento, String nomeArquivo) {
 		
 		List<AnexoRelatorio> listaAnexos = consultarNaApi();	
 		
@@ -31,7 +38,7 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio> {
 			exibirDadosNaConsole(listaAnexos);
 			break;
 		case ARQUIVO:
-			salvarArquivoCsv(listaAnexos);
+			salvarArquivoCsv(listaAnexos, definirNomeArquivoCSV(nomeArquivo));
 			break;
 		case BANCO:
 			salvarNoBancoDeDados(listaAnexos);
@@ -39,10 +46,14 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio> {
 		}
 	}
 
-	protected void salvarArquivoCsv(List<AnexoRelatorio> listaAnexos) {
+	private String definirNomeArquivoCSV(String nomeArquivo) {
+		return !Utils.isStringVazia(nomeArquivo) ? nomeArquivo : NOME_PADRAO_ARQUIVO_CSV;
+	}
+
+	protected void salvarArquivoCsv(List<AnexoRelatorio> listaAnexos, String nomeArquivo) {
 		logger.info("Salvando dados no arquivo CSV...");
 		CsvUtil<AnexoRelatorio> csvUtil = new CsvUtil<AnexoRelatorio>(AnexoRelatorio.class);
-		csvUtil.writeToCsvFile(listaAnexos, new String[]{"esfera","demonstrativo","anexo"} , "D:\\anexos-relatorios.csv");
+		csvUtil.writeToCsvFile(listaAnexos, COLUNAS_ARQUIVO_CSV , nomeArquivo);
 	}
 		
 	protected void excluirTodos() {
@@ -71,14 +82,14 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio> {
 	private AnexoRelatorioResponse obterResponseDaApi() {
 		long ini = System.currentTimeMillis();
 		
-		this.webTarget = this.client.target(URL_SERVICE).path("anexos-relatorios");
-		Invocation.Builder invocationBuilder = this.webTarget.request("application/json;charset=UTF-8");
-		logger.info("Fazendo get na API: " + this.webTarget.getUri().toString());
+		this.webTarget = this.client.target(URL_SERVICE).path(API_PATH_ANEXO_RELATORIO);
+		Invocation.Builder invocationBuilder = this.webTarget.request(API_RESPONSE_TYPE);
+		logger.info("Fazendo Get na API: " + this.webTarget.getUri().toString());
 		Response response = invocationBuilder.get();
 		AnexoRelatorioResponse anexoRelatorioResponse = response.readEntity(AnexoRelatorioResponse.class);
 		
 		long fim = System.currentTimeMillis();			
-		logger.debug("Tempo para consultar os entes na API:" + (fim -ini));
+		logger.debug("Tempo para consultar os anexos dos relatórios na API:" + (fim -ini));
 		return anexoRelatorioResponse;
 	}
 

@@ -31,6 +31,22 @@ public abstract class SiconfiService <T> {
  
 	public static final String URL_SERVICE = "http://apidatalake.tesouro.gov.br/ords/siconfi/tt/";
 
+	public static final String API_RESPONSE_TYPE = "application/json;charset=UTF-8";
+
+	public static final String API_QUERY_PARAM_AN_REFERENCIA = "an_referencia";
+
+	public static final String API_QUERY_PARAM_AN_EXERCICIO = "an_exercicio";
+
+	public static final String API_QUERY_PARAM_ID_ENTE = "id_ente"; 
+
+	public static final String API_QUERY_PARAM_NO_ANEXO = "no_anexo"; 
+
+	public static final String API_QUERY_PARAM_IN_PERIODICIDADE = "in_periodicidade"; 
+
+	public static final String API_QUERY_PARAM_NR_PERIODO = "nr_periodo"; 
+
+	public static final String API_QUERY_PARAM_CO_TIPO_DEMONSTRATIVO = "co_tipo_demonstrativo"; 
+
 	private EntityManagerFactory emf;
 	
 	private EntityManager em;

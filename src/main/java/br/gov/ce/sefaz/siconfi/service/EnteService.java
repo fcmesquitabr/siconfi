@@ -17,10 +17,17 @@ import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.response.EnteResponse;
 import br.gov.ce.sefaz.siconfi.util.CsvUtil;
 import br.gov.ce.sefaz.siconfi.util.FiltroBase;
+import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class EnteService extends SiconfiService <Ente>{
 
 	private static final Logger logger = LogManager.getLogger(EnteService.class);
+	
+	private static String[] COLUNAS_ARQUIVO_CSV = new String[]{"cod_ibge","ente","capital","regiao","uf","esfera","exercicio","populacao","cnpj"};
+	
+	private static String NOME_PADRAO_ARQUIVO_CSV = "entes.csv";
+	
+	private static String API_PATH_ENTES = "entes";
 	
 	public EnteService() {
 		super();
@@ -34,7 +41,7 @@ public class EnteService extends SiconfiService <Ente>{
 		return query.getResultList();		 
 	}
 
-	public void carregarDados(OpcaoSalvamentoDados opcaoSalvamento) {
+	public void carregarDados(OpcaoSalvamentoDados opcaoSalvamento, String nomeArquivo) {
 		
 		List<Ente> listaEntes = consultarNaApi();	
 		
@@ -43,7 +50,7 @@ public class EnteService extends SiconfiService <Ente>{
 			exibirDadosNaConsole(listaEntes);
 			break;
 		case ARQUIVO:
-			salvarArquivoCsv(listaEntes);
+			salvarArquivoCsv(listaEntes, definirNomeArquivoCSV(nomeArquivo));
 			break;
 		case BANCO:
 			salvarNoBancoDeDados(listaEntes);
@@ -51,10 +58,14 @@ public class EnteService extends SiconfiService <Ente>{
 		}
 	}
 
-	private void salvarArquivoCsv(List<Ente> listaEntes) {
+	private String definirNomeArquivoCSV(String nomeArquivo) {
+		return !Utils.isStringVazia(nomeArquivo) ? nomeArquivo : NOME_PADRAO_ARQUIVO_CSV;
+	}
+
+	private void salvarArquivoCsv(List<Ente> listaEntes, String nomeArquivo) {
 		logger.info("Salvando dados no arquivo CSV...");
 		CsvUtil<Ente> csvUtil = new CsvUtil<>(Ente.class);
-		csvUtil.writeToCsvFile(listaEntes, new String[]{"cod_ibge","ente","capital","regiao","uf","esfera","exercicio","populacao","cnpj"} , "D:\\entes.csv");
+		csvUtil.writeToCsvFile(listaEntes, COLUNAS_ARQUIVO_CSV, nomeArquivo);
 	}
 	
 	protected void excluirTodos() {
@@ -83,8 +94,8 @@ public class EnteService extends SiconfiService <Ente>{
 	private EnteResponse obterResponseDaApi() {
 		long ini = System.currentTimeMillis();
 		
-		this.webTarget = this.client.target(URL_SERVICE).path("entes");
-		Invocation.Builder invocationBuilder =  this.webTarget.request("application/json;charset=UTF-8"); 
+		this.webTarget = this.client.target(URL_SERVICE).path(API_PATH_ENTES);
+		Invocation.Builder invocationBuilder =  this.webTarget.request(API_RESPONSE_TYPE); 
 		logger.info("Fazendo get na API: " + this.webTarget.getUri().toString());
 		Response response = invocationBuilder.get();			
 		EnteResponse enteResponse = response.readEntity(EnteResponse.class);

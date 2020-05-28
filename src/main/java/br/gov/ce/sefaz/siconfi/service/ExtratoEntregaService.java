@@ -23,8 +23,10 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 	private static String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "cod_ibge", "populacao", "instituicao",
 			"entregavel", "periodo", "periodicidade", "status_relatorio", "data_status", "forma_envio", "tipo_relatorio" };
 	
-	private static String NOME_PADRAO_ARQUIVO_CSV = "D:\\extrato-entrega.csv";
+	private static String NOME_PADRAO_ARQUIVO_CSV = "extrato-entrega.csv";
 	
+	private static final String API_PATH_EXTRATO_ENTREGA = "entes";
+
 	private EnteService enteService;
 	
 	public ExtratoEntregaService () {
@@ -57,7 +59,7 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 	protected void salvarArquivoCsv(List<ExtratoEntrega> listaExtratoEntrega, String nomeArquivo) {
 		logger.info("Salvando dados no arquivo CSV...");
 		CsvUtil<ExtratoEntrega> csvUtil = new CsvUtil<ExtratoEntrega>(ExtratoEntrega.class);
-		csvUtil.writeToCsvFile(listaExtratoEntrega, COLUNAS_ARQUIVO_CSV , NOME_PADRAO_ARQUIVO_CSV);
+		csvUtil.writeToCsvFile(listaExtratoEntrega, COLUNAS_ARQUIVO_CSV , nomeArquivo);
 	}
 
 	protected void salvarNoBancoDeDados(FiltroExtratoEntrega filtroExtratoEntrega, List<ExtratoEntrega> listaEntidades) {
@@ -74,15 +76,17 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 	private void excluirExtratosEntrega(FiltroExtratoEntrega filtroExtratoEntrega) {
 		logger.info("Excluindo dados do banco de dados...");
 		
+		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbge(filtroExtratoEntrega);
+
 		StringBuilder queryBuilder = new StringBuilder("DELETE FROM ExtratoEntrega ee WHERE ee.exercicio IN (:exercicios) ");
-		if(filtroExtratoEntrega.isExisteCodigosIbge()) {
+		if(!Utils.isEmptyCollection(listaCodigoIbge)) {
 			queryBuilder.append(" AND ee.cod_ibge IN (:codigosIbge)");
 		}
 		
 		Query query = getEntityManager().createQuery(queryBuilder.toString());
 		query.setParameter("exercicios", filtroExtratoEntrega.getExercicios());
-		if(filtroExtratoEntrega.isExisteCodigosIbge()) {
-			query.setParameter("codigosIbge", filtroExtratoEntrega.getCodigosIBGE());
+		if(!Utils.isEmptyCollection(listaCodigoIbge)) {
+			query.setParameter("codigosIbge", listaCodigoIbge);
 		}
 
 		int i = query.executeUpdate();
@@ -109,6 +113,12 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 			for (String codigoIbge : listaCodigoIbge) {
 				List<ExtratoEntrega> listaExtratosParcial = consultarNaApi(exercicio, codigoIbge);
 				listaExtratos.addAll(listaExtratosParcial);
+				try {
+					//Segundo documentação da API, existe o limite de 1 requisição por segundo
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					logger.error(e);
+				}
 			}
 		}
 		return listaExtratos;
@@ -136,10 +146,10 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 		long ini = System.currentTimeMillis();
 		
 		this.webTarget = this.client.target(URL_SERVICE)
-				.path("extrato_entregas")
-				.queryParam("an_referencia", exercicio)
-				.queryParam("id_ente", codigoIbge);
-		Invocation.Builder invocationBuilder =  this.webTarget.request("application/json;charset=UTF-8"); 
+				.path(API_PATH_EXTRATO_ENTREGA)
+				.queryParam(API_QUERY_PARAM_AN_REFERENCIA, exercicio)
+				.queryParam(API_QUERY_PARAM_ID_ENTE, codigoIbge);
+		Invocation.Builder invocationBuilder =  this.webTarget.request(API_RESPONSE_TYPE); 
 		logger.info("Fazendo get na API: " + this.webTarget.getUri().toString());
 		
 		Response response = invocationBuilder.get();				

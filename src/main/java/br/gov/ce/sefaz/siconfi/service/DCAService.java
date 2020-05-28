@@ -30,6 +30,8 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 	
 	private static String NOME_PADRAO_ARQUIVO_CSV = "dca.csv";
 
+	private static final String API_PATH_DCA = "dca";
+
 	private EnteService enteService;
 
 	public DCAService() {
@@ -79,7 +81,9 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 		logger.info("Excluindo dados do banco de dados...");
 		
 		StringBuilder queryBuilder = new StringBuilder("DELETE FROM DeclaracaoContasAnuais dca WHERE dca.exercicio IN (:exercicios) ");
-		if(filtro.isExisteCodigosIbge()) {
+
+		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbge(filtro);
+		if(!Utils.isEmptyCollection(listaCodigoIbge)) {
 			queryBuilder.append(" AND dca.cod_ibge IN (:codigosIbge)");
 		}
 		if(!filtro.isListaAnexosVazia()) {
@@ -88,11 +92,12 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 		
 		Query query = getEntityManager().createQuery(queryBuilder.toString());
 		query.setParameter("exercicios", filtro.getExercicios());
-		if(filtro.isExisteCodigosIbge()) {
-			query.setParameter("codigosIbge", filtro.getCodigosIBGE());
+		
+		if(!Utils.isEmptyCollection(listaCodigoIbge)) {
+			query.setParameter("codigosIbge", listaCodigoIbge);
 		}
 		if(!filtro.isListaAnexosVazia()) {
-			query.setParameter("listaAnexos", filtro.getCodigosIBGE());
+			query.setParameter("listaAnexos", filtro.getListaAnexos());
 		}
 
 		int i = query.executeUpdate();
@@ -127,7 +132,13 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 			for(String codigoIbge: listaCodigoIbge) {
 				for (String anexo: listaAnexos) {
 					List<DeclaracaoContasAnuais> listaDCAParcial = consultarNaApi(exercicio,anexo, codigoIbge);	
-					listaDCA.addAll(listaDCAParcial);											
+					listaDCA.addAll(listaDCAParcial);
+					try {
+						//Segundo documentação da API, existe o limite de 1 requisição por segundo
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						logger.error(e);
+					}
 				}
 			}				
 		}
@@ -161,11 +172,11 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 
 		long ini = System.currentTimeMillis();
 
-		this.webTarget = this.client.target(URL_SERVICE).path("dca")
-				.queryParam("an_exercicio", exercicio)
-				.queryParam("no_anexo", anexo.replaceAll(" ", "%20"))
-				.queryParam("id_ente", codigoIbge);
-		Invocation.Builder invocationBuilder = this.webTarget.request("application/json;charset=UTF-8");
+		this.webTarget = this.client.target(URL_SERVICE).path(API_PATH_DCA)
+				.queryParam(API_QUERY_PARAM_AN_EXERCICIO, exercicio)
+				.queryParam(API_QUERY_PARAM_NO_ANEXO, anexo.replaceAll(" ", "%20"))
+				.queryParam(API_QUERY_PARAM_ID_ENTE, codigoIbge);
+		Invocation.Builder invocationBuilder = this.webTarget.request(API_RESPONSE_TYPE);
 		logger.info("Get na API: " + this.webTarget.getUri().toString());
 		Response response = invocationBuilder.get();
 		DeclaracaoContasAnuaisResponse dcaResponse = response.readEntity(DeclaracaoContasAnuaisResponse.class);
