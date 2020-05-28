@@ -13,6 +13,7 @@ import br.gov.ce.sefaz.siconfi.service.SiconfiService;
 import br.gov.ce.sefaz.siconfi.util.FiltroDCA;
 import br.gov.ce.sefaz.siconfi.util.FiltroExtratoEntrega;
 import br.gov.ce.sefaz.siconfi.util.FiltroRGF;
+import br.gov.ce.sefaz.siconfi.util.FiltroRREO;
 import br.gov.ce.sefaz.siconfi.util.LeitorParametrosPrograma;
 
 public class ClientRestServiceMain {
@@ -30,15 +31,15 @@ public class ClientRestServiceMain {
 		}
 		
 		switch (LeitorParametrosPrograma.getRelatorioSelecionado()) {
-		case anexos_relatorios:
+		case anexo_relatorio:
 			logger.info("Carregando dados dos anexos de relatorios...");
 			carregarAnexosRelatorios();
 			break;
-		case entes:
+		case ente:
 			logger.info("Carregando dados dos Entes da Federação...");
 			carregarEntes();
 			break;
-		case extrato_entregas:
+		case extrato_entrega:
 			logger.info("Carregando dados dos Extratos de Entregas dos Relatórios...");
 			carregarExtratosEntregas();
 			break;
@@ -59,16 +60,19 @@ public class ClientRestServiceMain {
 			break;
 		}	
 		logger.info("Fim.");
+		System.exit(0);
 	}
 
 	private static void carregarAnexosRelatorios() {
 		AnexoRelatorioService anexoRelatorioService = new AnexoRelatorioService();
-		anexoRelatorioService.carregarDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada());
+		anexoRelatorioService.carregarDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada(),
+				LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado());
 	}
 
 	private static void carregarEntes() {
 		EnteService enteService = new EnteService();
-		enteService.carregarDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada());
+		enteService.carregarDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada(),
+				LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado());
 	}
 
 	private static void carregarExtratosEntregas() {
@@ -85,8 +89,18 @@ public class ClientRestServiceMain {
 	}
 	
 	private static void carregarDadosRREO() {
+
+		FiltroRREO filtro = new FiltroRREO();
+		filtro.setOpcaoSalvamento(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada());
+		filtro.setNomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado());
+		filtro.setEsfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada());
+		filtro.setExercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados());
+		filtro.setSemestres(LeitorParametrosPrograma.getOpcaoPeriodosSelecionados());
+		filtro.setCodigosIBGE(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados());		
+		filtro.setListaAnexos(LeitorParametrosPrograma.getOpcaoAnexosSelecionados());		
+
 		RREOService rreoService = new RREOService();
-		rreoService.carregarRelatorioResumidoExecucaoOrcamentariaNaBaseDeDados(false);		
+		rreoService.carregarDados(filtro);		
 	}
 	
 	private static void carregarDadosRGF() {
@@ -123,7 +137,7 @@ public class ClientRestServiceMain {
 		System.out.println("Escolha os seguintes valores para as opções do programa:");
 		System.out.println("");
 		System.out.println("Opção -Drelatorio (Obrigatório) ");
-		System.out.println("\t Valores possíveis: anexos_relatorios, entes, extrato_entregas, rreo, rgf, dca. Exemplo: -Drelatorio=rreo");
+		System.out.println("\t Valores possíveis: anexo_relatorio, ente, extrato_entrega, rreo, rgf, dca. Exemplo: -Drelatorio=rreo");
 		System.out.println("Opção -DsaidaDados (Opcional. Valor padrão ARQUIVO) ");
 		System.out.println("\t Valores possíveis: BANCO, ARQUIVO, CONSOLE");
 		System.out.println("Opção -DcaminhoArquivo (Opcional. Válido quando a opção de saída de dados é ARQUIVO) ");
