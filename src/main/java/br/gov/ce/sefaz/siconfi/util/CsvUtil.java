@@ -43,7 +43,7 @@ public class CsvUtil<T> {
 					.withQuotechar(CSVWriter.DEFAULT_QUOTE_CHARACTER)
 					.build();
 
-			writer.write(String.join(",", columns));
+			writer.write(String.join("|", columns));
 			writer.write("\r\n");
 			beanWriter.write(listaEntidades);
 		} catch (Exception e) {
