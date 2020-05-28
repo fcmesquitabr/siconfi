@@ -101,7 +101,7 @@ public class LeitorParametrosPrograma {
 	private static void lerArgumentoOpcaoPoder() {
 		String opcao = System.getProperty(OPCAO_PODER);
 		if (opcao == null) {
-			opcaoPoderesSelecionados = Arrays.asList(Poder.EXECUTIVO);
+			opcaoPoderesSelecionados = Arrays.asList(Poder.values());
 		} else {
 			String[] poderes = opcao.split(",");
 			opcaoPoderesSelecionados = new ArrayList<Poder>();
@@ -164,7 +164,7 @@ public class LeitorParametrosPrograma {
 		} catch (Exception e) {
 			logger.error("Erro ao ler parâmetro período");
 			logger.error(e);
-			throw new IllegalArgumentException("Opção de Exercício inválida");
+			throw new IllegalArgumentException("Opção de Períodos inválida");
 		}
 	}
 
