@@ -6,3 +6,5 @@ target/
 *.tmp
 *.bak
 *.swp
+*.log
+*.csv
