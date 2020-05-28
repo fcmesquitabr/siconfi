@@ -2,9 +2,9 @@ package br.gov.ce.sefaz.siconfi.enums;
 
 public enum Relatorio {
 	
-	anexos_relatorios,
-	entes,
-	extrato_entregas,
+	anexo_relatorio,
+	ente,
+	extrato_entrega,
 	rreo,
 	rgf,
 	dca;
