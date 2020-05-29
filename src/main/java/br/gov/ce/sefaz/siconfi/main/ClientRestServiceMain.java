@@ -7,11 +7,13 @@ import br.gov.ce.sefaz.siconfi.service.AnexoRelatorioService;
 import br.gov.ce.sefaz.siconfi.service.DCAService;
 import br.gov.ce.sefaz.siconfi.service.EnteService;
 import br.gov.ce.sefaz.siconfi.service.ExtratoEntregaService;
+import br.gov.ce.sefaz.siconfi.service.MSCService;
 import br.gov.ce.sefaz.siconfi.service.RGFService;
 import br.gov.ce.sefaz.siconfi.service.RREOService;
 import br.gov.ce.sefaz.siconfi.service.SiconfiService;
 import br.gov.ce.sefaz.siconfi.util.FiltroDCA;
 import br.gov.ce.sefaz.siconfi.util.FiltroExtratoEntrega;
+import br.gov.ce.sefaz.siconfi.util.FiltroMSC;
 import br.gov.ce.sefaz.siconfi.util.FiltroRGF;
 import br.gov.ce.sefaz.siconfi.util.FiltroRREO;
 import br.gov.ce.sefaz.siconfi.util.LeitorParametrosPrograma;
@@ -54,6 +56,10 @@ public class ClientRestServiceMain {
 		case dca:
 			logger.info("Carregando dados do relatório DCA...");
 			carregarDadosDCA();
+			break;
+		case msc_patrimonial:
+			logger.info("Carregando dados do relatório MSC Patrimonial...");
+			carregarDadosMSCPatrimonial();
 			break;
 		default:
 			exibirMensagemAjuda();
@@ -133,29 +139,57 @@ public class ClientRestServiceMain {
 		dcaService.carregarDados(filtro);		
 	}
 
+	private static void carregarDadosMSCPatrimonial() {
+		
+		FiltroMSC filtro = new FiltroMSC();
+		filtro.setOpcaoSalvamento(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada());
+		filtro.setNomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado());
+		filtro.setExercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados());
+		filtro.setMeses(LeitorParametrosPrograma.getOpcaoPeriodosSelecionados());
+		filtro.setCodigosIBGE(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados());		
+		filtro.setTipoMatrizSaldoContabeis(LeitorParametrosPrograma.getOpcaoTipoMatrizSelecionado());		
+		filtro.setListaClasseConta(LeitorParametrosPrograma.getOpcaoClassesContasSelecionadas());		
+		filtro.setListaTipoValor(LeitorParametrosPrograma.getOpcaoTiposValorMatrizSelecionado());		
+
+		MSCService mscService = new MSCService();
+		mscService.carregarDados(filtro);		
+	}
+
 	private static void exibirMensagemAjuda() {
 		System.out.println("Escolha os seguintes valores para as opções do programa:");
 		System.out.println("");
 		System.out.println("Opção -Drelatorio (Obrigatório) ");
-		System.out.println("\t Valores possíveis: anexo_relatorio, ente, extrato_entrega, rreo, rgf, dca. Exemplo: -Drelatorio=rreo");
+		System.out.println("\t Valores possíveis: anexo_relatorio, ente, extrato_entrega, rreo, rgf, dca, msc_patrimonial, msc_orcamentaria, msc_controle. Exemplo: -Drelatorio=rreo");
 		System.out.println("Opção -DsaidaDados (Opcional. Valor padrão ARQUIVO) ");
 		System.out.println("\t Valores possíveis: BANCO, ARQUIVO, CONSOLE");
-		System.out.println("Opção -DcaminhoArquivo (Opcional. Válido quando a opção de saída de dados é ARQUIVO) ");
+		System.out.println("Opção -DcaminhoArquivo (Opcional. Considerada apenas quando a opção de saída de dados é ARQUIVO) ");
 		System.out.println("\t Exemplo: -DcaminhoArquivo=\"C:\\nome_do_arquivo.csv\"");		
-		System.out.println("Opção -Dexercicios (Opcional. Valor padrão " + SiconfiService.EXERCICIOS_DISPONIVEIS + ") ");
+		System.out.println("Opção -Dexercicios (Opcional. Valor padrão: " + SiconfiService.EXERCICIOS_DISPONIVEIS + ") ");
 		System.out.println("\t Valores possíveis: lista de exercício separados por vírgula. Exemplo: -Dexercicios=2020,2019");
-		System.out.println("Opção -Dperiodos (Opcional. Usada apenas para RREO e DCA. Valor Padrão para RREO: "
-				+ SiconfiService.BIMESTRES + ". Valor Padrão para RGF: " + SiconfiService.QUADRIMESTRES + ") ");
+		System.out.println("Opção -Dperiodos (Opcional. Considerada apenas para RREO, RGF e MSC. Valor Padrão para RREO: "
+				+ SiconfiService.BIMESTRES + ". Valor Padrão para RGF: " + SiconfiService.QUADRIMESTRES + ". Valor Padrão para MSC: " + SiconfiService.MESES +") ");
 		System.out.println("\t Valores possíveis: lista de periodos (bimestres, quadrimestres) separados por vírgula. Exemplo: -Dperiodos=1,2,3");
-		System.out.println("Opção -Desfera (Opcional). Caso seja utilizada a opção -Dente, essa opção é desconsiderada");
+		System.out.println("Opção -Desfera (Opcional). Valor padrão: ED. Caso seja utilizada a opção -Dente, essa opção é desconsiderada");
 		System.out.println("\t Valores possíveis: Esfera dos entes da Federação. Valores: U - União, E - Estados, D - Distrito Federal, "
 				+ "ED - Estados e Distrito Federal, M - Municípios. Exemplo: -Desfera=E");
 		System.out.println("Opção -Dentes (Opcional)");
-		System.out.println("\t Valores possíveis: lista de códigos ibge dos entes (Pode ser obtido com a opção -Drelatorio=entes) seprados por vírgula. Exemplo (Piauí, Ceará): -Dentes=22,23");
-		System.out.println("Opção -Dpoder (Opcional. Válido para RGF. Caso não especificado, serão consultados todos os poderes)");
+		System.out.println("\t Valores possíveis: lista de códigos ibge dos entes (Pode ser obtido com a opção -Drelatorio=entes) separados por vírgula. Exemplo (Piauí, Ceará): -Dentes=22,23");
+		System.out.println("Opção -Dpoder (Opcional. Válido para apenas RGF. Caso não especificado, serão consultados todos os poderes)");
 		System.out.println("\t Valores possíveis: lista de poderes separados por vírgula. Valores E - Executivo, L - Legislativo, "
 				+ "J - Juciário, M - Ministério Público, D - Defensoria Pública. Exemplo (Executivo, Judiciário): -Dpoder=E,J");
-		System.out.println("Opção -Danexos (Opcional. Caso não especificado, serão consultados todos os anexos) ");
+		System.out.println("Opção -DclassesConta (Classes da Conta Contábil. Opcional e válida apenas para os relatórios MSC. Caso não especificado, serão consultados todas as classes");
+		System.out.println("\t Valores possíveis: lista de anexos separados por vírgula.");
+		System.out.println("\t\t Para MSC Patrimonial: Classes 1, 2, 3 e 4");
+		System.out.println("\t\t Para MSC Orçamentária: Classes 5 e 6");
+		System.out.println("\t\t Para MSC Controle: Classes 7 e 8");
+		System.out.println("\t Exemplo: -DclassesConta=1,3");
+		System.out.println("Opção -DtipoMatriz (Tipo de Matriz. Opcional e válida apenas para os relatórios MSC. Valor padrão: MSCC) ");
+		System.out.println("\t Valores possíveis: MSCC - Matriz de Saldo Contábeis Mensal ou Agregada e MSCE - Matriz de Saldo Contábeis de Encerramento do Exercício.");
+		System.out.println("\t Exemplo: -DtipoMatriz=MSCC");
+		System.out.println("Opção -DtiposValorMatriz (Tipo de Valor da Matriz. Opcional e válida apenas para os relatórios MSC. Caso não especificado, serão consultados todos os tipos de valores) ");
+		System.out.println("\t Valores possíveis: beginning_balance, ending_balance e period_change.");
+		System.out.println("\t Exemplo: -DtiposValorMatriz=ending_balance,period_change");
+		System.out.println("Opção -Danexos (Opcional e válida apenas para os relatórios DCA, RGF e RREO Caso não especificada, serão consultados todos os anexos) ");
 		System.out.println("\t Valores possíveis: lista de anexos separados por vírgula e ENTRE ASPAS.");
 		System.out.println("\t\t Para RREO: RREO-Anexo 01, RREO-Anexo 02, RREO-Anexo 03, \n" + 
 				"\t\t\t RREO-Anexo 04, RREO-Anexo 04 - RGPS, RREO-Anexo 04 - RPPS, RREO-Anexo 04.0 - RGPS,\n" + 

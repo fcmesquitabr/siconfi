@@ -18,13 +18,21 @@ public abstract class SiconfiService <T> {
 	private static final Logger logger = LogManager.getLogger(SiconfiService.class);
 	
 	public static final List<Integer> EXERCICIOS_DISPONIVEIS = Arrays.asList(2020);
+
+	public static final List<Integer> MESES = Arrays.asList(1); //1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+
+	public static final List<Integer> BIMESTRES = Arrays.asList(1); //1, 2, 3, 4, 5, 6
 	
-	public static final List<Integer> BIMESTRES = Arrays.asList(1);//1, 2, 3, 4, 5, 6);
-	
-	public static final List<Integer> QUADRIMESTRES = Arrays.asList(1); //1,2,3
+	public static final List<Integer> QUADRIMESTRES = Arrays.asList(1); //1, 2, 3
 	
 	public static final List<Integer> SEMESTRES = Arrays.asList(1, 2);
-	
+
+	public static final List<Integer> CLASSES_CONTAS_PATRIMONIAIS = Arrays.asList(1, 2, 3, 4);
+
+	public static final List<Integer> CLASSES_CONTAS_ORCAMENTARIAS = Arrays.asList(5, 6);
+
+	public static final List<Integer> CLASSES_CONTAS_CONTROLE = Arrays.asList(7, 8);
+
 	protected Client client;
 	 
 	protected WebTarget webTarget;
@@ -34,6 +42,8 @@ public abstract class SiconfiService <T> {
 	public static final String API_RESPONSE_TYPE = "application/json;charset=UTF-8";
 
 	public static final String API_QUERY_PARAM_AN_REFERENCIA = "an_referencia";
+
+	public static final String API_QUERY_PARAM_ME_REFERENCIA = "me_referencia";
 
 	public static final String API_QUERY_PARAM_AN_EXERCICIO = "an_exercicio";
 
@@ -46,6 +56,12 @@ public abstract class SiconfiService <T> {
 	public static final String API_QUERY_PARAM_NR_PERIODO = "nr_periodo"; 
 
 	public static final String API_QUERY_PARAM_CO_TIPO_DEMONSTRATIVO = "co_tipo_demonstrativo"; 
+
+	public static final String API_QUERY_PARAM_CO_TIPO_MATRIZ = "co_tipo_matriz"; 
+
+	public static final String API_QUERY_PARAM_CLASSE_CONTA = "classe_conta"; 
+
+	public static final String API_QUERY_PARAM_ID_TV = "id_tv"; 
 
 	private EntityManagerFactory emf;
 	

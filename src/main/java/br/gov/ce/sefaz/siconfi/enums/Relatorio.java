@@ -7,5 +7,8 @@ public enum Relatorio {
 	extrato_entrega,
 	rreo,
 	rgf,
-	dca;
+	dca,
+	msc_patrimonial,
+	msc_orcamentaria,
+	msc_controle;
 }
