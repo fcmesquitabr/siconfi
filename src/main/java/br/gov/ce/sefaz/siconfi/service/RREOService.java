@@ -76,7 +76,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		StringBuilder queryBuilder = new StringBuilder(
 				"DELETE FROM RelatorioResumidoExecucaoOrcamentaria rreo WHERE rreo.exercicio IN (:exercicios) ");
 
-		if (!filtro.isListaSemestresVazia()) {
+		if (!filtro.isListaPeriodosVazia()) {
 			queryBuilder.append(" AND rreo.periodo IN (:periodos)");
 		}
 
@@ -92,8 +92,8 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		Query query = getEntityManager().createQuery(queryBuilder.toString());
 		query.setParameter("exercicios", filtro.getExercicios());
 
-		if (!filtro.isListaSemestresVazia()) {
-			query.setParameter("periodos", filtro.getSemestres());
+		if (!filtro.isListaPeriodosVazia()) {
+			query.setParameter("periodos", filtro.getPeriodos());
 		}
 		if (!Utils.isEmptyCollection(listaCodigoIbge)) {
 			query.setParameter("codigosIbge", listaCodigoIbge);
@@ -140,8 +140,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 
 	private List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi(FiltroRREO filtro, Integer exercicio) {
 
-		List<Integer> listaSemestres = !filtro.isListaSemestresVazia() ? filtro.getSemestres()
-				: SEMESTRES;
+		List<Integer> listaSemestres = !filtro.isListaPeriodosVazia() ? filtro.getPeriodos() : SEMESTRES;
 		List<RelatorioResumidoExecucaoOrcamentaria> listaRREO = new ArrayList<>();
 
 		for (Integer semestre: listaSemestres) {

@@ -6,8 +6,6 @@ import br.gov.ce.sefaz.siconfi.enums.Poder;
 
 public class FiltroRGF extends FiltroBase {
 	
-	private List<Integer> quadrimestres;
-	
 	private List<String> listaAnexos;
 	
 	private List<Poder> listaPoderes;
@@ -18,18 +16,6 @@ public class FiltroRGF extends FiltroBase {
 
 	public boolean isListaPoderesVazia() {
 		return Utils.isEmptyCollection(getListaPoderes());
-	}
-
-	public boolean isListaQuadrimestresVazia() {
-		return Utils.isEmptyCollection(getQuadrimestres());
-	}
-
-	public List<Integer> getQuadrimestres() {
-		return quadrimestres;
-	}
-
-	public void setQuadrimestres(List<Integer> quadrimestres) {
-		this.quadrimestres = quadrimestres;
 	}
 
 	public List<String> getListaAnexos() {
@@ -48,7 +34,6 @@ public class FiltroRGF extends FiltroBase {
 		this.listaPoderes = listaPoderes;
 	}
 	
-	
 	public FiltroRGF() {
 		super();
 	}
@@ -56,14 +41,12 @@ public class FiltroRGF extends FiltroBase {
 	public FiltroRGF(Builder builder) {
 		super(builder);
 		this.listaAnexos = builder.listaAnexos;
-		this.quadrimestres = builder.quadrimestres;
 		this.listaPoderes = builder.listaPoderes;
 	}
 
 
 	public static class Builder extends FiltroBase.Builder<Builder> {
 		
-		private List<Integer> quadrimestres;		
 		private List<String> listaAnexos;		
 		private List<Poder> listaPoderes;
 		
@@ -71,11 +54,6 @@ public class FiltroRGF extends FiltroBase {
 		
 		public Builder listaAnexos(List<String> listaAnexos) {
 			this.listaAnexos = listaAnexos;
-			return this;
-		}
-
-		public Builder quadrimestres(List<Integer> listaQuadrimestres) {
-			this.quadrimestres= listaQuadrimestres;
 			return this;
 		}
 

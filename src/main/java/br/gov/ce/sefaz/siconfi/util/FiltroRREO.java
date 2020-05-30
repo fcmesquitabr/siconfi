@@ -4,16 +4,14 @@ import java.util.List;
 
 public class FiltroRREO extends FiltroBase {
 	
-	private List<Integer> semestres;
-	
 	private List<String> listaAnexos;
 	
-	public boolean isListaAnexosVazia() {
-		return Utils.isEmptyCollection(getListaAnexos());
+	public FiltroRREO() {
+		super();
 	}
 
-	public boolean isListaSemestresVazia() {
-		return Utils.isEmptyCollection(getSemestres());
+	public boolean isListaAnexosVazia() {
+		return Utils.isEmptyCollection(getListaAnexos());
 	}
 
 	public List<String> getListaAnexos() {
@@ -23,12 +21,26 @@ public class FiltroRREO extends FiltroBase {
 	public void setListaAnexos(List<String> listaAnexos) {
 		this.listaAnexos = listaAnexos;
 	}
-
-	public List<Integer> getSemestres() {
-		return semestres;
+	
+	protected FiltroRREO(Builder builder) {
+		super(builder);
+		this.listaAnexos = builder.listaAnexos;
+	}
+	
+	public static class Builder extends FiltroBase.Builder<Builder> {
+		
+		private List<String> listaAnexos;
+		
+		public Builder() {}
+		
+		public Builder listaAnexos(List<String> listaAnexos) {
+			this.listaAnexos = listaAnexos;
+			return this;
+		}
+		
+		public FiltroRREO build() {
+			return new FiltroRREO(this);
+		}
 	}
 
-	public void setSemestres(List<Integer> semestres) {
-		this.semestres = semestres;
-	}
 }

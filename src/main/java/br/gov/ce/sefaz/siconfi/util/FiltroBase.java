@@ -8,6 +8,8 @@ import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 public class FiltroBase {
 	
 	private List<Integer> exercicios;
+	
+	private List<Integer> periodos;
 
 	private Esfera esfera;
 	
@@ -28,7 +30,11 @@ public class FiltroBase {
 	public boolean isListaExerciciosVazia() {
 		return Utils.isEmptyCollection(getExercicios());
 	}
-	
+
+	public boolean isListaPeriodosVazia() {
+		return Utils.isEmptyCollection(getPeriodos());
+	}
+
 	public boolean isExisteCodigosIbge() {
 		return !Utils.isEmptyCollection(getCodigosIBGE());
 	}
@@ -39,6 +45,14 @@ public class FiltroBase {
 
 	public void setExercicios(List<Integer> exercicios) {
 		this.exercicios = exercicios;
+	}
+
+	public List<Integer> getPeriodos() {
+		return periodos;
+	}
+
+	public void setPeriodos(List<Integer> periodos) {
+		this.periodos = periodos;
 	}
 
 	public Esfera getEsfera() {
@@ -76,6 +90,7 @@ public class FiltroBase {
 	public static class Builder<T extends Builder<T>> {
 
 		private List<Integer> exercicios;
+		private List<Integer> periodos;
 		private Esfera esfera;
 		private List<String> codigosIBGE;
 		private OpcaoSalvamentoDados opcaoSalvamento;
@@ -87,6 +102,12 @@ public class FiltroBase {
 			return (T) this;
 		}
 		
+		@SuppressWarnings("unchecked")
+		public T periodos (List<Integer> periodos) {
+			this.periodos = periodos;
+			return (T) this;
+		}
+
 		@SuppressWarnings("unchecked")
 		public T esfera (Esfera esfera) {
 			this.esfera = esfera;
@@ -120,6 +141,7 @@ public class FiltroBase {
 		this.codigosIBGE = builder.codigosIBGE;
 		this.esfera = builder.esfera;
 		this.exercicios = builder.exercicios;
+		this.periodos = builder.periodos;
 		this.nomeArquivo = builder.nomeArquivo;
 		this.opcaoSalvamento = builder.opcaoSalvamento;
 	}

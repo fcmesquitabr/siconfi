@@ -11,7 +11,9 @@ import br.gov.ce.sefaz.siconfi.service.MSCService;
 import br.gov.ce.sefaz.siconfi.service.RGFService;
 import br.gov.ce.sefaz.siconfi.service.RREOService;
 import br.gov.ce.sefaz.siconfi.service.SiconfiService;
+import br.gov.ce.sefaz.siconfi.util.FiltroAnexoRelatorio;
 import br.gov.ce.sefaz.siconfi.util.FiltroDCA;
+import br.gov.ce.sefaz.siconfi.util.FiltroEnte;
 import br.gov.ce.sefaz.siconfi.util.FiltroExtratoEntrega;
 import br.gov.ce.sefaz.siconfi.util.FiltroMSC;
 import br.gov.ce.sefaz.siconfi.util.FiltroRGF;
@@ -69,16 +71,25 @@ public class ClientRestServiceMain {
 		System.exit(0);
 	}
 
-	private static void carregarAnexosRelatorios() {
-		AnexoRelatorioService anexoRelatorioService = new AnexoRelatorioService();
-		anexoRelatorioService.carregarDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada(),
-				LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado());
+	private static void carregarEntes() {
+
+		FiltroEnte filtroEnte = new FiltroEnte.Builder()
+				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
+				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
+				.build();
+
+		EnteService enteService = new EnteService();
+		enteService.carregarDados(filtroEnte);
 	}
 
-	private static void carregarEntes() {
-		EnteService enteService = new EnteService();
-		enteService.carregarDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada(),
-				LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado());
+	private static void carregarAnexosRelatorios() {
+		
+		FiltroAnexoRelatorio filtroAnexoRelatorio = new FiltroAnexoRelatorio.Builder()
+				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
+				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
+				.build();
+		AnexoRelatorioService anexoRelatorioService = new AnexoRelatorioService();		
+		anexoRelatorioService.carregarDados(filtroAnexoRelatorio);
 	}
 
 	private static void carregarExtratosEntregas() {
@@ -94,39 +105,7 @@ public class ClientRestServiceMain {
 		ExtratoEntregaService extratoEntregaService = new ExtratoEntregaService();
 		extratoEntregaService.carregarDados(filtroExtratoEntrega);
 	}
-	
-	private static void carregarDadosRGF() {
-		
-		FiltroRGF filtro = new FiltroRGF.Builder()
-				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
-				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
-				.esfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada())
-				.listaPoderes(LeitorParametrosPrograma.getOpcaoPoderesSelecionados())
-				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
-				.quadrimestres(LeitorParametrosPrograma.getOpcaoPeriodosSelecionados())
-				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
-				.listaAnexos(LeitorParametrosPrograma.getOpcaoAnexosSelecionados())
-				.build();		
-		
-		RGFService rgfService = new RGFService();
-		rgfService.carregarDados(filtro);		
-	}
-	
-	private static void carregarDadosRREO() {
-		
-		FiltroRREO filtro = new FiltroRREO();
-		filtro.setOpcaoSalvamento(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada());
-		filtro.setNomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado());
-		filtro.setEsfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada());
-		filtro.setExercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados());
-		filtro.setSemestres(LeitorParametrosPrograma.getOpcaoPeriodosSelecionados());
-		filtro.setCodigosIBGE(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados());		
-		filtro.setListaAnexos(LeitorParametrosPrograma.getOpcaoAnexosSelecionados());		
-		
-		RREOService rreoService = new RREOService();
-		rreoService.carregarDados(filtro);		
-	}
-	
+
 	private static void carregarDadosDCA() {
 		
 		FiltroDCA filtro = new FiltroDCA.Builder()
@@ -142,17 +121,51 @@ public class ClientRestServiceMain {
 		dcaService.carregarDados(filtro);		
 	}
 
+	private static void carregarDadosRGF() {
+		
+		FiltroRGF filtro = new FiltroRGF.Builder()
+				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
+				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
+				.esfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada())
+				.listaPoderes(LeitorParametrosPrograma.getOpcaoPoderesSelecionados())
+				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
+				.periodos(LeitorParametrosPrograma.getOpcaoPeriodosSelecionados())
+				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
+				.listaAnexos(LeitorParametrosPrograma.getOpcaoAnexosSelecionados())
+				.build();		
+		
+		RGFService rgfService = new RGFService();
+		rgfService.carregarDados(filtro);		
+	}
+	
+	private static void carregarDadosRREO() {
+		
+		FiltroRREO filtro = new FiltroRREO.Builder()
+				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
+				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
+				.esfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada())
+				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
+				.periodos(LeitorParametrosPrograma.getOpcaoPeriodosSelecionados())
+				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
+				.listaAnexos(LeitorParametrosPrograma.getOpcaoAnexosSelecionados())
+				.build();		
+		
+		RREOService rreoService = new RREOService();
+		rreoService.carregarDados(filtro);		
+	}
+	
 	private static void carregarDadosMSCPatrimonial() {
 		
-		FiltroMSC filtro = new FiltroMSC();
-		filtro.setOpcaoSalvamento(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada());
-		filtro.setNomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado());
-		filtro.setExercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados());
-		filtro.setMeses(LeitorParametrosPrograma.getOpcaoPeriodosSelecionados());
-		filtro.setCodigosIBGE(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados());		
-		filtro.setTipoMatrizSaldoContabeis(LeitorParametrosPrograma.getOpcaoTipoMatrizSelecionado());		
-		filtro.setListaClasseConta(LeitorParametrosPrograma.getOpcaoClassesContasSelecionadas());		
-		filtro.setListaTipoValor(LeitorParametrosPrograma.getOpcaoTiposValorMatrizSelecionado());		
+		FiltroMSC filtro = new FiltroMSC.Builder()
+				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
+				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
+				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
+				.periodos(LeitorParametrosPrograma.getOpcaoPeriodosSelecionados())
+				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
+				.tipoMatrizSaldoContabeis(LeitorParametrosPrograma.getOpcaoTipoMatrizSelecionado())
+				.listaClasseConta(LeitorParametrosPrograma.getOpcaoClassesContasSelecionadas())
+				.listaTipoValor(LeitorParametrosPrograma.getOpcaoTiposValorMatrizSelecionado())
+				.build();		
 
 		MSCService mscService = new MSCService();
 		mscService.carregarDados(filtro);		

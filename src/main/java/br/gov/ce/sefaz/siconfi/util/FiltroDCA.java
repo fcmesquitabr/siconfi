@@ -6,7 +6,6 @@ public class FiltroDCA extends FiltroBase {
 
 	private List<String> listaAnexos;
 
-	
 	public FiltroDCA() {
 		super();
 	}

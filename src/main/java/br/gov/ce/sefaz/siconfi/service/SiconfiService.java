@@ -85,6 +85,24 @@ public abstract class SiconfiService <T> {
 
 	protected abstract Class<T> getClassType();
 	
+	public void carregarDados(FiltroBase filtro) {
+		
+		List<T> listaEntes = consultarNaApi();	
+		
+		switch (filtro.getOpcaoSalvamento()) {
+		case CONSOLE:
+			exibirDadosNaConsole(listaEntes);
+			break;
+		case ARQUIVO:
+			escreverCabecalhoArquivoCsv(definirNomeArquivoCSV(filtro));
+			salvarArquivoCsv(listaEntes, definirNomeArquivoCSV(filtro));
+			break;
+		case BANCO:
+			salvarNoBancoDeDados(listaEntes);
+			break;
+		}
+	}
+
 	protected void exibirDadosNaConsole (List<T> listaEntidades) {
 		for (T entidade: listaEntidades) {
 			System.out.println(entidade.toString());

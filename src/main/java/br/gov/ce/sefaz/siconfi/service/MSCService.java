@@ -75,7 +75,7 @@ public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial>{
 		if(!Utils.isEmptyCollection(listaCodigoIbge)) {
 			queryBuilder.append(" AND mscp.cod_ibge IN (:codigosIbge)");
 		}
-		if(!filtro.isListaMesesVazia()) {
+		if(!filtro.isListaPeriodosVazia()) {
 			queryBuilder.append(" AND mscp.mes_referencia IN (:listaMeses)");
 		}
 		if(filtro.getTipoMatrizSaldoContabeis()!=null){
@@ -94,8 +94,8 @@ public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial>{
 		if(!Utils.isEmptyCollection(listaCodigoIbge)) {
 			query.setParameter("codigosIbge", listaCodigoIbge);
 		}
-		if(!filtro.isListaMesesVazia()) {
-			query.setParameter("listaMeses", filtro.getMeses());
+		if(!filtro.isListaPeriodosVazia()) {
+			query.setParameter("listaMeses", filtro.getPeriodos());
 		}
 		if(filtro.getTipoMatrizSaldoContabeis()!=null){
 			query.setParameter("codigoTipoMatriz", filtro.getTipoMatrizSaldoContabeis().getCodigo());
@@ -136,8 +136,7 @@ public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial>{
 
 	private List<MatrizSaldoContabeisPatrimonial> consultarNaApi(FiltroMSC filtro, Integer exercicio) {
 
-		List<Integer> listaMeses = !filtro.isListaMesesVazia() ? filtro.getMeses()
-				: MESES;
+		List<Integer> listaMeses = !filtro.isListaPeriodosVazia() ? filtro.getPeriodos() : MESES;
 		List<MatrizSaldoContabeisPatrimonial> listaMSC = new ArrayList<>();
 
 		for (Integer mes: listaMeses) {
@@ -182,12 +181,7 @@ public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial>{
 		List<MatrizSaldoContabeisPatrimonial> listaMSC = new ArrayList<>();
 		for (TipoValorMatrizSaldoContabeis tipoValor: listaTipoValor) {
 			listaMSC.addAll(consultarNaApi(exercicio, mes, codigoIbge, tipoMatriz, classeConta, tipoValor));
-			try {
-				//Segundo documentação da API, existe o limite de 1 requisição por segundo
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				logger.error(e);
-			}
+			aguardarUmSegundo();
 		}
 		return listaMSC;
 	}

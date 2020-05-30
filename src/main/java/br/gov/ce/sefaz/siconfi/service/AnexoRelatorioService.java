@@ -10,9 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.AnexoRelatorio;
-import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.response.AnexoRelatorioResponse;
-import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio> {
 
@@ -28,27 +26,27 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio> {
 		super();
 	}
 	
-	public void carregarDados(OpcaoSalvamentoDados opcaoSalvamento, String nomeArquivo) {
-		
-		List<AnexoRelatorio> listaAnexos = consultarNaApi();	
-		
-		switch (opcaoSalvamento) {
-		case CONSOLE:
-			exibirDadosNaConsole(listaAnexos);
-			break;
-		case ARQUIVO:
-			escreverCabecalhoArquivoCsv(definirNomeArquivoCSV(nomeArquivo));
-			salvarArquivoCsv(listaAnexos, definirNomeArquivoCSV(nomeArquivo));
-			break;
-		case BANCO:
-			salvarNoBancoDeDados(listaAnexos);
-			break;
-		}
-	}
-
-	private String definirNomeArquivoCSV(String nomeArquivo) {
-		return !Utils.isStringVazia(nomeArquivo) ? nomeArquivo : NOME_PADRAO_ARQUIVO_CSV;
-	}
+//	public void carregarDados(FiltroAnexoRelatorio filtro) {
+//		
+//		List<AnexoRelatorio> listaAnexos = consultarNaApi();	
+//		
+//		switch (filtro.getOpcaoSalvamento()) {
+//		case CONSOLE:
+//			exibirDadosNaConsole(listaAnexos);
+//			break;
+//		case ARQUIVO:
+//			escreverCabecalhoArquivoCsv(definirNomeArquivoCSV(filtro.getNomeArquivo()));
+//			salvarArquivoCsv(listaAnexos, definirNomeArquivoCSV(filtro.getNomeArquivo()));
+//			break;
+//		case BANCO:
+//			salvarNoBancoDeDados(listaAnexos);
+//			break;
+//		}
+//	}
+//
+//	private String definirNomeArquivoCSV(String nomeArquivo) {
+//		return !Utils.isStringVazia(nomeArquivo) ? nomeArquivo : NOME_PADRAO_ARQUIVO_CSV;
+//	}
 
 	@Override
 	public void excluirTodos() {

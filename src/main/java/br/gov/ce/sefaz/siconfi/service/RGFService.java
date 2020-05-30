@@ -88,7 +88,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 		StringBuilder queryBuilder = new StringBuilder(
 				"DELETE FROM RelatorioGestaoFiscal rgf WHERE rgf.exercicio IN (:exercicios) ");
 
-		if (!filtro.isListaQuadrimestresVazia()) {
+		if (!filtro.isListaPeriodosVazia()) {
 			queryBuilder.append(" AND rgf.periodo IN (:periodos)");
 		}
 
@@ -108,8 +108,8 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 		Query query = getEntityManager().createQuery(queryBuilder.toString());
 		query.setParameter("exercicios", filtro.getExercicios());
 
-		if (!filtro.isListaQuadrimestresVazia()) {
-			query.setParameter("periodos", filtro.getQuadrimestres());
+		if (!filtro.isListaPeriodosVazia()) {
+			query.setParameter("periodos", filtro.getPeriodos());
 		}
 		if (!Utils.isEmptyCollection(listaCodigoIbge)) {
 			query.setParameter("codigosIbge", listaCodigoIbge);
@@ -143,7 +143,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 
 	private List<RelatorioGestaoFiscal> consultarNaApi(FiltroRGF filtroRGF, Integer exercicio) {
 
-		List<Integer> listaQuadrimestres = !filtroRGF.isListaQuadrimestresVazia() ? filtroRGF.getQuadrimestres()
+		List<Integer> listaQuadrimestres = !filtroRGF.isListaPeriodosVazia() ? filtroRGF.getPeriodos()
 				: QUADRIMESTRES;
 		List<RelatorioGestaoFiscal> listaRGF = new ArrayList<>();
 

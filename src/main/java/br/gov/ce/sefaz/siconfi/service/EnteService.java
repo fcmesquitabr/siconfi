@@ -13,10 +13,8 @@ import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.enums.Esfera;
-import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.response.EnteResponse;
 import br.gov.ce.sefaz.siconfi.util.FiltroBase;
-import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class EnteService extends SiconfiService <Ente>{
 
@@ -38,28 +36,6 @@ public class EnteService extends SiconfiService <Ente>{
 		Query query = getEntityManager().createQuery("SELECT e FROM Ente e WHERE e.esfera IN (:listaEsfera) ORDER BY e.ente");
 		query.setParameter("listaEsfera", listaEsfera);
 		return query.getResultList();		 
-	}
-
-	public void carregarDados(OpcaoSalvamentoDados opcaoSalvamento, String nomeArquivo) {
-		
-		List<Ente> listaEntes = consultarNaApi();	
-		
-		switch (opcaoSalvamento) {
-		case CONSOLE:
-			exibirDadosNaConsole(listaEntes);
-			break;
-		case ARQUIVO:
-			escreverCabecalhoArquivoCsv(definirNomeArquivoCSV(nomeArquivo));
-			salvarArquivoCsv(listaEntes, definirNomeArquivoCSV(nomeArquivo));
-			break;
-		case BANCO:
-			salvarNoBancoDeDados(listaEntes);
-			break;
-		}
-	}
-
-	private String definirNomeArquivoCSV(String nomeArquivo) {
-		return !Utils.isStringVazia(nomeArquivo) ? nomeArquivo : NOME_PADRAO_ARQUIVO_CSV;
 	}
 
 	@Override

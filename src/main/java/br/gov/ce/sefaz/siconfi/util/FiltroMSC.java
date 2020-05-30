@@ -8,16 +8,14 @@ import br.gov.ce.sefaz.siconfi.enums.TipoValorMatrizSaldoContabeis;
 
 public class FiltroMSC extends FiltroBase {
 
-	private List<Integer> meses;
-	
 	private TipoMatrizSaldoContabeis tipoMatrizSaldoContabeis;
 	
 	private List<Integer> listaClasseConta;
 	
 	private List<TipoValorMatrizSaldoContabeis> listaTipoValor;
-	
-	public boolean isListaMesesVazia() {
-		return Utils.isEmptyCollection(getMeses());
+
+	public FiltroMSC() {
+		super();
 	}
 
 	public boolean isListaClassesContaVazia() {
@@ -26,14 +24,6 @@ public class FiltroMSC extends FiltroBase {
 
 	public boolean isListaTipoValorVazia() {
 		return Utils.isEmptyCollection(getListaTipoValor());
-	}
-
-	public List<Integer> getMeses() {
-		return meses;
-	}
-
-	public void setMeses(List<Integer> meses) {
-		this.meses = meses;
 	}
 
 	public TipoMatrizSaldoContabeis getTipoMatrizSaldoContabeis() {
@@ -68,5 +58,40 @@ public class FiltroMSC extends FiltroBase {
 
 	public void setListaTipoValor(List<TipoValorMatrizSaldoContabeis> listaTipoValor) {
 		this.listaTipoValor = listaTipoValor;
+	}
+	
+	protected FiltroMSC (Builder builder) {
+		super(builder);
+		this.tipoMatrizSaldoContabeis =  builder.tipoMatrizSaldoContabeis;
+		this.listaClasseConta = builder.listaClasseConta;
+		this.listaTipoValor = builder.listaTipoValor;
+	}
+	
+	public static class Builder extends FiltroBase.Builder<Builder> {
+		
+		private TipoMatrizSaldoContabeis tipoMatrizSaldoContabeis;		
+		private List<Integer> listaClasseConta;		
+		private List<TipoValorMatrizSaldoContabeis> listaTipoValor;
+		
+		public Builder() {}
+		
+		public Builder listaClasseConta (List<Integer> listaClasseConta) {
+			this.listaClasseConta = listaClasseConta;
+			return this;
+		}
+
+		public Builder listaTipoValor(List<TipoValorMatrizSaldoContabeis> listaTipoValor) {
+			this.listaTipoValor = listaTipoValor;
+			return this;
+		}
+
+		public Builder tipoMatrizSaldoContabeis(TipoMatrizSaldoContabeis tipoMatrizSaldoContabeis) {
+			this.tipoMatrizSaldoContabeis = tipoMatrizSaldoContabeis;
+			return this;
+		}
+
+		public FiltroMSC build() {
+			return new FiltroMSC(this);
+		}
 	}
 }
