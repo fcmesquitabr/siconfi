@@ -1,7 +1,6 @@
 package br.gov.ce.sefaz.siconfi.util;
 
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -14,22 +13,34 @@ import com.opencsv.bean.StatefulBeanToCsvBuilder;
 
 public class CsvUtil<T> {
 
+	private static final String NOME_PADRAO_ARQUIVO = "relatorio.csv";
+
 	private static final Logger logger = LogManager.getLogger(CsvUtil.class);
-	
+
+	private static final char separador = '|';
 	private Class<T> type;
 	
 	public CsvUtil(Class<T> type) {
 		this.type=type;
 	}
 	
-	public void writeToCsvFile(List<T> listaEntidades, String[] columns, String nomeArquivo) {
+	public void writeHeader(String[] columns, String nomeArquivo) {
 		
-		FileWriter writer = null;
-		String nomeArquivoCsv = definirNomeArquivo(nomeArquivo);
-
+		try {
+			FileWriter writer = new FileWriter(definirNomeArquivo(nomeArquivo));
+			writer.write(String.join(String.valueOf(separador), columns));
+			writer.write(CSVWriter.RFC4180_LINE_END);
+			writer.close();
+		} catch (Exception e) {
+			logger.error(e);
+		} 		
+	}
+	
+	public void writeToFile(List<T> listaEntidades, String[] columns, String nomeArquivo) {
+		
 		try {
 
-			writer = new FileWriter(nomeArquivoCsv);
+			FileWriter writer = new FileWriter(definirNomeArquivo(nomeArquivo),true);
 
 			ColumnPositionMappingStrategy<T> mappingStrategy = new ColumnPositionMappingStrategy<>();
 			mappingStrategy.setType(type);
@@ -37,35 +48,20 @@ public class CsvUtil<T> {
 
 			StatefulBeanToCsvBuilder<T> builder = new StatefulBeanToCsvBuilder<>(writer);
 			StatefulBeanToCsv<T> beanWriter = builder.withMappingStrategy(mappingStrategy)
-					.withSeparator("|".charAt(0))
+					.withSeparator(separador)
 					.withLineEnd(CSVWriter.RFC4180_LINE_END)
 					.withEscapechar(CSVWriter.DEFAULT_ESCAPE_CHARACTER)
 					.withQuotechar(CSVWriter.DEFAULT_QUOTE_CHARACTER)
 					.build();
 
-			writer.write(String.join("|", columns));
-			writer.write("\r\n");
 			beanWriter.write(listaEntidades);
+			writer.close();
 		} catch (Exception e) {
 			logger.error(e);
 		} 
-
-		try {
-			if (writer != null) {
-				writer.close();
-			}
-		} catch (IOException e) {
-			logger.error(e);
-		}		
 	}
 
 	private String definirNomeArquivo(String nomeArquivo) {
-		String nomeArquivoCsv;
-		if (nomeArquivo != null && nomeArquivo.trim().length() > 0) {
-			nomeArquivoCsv = nomeArquivo;
-		} else {
-			nomeArquivoCsv = "relatorio.csv";
-		}
-		return nomeArquivoCsv;
+		return !Utils.isStringVazia(nomeArquivo) ? nomeArquivo : NOME_PADRAO_ARQUIVO;
 	}
 }

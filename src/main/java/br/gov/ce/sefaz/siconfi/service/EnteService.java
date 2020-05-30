@@ -15,7 +15,6 @@ import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.enums.Esfera;
 import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.response.EnteResponse;
-import br.gov.ce.sefaz.siconfi.util.CsvUtil;
 import br.gov.ce.sefaz.siconfi.util.FiltroBase;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
@@ -50,6 +49,7 @@ public class EnteService extends SiconfiService <Ente>{
 			exibirDadosNaConsole(listaEntes);
 			break;
 		case ARQUIVO:
+			escreverCabecalhoArquivoCsv(definirNomeArquivoCSV(nomeArquivo));
 			salvarArquivoCsv(listaEntes, definirNomeArquivoCSV(nomeArquivo));
 			break;
 		case BANCO:
@@ -62,13 +62,8 @@ public class EnteService extends SiconfiService <Ente>{
 		return !Utils.isStringVazia(nomeArquivo) ? nomeArquivo : NOME_PADRAO_ARQUIVO_CSV;
 	}
 
-	private void salvarArquivoCsv(List<Ente> listaEntes, String nomeArquivo) {
-		logger.info("Salvando dados no arquivo CSV...");
-		CsvUtil<Ente> csvUtil = new CsvUtil<>(Ente.class);
-		csvUtil.writeToCsvFile(listaEntes, COLUNAS_ARQUIVO_CSV, nomeArquivo);
-	}
-	
-	protected void excluirTodos() {
+	@Override
+	public void excluirTodos() {
 		logger.info("Excluindo dados do banco de dados...");
 		int i = getEntityManager().createQuery("DELETE FROM Ente e").executeUpdate();
 		logger.info("Linhas excluídas:" + i);
@@ -96,8 +91,9 @@ public class EnteService extends SiconfiService <Ente>{
 		
 		this.webTarget = this.client.target(URL_SERVICE).path(API_PATH_ENTES);
 		Invocation.Builder invocationBuilder =  this.webTarget.request(API_RESPONSE_TYPE); 
+		
 		logger.info("Fazendo get na API: " + this.webTarget.getUri().toString());
-		Response response = invocationBuilder.get();			
+		Response response = invocationBuilder.get();
 		EnteResponse enteResponse = response.readEntity(EnteResponse.class);
 		
 		long fim = System.currentTimeMillis();			
@@ -137,4 +133,18 @@ public class EnteService extends SiconfiService <Ente>{
 		return listaCodigoIbge;
 	}
 
+	@Override
+	protected String[] getColunasArquivoCSV() {
+		return COLUNAS_ARQUIVO_CSV;
+	}
+
+	@Override
+	protected Class<Ente> getClassType() {
+		return Ente.class;
+	}
+	
+	@Override
+	protected String getNomePadraoArquivoCSV() {
+		return NOME_PADRAO_ARQUIVO_CSV;
+	}
 }

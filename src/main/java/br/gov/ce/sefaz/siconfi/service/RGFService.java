@@ -16,7 +16,6 @@ import br.gov.ce.sefaz.siconfi.enums.Periodicidade;
 import br.gov.ce.sefaz.siconfi.enums.Poder;
 import br.gov.ce.sefaz.siconfi.enums.TipoDemonstrativoRGF;
 import br.gov.ce.sefaz.siconfi.response.RelatorioGestaoFiscalResponse;
-import br.gov.ce.sefaz.siconfi.util.CsvUtil;
 import br.gov.ce.sefaz.siconfi.util.FiltroRGF;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
@@ -50,22 +49,13 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 			exibirDadosNaConsole(listaRGF);
 			break;
 		case ARQUIVO:
-			salvarArquivoCsv(listaRGF, definirNomeArquivo(filtroRGF));
+			escreverCabecalhoArquivoCsv(definirNomeArquivoCSV(filtroRGF));
+			salvarArquivoCsv(listaRGF, definirNomeArquivoCSV(filtroRGF));
 			break;
 		case BANCO:
 			salvarNoBancoDeDados(filtroRGF, listaRGF);
 			break;
 		}
-	}
-
-	private String definirNomeArquivo(FiltroRGF filtroRGF) {
-		return !filtroRGF.isNomeArquivoVazio() ? filtroRGF.getNomeArquivo() : NOME_PADRAO_ARQUIVO_CSV;
-	}
-
-	protected void salvarArquivoCsv(List<RelatorioGestaoFiscal> listaRGF, String nomeArquivo) {
-		logger.info("Salvando dados no arquivo CSV...");
-		CsvUtil<RelatorioGestaoFiscal> csvUtil = new CsvUtil<RelatorioGestaoFiscal>(RelatorioGestaoFiscal.class);
-		csvUtil.writeToCsvFile(listaRGF, COLUNAS_ARQUIVO_CSV, nomeArquivo);
 	}
 
 	protected void salvarNoBancoDeDados(FiltroRGF filtro, List<RelatorioGestaoFiscal> listaEntidades) {
@@ -78,7 +68,8 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 		fecharContextoPersistencia();
 	}
 
-	protected void excluirTodos() {
+	@Override
+	public void excluirTodos() {
 		logger.info("Excluindo dados do banco de dados...");
 		int i = getEntityManager().createQuery("DELETE FROM RelatorioGestaoFiscal rgf").executeUpdate();
 		logger.info("Linhas excluídas:" + i);
@@ -197,12 +188,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 					Periodicidade.QUADRIMESTRAL.getCodigo(), quadrimestre, TipoDemonstrativoRGF.RGF.getCodigo(), anexo,
 					poder.getCodigo(), codigoIbge);
 			listaRGF.addAll(listaRGFParcial);
-			try {
-				//Segundo documentação da API, existe o limite de 1 requisição por segundo
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				logger.error(e);
-			}
+			aguardarUmSegundo();
 		}
 		return listaRGF;
 	}
@@ -272,6 +258,21 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 			enteService = new EnteService();
 		}
 		return enteService;
+	}
+
+	@Override
+	protected String[] getColunasArquivoCSV() {
+		return COLUNAS_ARQUIVO_CSV;
+	}
+
+	@Override
+	protected Class<RelatorioGestaoFiscal> getClassType() {
+		return RelatorioGestaoFiscal.class;
+	}
+	
+	@Override
+	protected String getNomePadraoArquivoCSV() {
+		return NOME_PADRAO_ARQUIVO_CSV;
 	}
 
 }

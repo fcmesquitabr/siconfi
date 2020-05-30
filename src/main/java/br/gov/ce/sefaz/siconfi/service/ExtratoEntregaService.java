@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.ExtratoEntrega;
 import br.gov.ce.sefaz.siconfi.response.ExtratoEntregaResponse;
-import br.gov.ce.sefaz.siconfi.util.CsvUtil;
 import br.gov.ce.sefaz.siconfi.util.FiltroExtratoEntrega;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
@@ -25,7 +24,7 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 	
 	private static String NOME_PADRAO_ARQUIVO_CSV = "extrato-entrega.csv";
 	
-	private static final String API_PATH_EXTRATO_ENTREGA = "entes";
+	private static final String API_PATH_EXTRATO_ENTREGA = "extrato_entregas";
 
 	private EnteService enteService;
 	
@@ -33,35 +32,26 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 		super();
 	}
 	
+	
 	public void carregarDados(FiltroExtratoEntrega filtroExtratoEntrega) {
 		
-		List<ExtratoEntrega> listaExtratoEntrega = consultarNaApi(filtroExtratoEntrega);	
-		
+		List<ExtratoEntrega> listaExtratoEntrega = null;
 		switch (filtroExtratoEntrega.getOpcaoSalvamento()) {
 		case CONSOLE:
+			listaExtratoEntrega = consultarNaApi(filtroExtratoEntrega);	
 			exibirDadosNaConsole(listaExtratoEntrega);
 			break;
 		case ARQUIVO:
-			String nomeArquivo = definirNomeArquivoCSV(filtroExtratoEntrega);
-			salvarArquivoCsv(listaExtratoEntrega, nomeArquivo);
+			//salvarArquivoCsv(listaExtratoEntrega, definirNomeArquivoCSV(filtroExtratoEntrega));
+			consultaNaApiESalvarArquivoCsv(filtroExtratoEntrega, definirNomeArquivoCSV(filtroExtratoEntrega));
 			break;
 		case BANCO:
+			listaExtratoEntrega = consultarNaApi(filtroExtratoEntrega);	
 			salvarNoBancoDeDados(filtroExtratoEntrega, listaExtratoEntrega);
 			break;
 		}
 	}
-
-	private String definirNomeArquivoCSV(FiltroExtratoEntrega filtroExtratoEntrega) {
-		return !filtroExtratoEntrega.isNomeArquivoVazio() ? filtroExtratoEntrega.getNomeArquivo()
-						: NOME_PADRAO_ARQUIVO_CSV;
-	}
-
-	protected void salvarArquivoCsv(List<ExtratoEntrega> listaExtratoEntrega, String nomeArquivo) {
-		logger.info("Salvando dados no arquivo CSV...");
-		CsvUtil<ExtratoEntrega> csvUtil = new CsvUtil<ExtratoEntrega>(ExtratoEntrega.class);
-		csvUtil.writeToCsvFile(listaExtratoEntrega, COLUNAS_ARQUIVO_CSV , nomeArquivo);
-	}
-
+	
 	protected void salvarNoBancoDeDados(FiltroExtratoEntrega filtroExtratoEntrega, List<ExtratoEntrega> listaEntidades) {
 		if(Utils.isEmptyCollection(listaEntidades)) return;
 		
@@ -71,7 +61,6 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 		commitTransaction();
 		fecharContextoPersistencia();		
 	}
-
 
 	private void excluirExtratosEntrega(FiltroExtratoEntrega filtroExtratoEntrega) {
 		logger.info("Excluindo dados do banco de dados...");
@@ -93,14 +82,32 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 		logger.info("Linhas excluídas:" + i);
 	}
 	
-	protected void excluirTodos() {
+	@Override
+	public void excluirTodos() {
 		logger.info("Excluindo dados do banco de dados...");
 		int i = getEntityManager().createQuery("DELETE FROM ExtratoEntrega ee").executeUpdate();
 		logger.info("Linhas excluídas:" + i);
 	}
 
+	@Override
 	public List<ExtratoEntrega> consultarNaApi(){
 		return new ArrayList<ExtratoEntrega>();
+	}
+
+	public void consultaNaApiESalvarArquivoCsv(FiltroExtratoEntrega filtroExtratoEntrega, String nomeArquivo){
+		
+		List<Integer> listaExercicios = (filtroExtratoEntrega.getExercicios()!=null?filtroExtratoEntrega.getExercicios():EXERCICIOS_DISPONIVEIS);
+		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbge(filtroExtratoEntrega);
+		
+		escreverCabecalhoArquivoCsv(nomeArquivo);
+		
+		for (Integer exercicio : listaExercicios) {
+			for (String codigoIbge : listaCodigoIbge) {
+				List<ExtratoEntrega> listaExtratosParcial = consultarNaApi(exercicio, codigoIbge);
+				salvarArquivoCsv(listaExtratosParcial, nomeArquivo);
+				aguardarUmSegundo();
+			}
+		}
 	}
 
 	public List<ExtratoEntrega> consultarNaApi(FiltroExtratoEntrega filtroExtratoEntrega){
@@ -113,12 +120,7 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 			for (String codigoIbge : listaCodigoIbge) {
 				List<ExtratoEntrega> listaExtratosParcial = consultarNaApi(exercicio, codigoIbge);
 				listaExtratos.addAll(listaExtratosParcial);
-				try {
-					//Segundo documentação da API, existe o limite de 1 requisição por segundo
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					logger.error(e);
-				}
+				aguardarUmSegundo();
 			}
 		}
 		return listaExtratos;
@@ -166,4 +168,19 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 		}
 		return enteService;
 	}
+	
+	@Override
+	protected String[] getColunasArquivoCSV() {
+		return COLUNAS_ARQUIVO_CSV;
+	}
+
+	@Override
+	protected Class<ExtratoEntrega> getClassType() {
+		return ExtratoEntrega.class;
+	}
+	
+	@Override
+	protected String getNomePadraoArquivoCSV() {
+		return NOME_PADRAO_ARQUIVO_CSV;
+	}	
 }

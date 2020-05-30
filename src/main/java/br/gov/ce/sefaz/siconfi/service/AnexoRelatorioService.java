@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Logger;
 import br.gov.ce.sefaz.siconfi.entity.AnexoRelatorio;
 import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.response.AnexoRelatorioResponse;
-import br.gov.ce.sefaz.siconfi.util.CsvUtil;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio> {
@@ -38,6 +37,7 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio> {
 			exibirDadosNaConsole(listaAnexos);
 			break;
 		case ARQUIVO:
+			escreverCabecalhoArquivoCsv(definirNomeArquivoCSV(nomeArquivo));
 			salvarArquivoCsv(listaAnexos, definirNomeArquivoCSV(nomeArquivo));
 			break;
 		case BANCO:
@@ -50,13 +50,8 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio> {
 		return !Utils.isStringVazia(nomeArquivo) ? nomeArquivo : NOME_PADRAO_ARQUIVO_CSV;
 	}
 
-	protected void salvarArquivoCsv(List<AnexoRelatorio> listaAnexos, String nomeArquivo) {
-		logger.info("Salvando dados no arquivo CSV...");
-		CsvUtil<AnexoRelatorio> csvUtil = new CsvUtil<AnexoRelatorio>(AnexoRelatorio.class);
-		csvUtil.writeToCsvFile(listaAnexos, COLUNAS_ARQUIVO_CSV , nomeArquivo);
-	}
-		
-	protected void excluirTodos() {
+	@Override
+	public void excluirTodos() {
 		logger.info("Excluindo dados do banco de dados...");
 		int i = getEntityManager().createQuery("DELETE FROM AnexoRelatorio ar").executeUpdate();
 		logger.info("Linhas excluídas:" + i);
@@ -84,13 +79,29 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio> {
 		
 		this.webTarget = this.client.target(URL_SERVICE).path(API_PATH_ANEXO_RELATORIO);
 		Invocation.Builder invocationBuilder = this.webTarget.request(API_RESPONSE_TYPE);
+		
 		logger.info("Fazendo Get na API: " + this.webTarget.getUri().toString());
 		Response response = invocationBuilder.get();
-		AnexoRelatorioResponse anexoRelatorioResponse = response.readEntity(AnexoRelatorioResponse.class);
+		AnexoRelatorioResponse anexoRelatorioResponse = response.readEntity( AnexoRelatorioResponse.class );
 		
 		long fim = System.currentTimeMillis();			
 		logger.debug("Tempo para consultar os anexos dos relatórios na API:" + (fim -ini));
 		return anexoRelatorioResponse;
 	}
+
+	@Override
+	protected String[] getColunasArquivoCSV() {
+		return COLUNAS_ARQUIVO_CSV;
+	}
+
+	@Override
+	protected Class<AnexoRelatorio> getClassType() {
+		return AnexoRelatorio.class;
+	}
+	
+	@Override
+	protected String getNomePadraoArquivoCSV() {
+		return NOME_PADRAO_ARQUIVO_CSV;
+	}	
 
 }

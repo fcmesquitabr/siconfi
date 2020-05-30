@@ -13,6 +13,10 @@ import javax.ws.rs.client.WebTarget;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import br.gov.ce.sefaz.siconfi.util.CsvUtil;
+import br.gov.ce.sefaz.siconfi.util.FiltroBase;
+import br.gov.ce.sefaz.siconfi.util.Utils;
+
 public abstract class SiconfiService <T> {
 
 	private static final Logger logger = LogManager.getLogger(SiconfiService.class);
@@ -73,7 +77,13 @@ public abstract class SiconfiService <T> {
 	
 	public abstract List<T> consultarNaApi();
 
-	protected abstract void excluirTodos();
+	public abstract void excluirTodos();
+
+	protected abstract String getNomePadraoArquivoCSV();
+
+	protected abstract String[] getColunasArquivoCSV();
+
+	protected abstract Class<T> getClassType();
 	
 	protected void exibirDadosNaConsole (List<T> listaEntidades) {
 		for (T entidade: listaEntidades) {
@@ -81,6 +91,39 @@ public abstract class SiconfiService <T> {
 		}
 	}
 
+	protected String definirNomeArquivoCSV(FiltroBase filtro) {
+		return !filtro.isNomeArquivoVazio() ? filtro.getNomeArquivo() : getNomePadraoArquivoCSV();
+	}
+
+	protected void escreverCabecalhoArquivoCsv(String nomeArquivo) {
+		logger.info("Escrevendo o cabeçalho no arquivo CSV...");
+		CsvUtil<T> csvUtil = new CsvUtil<T>(getClassType());
+		csvUtil.writeHeader(getColunasArquivoCSV(), nomeArquivo);
+	}
+
+	protected void salvarArquivoCsv(List<T> listaObjetos, String nomeArquivo) {
+		if(!Utils.isEmptyCollection(listaObjetos)) {
+			
+			logger.info("Salvando " + listaObjetos.size() + " registro(s) no arquivo CSV...");
+			CsvUtil<T> csvUtil = new CsvUtil<T>(getClassType());
+			csvUtil.writeToFile(listaObjetos, getColunasArquivoCSV(), nomeArquivo);
+			
+		} else {
+			logger.info("Lista de registro fazia. Nada a salvar no arquivo CSV...");
+		}
+	}
+
+	/**
+	 * Segundo documentação da API, existe o limite de 1 requisição por segundo
+	 */
+	protected void aguardarUmSegundo() {
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			logger.error(e);
+		}
+	}
+	
 	protected void salvarNoBancoDeDados(List<T> listaEntidades) {
 		getEntityManager().getTransaction().begin();		
 		excluirTodos();

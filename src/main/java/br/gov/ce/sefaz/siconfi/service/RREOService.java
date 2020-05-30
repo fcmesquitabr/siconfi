@@ -14,7 +14,6 @@ import org.apache.logging.log4j.Logger;
 import br.gov.ce.sefaz.siconfi.entity.RelatorioResumidoExecucaoOrcamentaria;
 import br.gov.ce.sefaz.siconfi.enums.TipoDemonstrativoRREO;
 import br.gov.ce.sefaz.siconfi.response.RelatorioResumidoExecucaoOrcamentariaResponse;
-import br.gov.ce.sefaz.siconfi.util.CsvUtil;
 import br.gov.ce.sefaz.siconfi.util.FiltroRREO;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
@@ -52,23 +51,13 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 			break;
 		case ARQUIVO:
 			String nomeArquivo = definirNomeArquivoCSV(filtro);
+			escreverCabecalhoArquivoCsv(nomeArquivo);
 			salvarArquivoCsv(listaRREO, nomeArquivo);
 			break;
 		case BANCO:
 			salvarNoBancoDeDados(filtro, listaRREO);
 			break;
 		}
-	}
-
-	private String definirNomeArquivoCSV(FiltroRREO filtro) {
-		return !filtro.isNomeArquivoVazio() ? filtro.getNomeArquivo() : NOME_PADRAO_ARQUIVO_CSV;
-	}
-
-	protected void salvarArquivoCsv(List<RelatorioResumidoExecucaoOrcamentaria> listaRREO, String nomeArquivo) {
-		logger.info("Salvando dados no arquivo CSV...");
-		CsvUtil<RelatorioResumidoExecucaoOrcamentaria> csvUtil = new CsvUtil<RelatorioResumidoExecucaoOrcamentaria>(
-				RelatorioResumidoExecucaoOrcamentaria.class);
-		csvUtil.writeToCsvFile(listaRREO, COLUNAS_ARQUIVO_CSV, nomeArquivo);
 	}
 
 	protected void salvarNoBancoDeDados(FiltroRREO filtro, List<RelatorioResumidoExecucaoOrcamentaria> listaEntidades) {
@@ -125,6 +114,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		logger.info("Linhas excluídas:" + i);
 	}
 
+	@Override
 	public void excluirTodos() {
 		logger.info("Excluindo dados do banco de dados...");
 		int i = getEntityManager().createQuery("DELETE FROM RelatorioResumidoExecucaoOrcamentaria rreo")
@@ -182,12 +172,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 					semestre, TipoDemonstrativoRREO.RREO.getCodigo(), anexo,
 					codigoIbge);
 			listaRREO.addAll(listaRREOParcial);
-			try {
-				//Segundo documentação da API, existe o limite de 1 requisição por segundo
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				logger.error(e);
-			}
+			aguardarUmSegundo();
 		}
 		return listaRREO;
 	}
@@ -244,6 +229,21 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 			enteService = new EnteService();
 		}
 		return enteService;
+	}
+
+	@Override
+	protected String[] getColunasArquivoCSV() {
+		return COLUNAS_ARQUIVO_CSV;
+	}
+
+	@Override
+	protected Class<RelatorioResumidoExecucaoOrcamentaria> getClassType() {
+		return RelatorioResumidoExecucaoOrcamentaria.class;
+	}
+	
+	@Override
+	protected String getNomePadraoArquivoCSV() {
+		return NOME_PADRAO_ARQUIVO_CSV;
 	}
 
 }

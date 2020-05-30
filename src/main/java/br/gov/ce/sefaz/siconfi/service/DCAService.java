@@ -13,7 +13,6 @@ import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.DeclaracaoContasAnuais;
 import br.gov.ce.sefaz.siconfi.response.DeclaracaoContasAnuaisResponse;
-import br.gov.ce.sefaz.siconfi.util.CsvUtil;
 import br.gov.ce.sefaz.siconfi.util.FiltroDCA;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
@@ -48,24 +47,13 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 			break;
 		case ARQUIVO:
 			String nomeArquivo = definirNomeArquivoCSV(filtroDCA);
+			escreverCabecalhoArquivoCsv(nomeArquivo);
 			salvarArquivoCsv(listaDCA, nomeArquivo);
 			break;
 		case BANCO:
 			salvarNoBancoDeDados(filtroDCA, listaDCA);
 			break;
 		}
-	}
-
-	private String definirNomeArquivoCSV(FiltroDCA filtroDCA) {
-		return (filtroDCA.getNomeArquivo() != null && !filtroDCA.getNomeArquivo().trim().isEmpty())
-				? filtroDCA.getNomeArquivo()
-				: NOME_PADRAO_ARQUIVO_CSV;
-	}
-
-	protected void salvarArquivoCsv(List<DeclaracaoContasAnuais> listaDCA, String nomeArquivo) {
-		logger.info("Salvando dados no arquivo CSV...");
-		CsvUtil<DeclaracaoContasAnuais> csvUtil = new CsvUtil<DeclaracaoContasAnuais>(DeclaracaoContasAnuais.class);
-		csvUtil.writeToCsvFile(listaDCA, COLUNAS_ARQUIVO_CSV, nomeArquivo);
 	}
 
 	protected void salvarNoBancoDeDados(FiltroDCA filtro, List<DeclaracaoContasAnuais> listaEntidades) {
@@ -110,7 +98,8 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 		logger.info("Linhas excluídas:" + i);
 	}
 
-	protected void excluirTodos() {
+	@Override
+	public void excluirTodos() {
 		logger.info("Excluindo dados do banco de dados...");		
 		int i = getEntityManager().createQuery("DELETE FROM DeclaracaoContasAnuais dca").executeUpdate();
 		logger.info("Linhas excluídas:" + i);
@@ -133,12 +122,7 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 				for (String anexo: listaAnexos) {
 					List<DeclaracaoContasAnuais> listaDCAParcial = consultarNaApi(exercicio,anexo, codigoIbge);	
 					listaDCA.addAll(listaDCAParcial);
-					try {
-						//Segundo documentação da API, existe o limite de 1 requisição por segundo
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						logger.error(e);
-					}
+					aguardarUmSegundo();
 				}
 			}				
 		}
@@ -192,4 +176,20 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 		}
 		return enteService;
 	}
+	
+	@Override
+	protected String[] getColunasArquivoCSV() {
+		return COLUNAS_ARQUIVO_CSV;
+	}
+
+	@Override
+	protected Class<DeclaracaoContasAnuais> getClassType() {
+		return DeclaracaoContasAnuais.class;
+	}
+	
+	@Override
+	protected String getNomePadraoArquivoCSV() {
+		return NOME_PADRAO_ARQUIVO_CSV;
+	}
+
 }

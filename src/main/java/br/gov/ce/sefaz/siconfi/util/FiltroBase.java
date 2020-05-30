@@ -17,6 +17,10 @@ public class FiltroBase {
 
 	private String nomeArquivo;
 
+	public FiltroBase() {
+		super();
+	}
+
 	public boolean isNomeArquivoVazio() {
 		return Utils.isStringVazia(getNomeArquivo());
 	}
@@ -67,6 +71,57 @@ public class FiltroBase {
 
 	public void setNomeArquivo(String nomeArquivo) {
 		this.nomeArquivo = nomeArquivo;
+	}
+
+	public static class Builder<T extends Builder<T>> {
+
+		private List<Integer> exercicios;
+		private Esfera esfera;
+		private List<String> codigosIBGE;
+		private OpcaoSalvamentoDados opcaoSalvamento;
+		private String nomeArquivo;
+		
+		@SuppressWarnings("unchecked")
+		public T exercicios (List<Integer> exercicios) {
+			this.exercicios = exercicios;
+			return (T) this;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public T esfera (Esfera esfera) {
+			this.esfera = esfera;
+			return (T) this;
+		}
+
+		@SuppressWarnings("unchecked")
+		public T codigosIbge (List<String> codigosIbge) {
+			this.codigosIBGE = codigosIbge;
+			return (T) this;
+		}
+
+		@SuppressWarnings("unchecked")
+		public T opcaoSalvamentoDados (OpcaoSalvamentoDados opcaoSalvamento) {
+			this.opcaoSalvamento = opcaoSalvamento;
+			return (T) this;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public T nomeArquivo (String nomeArquivo) {
+			this.nomeArquivo = nomeArquivo;
+			return (T) this;
+		}
+		
+		public FiltroBase build() {
+			return new FiltroBase(this);
+		}
+	}
+	
+	protected FiltroBase (Builder<?> builder) {
+		this.codigosIBGE = builder.codigosIBGE;
+		this.esfera = builder.esfera;
+		this.exercicios = builder.exercicios;
+		this.nomeArquivo = builder.nomeArquivo;
+		this.opcaoSalvamento = builder.opcaoSalvamento;
 	}
 
 }

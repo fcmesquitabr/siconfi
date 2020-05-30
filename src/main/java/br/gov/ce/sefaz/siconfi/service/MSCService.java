@@ -15,7 +15,6 @@ import br.gov.ce.sefaz.siconfi.entity.MatrizSaldoContabeisPatrimonial;
 import br.gov.ce.sefaz.siconfi.enums.TipoMatrizSaldoContabeis;
 import br.gov.ce.sefaz.siconfi.enums.TipoValorMatrizSaldoContabeis;
 import br.gov.ce.sefaz.siconfi.response.MatrizSaldoContabeisPatrimonialResponse;
-import br.gov.ce.sefaz.siconfi.util.CsvUtil;
 import br.gov.ce.sefaz.siconfi.util.FiltroMSC;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
@@ -47,6 +46,7 @@ public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial>{
 			break;
 		case ARQUIVO:
 			String nomeArquivo = definirNomeArquivoCSV(filtro);
+			escreverCabecalhoArquivoCsv(nomeArquivo);
 			salvarArquivoCsv(listaMSC, nomeArquivo);
 			break;
 		case BANCO:
@@ -55,20 +55,10 @@ public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial>{
 		}
 	}
 
-	private String definirNomeArquivoCSV(FiltroMSC filtro) {
-		return (filtro.getNomeArquivo() != null && !filtro.getNomeArquivo().trim().isEmpty())
-				? filtro.getNomeArquivo()
-				: NOME_PADRAO_ARQUIVO_CSV;
-	}
-
-	protected void salvarArquivoCsv(List<MatrizSaldoContabeisPatrimonial> listaMSC, String nomeArquivo) {
-		logger.info("Salvando dados no arquivo CSV...");
-		CsvUtil<MatrizSaldoContabeisPatrimonial> csvUtil = new CsvUtil<>(MatrizSaldoContabeisPatrimonial.class);
-		csvUtil.writeToCsvFile(listaMSC, COLUNAS_ARQUIVO_CSV, nomeArquivo);
-	}
-
 	protected void salvarNoBancoDeDados(FiltroMSC filtro, List<MatrizSaldoContabeisPatrimonial> listaEntidades) {
+		
 		if(Utils.isEmptyCollection(listaEntidades)) return;
+		
 		getEntityManager().getTransaction().begin();		
 		excluirMatrizSaldosContabeis(filtro);
 		persistir(listaEntidades);
@@ -192,6 +182,12 @@ public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial>{
 		List<MatrizSaldoContabeisPatrimonial> listaMSC = new ArrayList<>();
 		for (TipoValorMatrizSaldoContabeis tipoValor: listaTipoValor) {
 			listaMSC.addAll(consultarNaApi(exercicio, mes, codigoIbge, tipoMatriz, classeConta, tipoValor));
+			try {
+				//Segundo documentação da API, existe o limite de 1 requisição por segundo
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				logger.error(e);
+			}
 		}
 		return listaMSC;
 	}
@@ -250,6 +246,21 @@ public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial>{
 			enteService = new EnteService();
 		}
 		return enteService;
+	}
+
+	@Override
+	protected String[] getColunasArquivoCSV() {
+		return COLUNAS_ARQUIVO_CSV;
+	}
+
+	@Override
+	protected Class<MatrizSaldoContabeisPatrimonial> getClassType() {
+		return MatrizSaldoContabeisPatrimonial.class;
+	}
+	
+	@Override
+	protected String getNomePadraoArquivoCSV() {
+		return NOME_PADRAO_ARQUIVO_CSV;
 	}
 
 }
