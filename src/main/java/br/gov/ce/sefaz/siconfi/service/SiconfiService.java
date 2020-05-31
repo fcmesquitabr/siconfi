@@ -10,7 +10,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.util.CsvUtil;
@@ -19,8 +18,6 @@ import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public abstract class SiconfiService <T> {
 
-	private static final Logger logger = LogManager.getLogger(SiconfiService.class);
-	
 	public static final List<Integer> EXERCICIOS_DISPONIVEIS = Arrays.asList(2020);
 
 	public static final List<Integer> MESES = Arrays.asList(1); //1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
@@ -83,7 +80,9 @@ public abstract class SiconfiService <T> {
 
 	protected abstract String[] getColunasArquivoCSV();
 
-	protected abstract Class<T> getClassType();
+	protected abstract Class<T> getEntityClass();
+
+	protected abstract Logger getLogger();
 	
 	public void carregarDados(FiltroBase filtro) {
 		
@@ -114,20 +113,20 @@ public abstract class SiconfiService <T> {
 	}
 
 	protected void escreverCabecalhoArquivoCsv(String nomeArquivo) {
-		logger.info("Escrevendo o cabeçalho no arquivo CSV...");
-		CsvUtil<T> csvUtil = new CsvUtil<T>(getClassType());
+		getLogger().info("Escrevendo o cabeçalho no arquivo CSV...");
+		CsvUtil<T> csvUtil = new CsvUtil<T>(getEntityClass());
 		csvUtil.writeHeader(getColunasArquivoCSV(), nomeArquivo);
 	}
 
 	protected void salvarArquivoCsv(List<T> listaObjetos, String nomeArquivo) {
 		if(!Utils.isEmptyCollection(listaObjetos)) {
 			
-			logger.info("Salvando " + listaObjetos.size() + " registro(s) no arquivo CSV...");
-			CsvUtil<T> csvUtil = new CsvUtil<T>(getClassType());
+			getLogger().info("Salvando " + listaObjetos.size() + " registro(s) no arquivo CSV...");
+			CsvUtil<T> csvUtil = new CsvUtil<T>(getEntityClass());
 			csvUtil.writeToFile(listaObjetos, getColunasArquivoCSV(), nomeArquivo);
 			
 		} else {
-			logger.info("Lista de registro fazia. Nada a salvar no arquivo CSV...");
+			getLogger().info("Lista de registro fazia. Nada a salvar no arquivo CSV...");
 		}
 	}
 
@@ -138,7 +137,7 @@ public abstract class SiconfiService <T> {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			logger.error(e);
+			getLogger().error(e);
 		}
 	}
 	
@@ -151,7 +150,7 @@ public abstract class SiconfiService <T> {
 	}
 
 	protected EntityManager getEntityManager () {
-		logger.debug("Criando EntityManager");
+		getLogger().debug("Criando EntityManager");
 		if(em == null && getEntityManagerFactory()!=null) {
 			em = getEntityManagerFactory().createEntityManager();
 		}
@@ -159,7 +158,7 @@ public abstract class SiconfiService <T> {
 	}
 	
 	private EntityManagerFactory getEntityManagerFactory() {
-		logger.debug("Criando EntityManagerFactory");
+		getLogger().debug("Criando EntityManagerFactory");
 		if(this.emf == null) {
 			this.emf = Persistence.createEntityManagerFactory("siconfiUnit");
 		}
@@ -176,22 +175,22 @@ public abstract class SiconfiService <T> {
 	}
 	
 	protected void commitTransaction() {
-		logger.debug("Fazendo commit...");
+		getLogger().debug("Fazendo commit...");
 		long ini = System.currentTimeMillis();
 		getEntityManager().getTransaction().commit();
 		long fim = System.currentTimeMillis();
-		logger.debug("Tempo para commit:" + (fim -ini));
+		getLogger().debug("Tempo para commit:" + (fim -ini));
 	}
 
 	protected void persistir(List<T> lista) {
 		if(Utils.isEmptyCollection(lista)) {
-			logger.info("Sem dados para persistir");
+			getLogger().info("Sem dados para persistir");
 			return;
 		}
 		int i=1;
-		logger.info("Persistindo os dados obtidos (" + lista.size() + " registro(s))...");
+		getLogger().info("Persistindo os dados obtidos (" + lista.size() + " registro(s))...");
 		for(T entity: lista) {
-			logger.debug("Inserindo registro " + (i++) + ":" + entity.toString());
+			getLogger().debug("Inserindo registro " + (i++) + ":" + entity.toString());
 			getEntityManager().persist(entity);
 		}
 	}

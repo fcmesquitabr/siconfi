@@ -115,12 +115,17 @@ public class EnteService extends SiconfiService <Ente>{
 	}
 
 	@Override
-	protected Class<Ente> getClassType() {
+	protected Class<Ente> getEntityClass() {
 		return Ente.class;
 	}
 	
 	@Override
 	protected String getNomePadraoArquivoCSV() {
 		return NOME_PADRAO_ARQUIVO_CSV;
+	}
+
+	@Override
+	protected Logger getLogger() {
+		return logger;
 	}
 }

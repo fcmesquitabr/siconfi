@@ -9,7 +9,7 @@ import br.gov.ce.sefaz.siconfi.service.EnteService;
 import br.gov.ce.sefaz.siconfi.service.ExtratoEntregaService;
 import br.gov.ce.sefaz.siconfi.service.MSCControleService;
 import br.gov.ce.sefaz.siconfi.service.MSCOrcamentariaService;
-import br.gov.ce.sefaz.siconfi.service.MSCService;
+import br.gov.ce.sefaz.siconfi.service.MSCPatrimonialService;
 import br.gov.ce.sefaz.siconfi.service.RGFService;
 import br.gov.ce.sefaz.siconfi.service.RREOService;
 import br.gov.ce.sefaz.siconfi.service.SiconfiService;
@@ -165,7 +165,7 @@ public class ClientRestServiceMain {
 	}
 	
 	private static void carregarDadosMSCPatrimonial() {		
-		MSCService mscService = new MSCService();
+		MSCPatrimonialService mscService = new MSCPatrimonialService();
 		mscService.carregarDados(getFiltroMSC());		
 	}
 

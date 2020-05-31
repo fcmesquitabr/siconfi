@@ -32,7 +32,6 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 		super();
 	}
 	
-	
 	public void carregarDados(FiltroExtratoEntrega filtroExtratoEntrega) {
 		
 		List<ExtratoEntrega> listaExtratoEntrega = null;
@@ -175,7 +174,7 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 	}
 
 	@Override
-	protected Class<ExtratoEntrega> getClassType() {
+	protected Class<ExtratoEntrega> getEntityClass() {
 		return ExtratoEntrega.class;
 	}
 	
@@ -183,4 +182,9 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega>{
 	protected String getNomePadraoArquivoCSV() {
 		return NOME_PADRAO_ARQUIVO_CSV;
 	}	
+	
+	@Override
+	protected Logger getLogger() {
+		return logger;
+	}
 }

@@ -8,37 +8,34 @@ import javax.persistence.Query;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.Response;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import br.gov.ce.sefaz.siconfi.entity.MatrizSaldoContabeisPatrimonial;
+import br.gov.ce.sefaz.siconfi.entity.MatrizSaldoContabeis;
 import br.gov.ce.sefaz.siconfi.enums.TipoMatrizSaldoContabeis;
 import br.gov.ce.sefaz.siconfi.enums.TipoValorMatrizSaldoContabeis;
-import br.gov.ce.sefaz.siconfi.response.MatrizSaldoContabeisPatrimonialResponse;
+import br.gov.ce.sefaz.siconfi.response.MatrizSaldoContabeisResponse;
 import br.gov.ce.sefaz.siconfi.util.FiltroMSC;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
-public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial> {
+public abstract class MSCService<T extends MatrizSaldoContabeis> extends SiconfiService<T> {
 
-	private static final Logger logger = LogManager.getLogger(MSCService.class);
-
-	private static String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "mes_referencia", "cod_ibge", "poder_orgao", "tipo_matriz",
-			"class_conta", "natureza_conta", "conta_contabil", "financeiro_permanente", "ano_fonte_recursos", "fonte_recursos", 
-			"divida_consolidada", "data_referencia", "entrada_msc", "tipo_valor", "valorFormatado"};
-	
-	private static String NOME_PADRAO_ARQUIVO_CSV = "msc_patrimonial.csv";
-
-	private static final String API_PATH_MSC_PATRIMONIAL = "msc_patrimonial";
+	//private static final Logger logger = LogManager.getLogger(MSCService.class);
 
 	private EnteService enteService;
-
+	
 	public MSCService() {
 		super();
 	}
 
+	protected abstract String getAPIPath();
+
+	protected abstract Class<? extends MatrizSaldoContabeisResponse<T>> getResponseClassType();
+
+	protected abstract String getEntityName();
+
+	protected abstract List<Integer> getClassContas();
+
 	public void carregarDados(FiltroMSC filtro) {
 		
-		List<MatrizSaldoContabeisPatrimonial> listaMSC = consultarNaApi(filtro);	
+		List<T> listaMSC = consultarNaApi(filtro);	
 		
 		switch (filtro.getOpcaoSalvamento()) {
 		case CONSOLE:
@@ -55,7 +52,7 @@ public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial> 
 		}
 	}
 
-	protected void salvarNoBancoDeDados(FiltroMSC filtro, List<MatrizSaldoContabeisPatrimonial> listaEntidades) {
+	protected void salvarNoBancoDeDados(FiltroMSC filtro, List<T> listaEntidades) {
 		
 		if(Utils.isEmptyCollection(listaEntidades)) return;
 		
@@ -67,25 +64,25 @@ public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial> 
 	}
 
 	private void excluirMatrizSaldosContabeis(FiltroMSC filtro) {
-		logger.info("Excluindo dados do banco de dados...");
+		getLogger().info("Excluindo dados do banco de dados...");
 		
-		StringBuilder queryBuilder = new StringBuilder("DELETE FROM MatrizSaldoContabeisPatrimonial mscp WHERE mscp.exercicio IN (:exercicios) ");
+		StringBuilder queryBuilder = new StringBuilder("DELETE FROM " + getEntityName() + " msc WHERE msc.exercicio IN (:exercicios) ");
 
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbge(filtro);
 		if(!Utils.isEmptyCollection(listaCodigoIbge)) {
-			queryBuilder.append(" AND mscp.cod_ibge IN (:codigosIbge)");
+			queryBuilder.append(" AND msc.cod_ibge IN (:codigosIbge)");
 		}
 		if(!filtro.isListaPeriodosVazia()) {
-			queryBuilder.append(" AND mscp.mes_referencia IN (:listaMeses)");
+			queryBuilder.append(" AND msc.mes_referencia IN (:listaMeses)");
 		}
 		if(filtro.getTipoMatrizSaldoContabeis()!=null){
-			queryBuilder.append(" AND mscp.tipo_matriz=:codigoTipoMatriz");
+			queryBuilder.append(" AND msc.tipo_matriz=:codigoTipoMatriz");
 		}
 		if(!filtro.isListaClassesContaVazia()) {
-			queryBuilder.append(" AND mscp.classe_conta IN (:listaClasseConta)");
+			queryBuilder.append(" AND msc.classe_conta IN (:listaClasseConta)");
 		}
 		if(!filtro.isListaTipoValorVazia()) {
-			queryBuilder.append(" AND mscp.tipo_valor IN (:listaTipoValor)");
+			queryBuilder.append(" AND msc.tipo_valor IN (:listaTipoValor)");
 		}
 		
 		Query query = getEntityManager().createQuery(queryBuilder.toString());
@@ -108,26 +105,26 @@ public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial> 
 		}
 
 		int i = query.executeUpdate();
-		logger.info("Linhas excluídas:" + i);
+		getLogger().info("Linhas excluídas:" + i);
 	}
 
 	@Override
 	public void excluirTodos() {
-		logger.info("Excluindo dados do banco de dados...");
-		int i = getEntityManager().createQuery("DELETE FROM MatrizSaldoContabeisPatrimonial mscp")
+		getLogger().info("Excluindo dados do banco de dados...");
+		int i = getEntityManager().createQuery("DELETE FROM " + getEntityName() + " mscp")
 				.executeUpdate();
-		logger.info("Linhas excluídas:" + i);
+		getLogger().info("Linhas excluídas:" + i);
 	}
 
-	public List<MatrizSaldoContabeisPatrimonial> consultarNaApi() {
-		return new ArrayList<MatrizSaldoContabeisPatrimonial>();
+	public List<T> consultarNaApi() {
+		return new ArrayList<T>();
 	}
 
-	public List<MatrizSaldoContabeisPatrimonial> consultarNaApi(FiltroMSC filtro) {
+	public List<T> consultarNaApi(FiltroMSC filtro) {
 
 		List<Integer> listaExercicios = !filtro.isListaExerciciosVazia() ? filtro.getExercicios()
 				: EXERCICIOS_DISPONIVEIS;
-		List<MatrizSaldoContabeisPatrimonial> listaMSC = new ArrayList<>();
+		List<T> listaMSC = new ArrayList<>();
 
 		for (Integer exercicio : listaExercicios) {
 			listaMSC.addAll(consultarNaApi(filtro, exercicio));
@@ -135,10 +132,10 @@ public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial> 
 		return listaMSC;
 	}
 
-	private List<MatrizSaldoContabeisPatrimonial> consultarNaApi(FiltroMSC filtro, Integer exercicio) {
+	private List<T> consultarNaApi(FiltroMSC filtro, Integer exercicio) {
 
 		List<Integer> listaMeses = !filtro.isListaPeriodosVazia() ? filtro.getPeriodos() : MESES;
-		List<MatrizSaldoContabeisPatrimonial> listaMSC = new ArrayList<>();
+		List<T> listaMSC = new ArrayList<>();
 
 		for (Integer mes: listaMeses) {
 			listaMSC.addAll(consultarNaApi(filtro, exercicio, mes));
@@ -146,40 +143,40 @@ public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial> 
 		return listaMSC;
 	}
 
-	private List<MatrizSaldoContabeisPatrimonial> consultarNaApi(FiltroMSC filtro, Integer exercicio, Integer mes) {
+	private List<T> consultarNaApi(FiltroMSC filtro, Integer exercicio, Integer mes) {
 
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbge(filtro);
 		TipoMatrizSaldoContabeis tipoMatriz = filtro.getTipoMatrizSaldoContabeis() != null
 				? filtro.getTipoMatrizSaldoContabeis()
 				: TipoMatrizSaldoContabeis.MSCC;
 
-		List<MatrizSaldoContabeisPatrimonial> listaMSC = new ArrayList<>();		
+		List<T> listaMSC = new ArrayList<>();		
 		for (String codigoIbge : listaCodigoIbge) {
 			listaMSC.addAll(consultarNaApi(filtro, exercicio, mes, codigoIbge, tipoMatriz));
 		}
 		return listaMSC;
 	}
 
-	private List<MatrizSaldoContabeisPatrimonial> consultarNaApi(FiltroMSC filtro, Integer exercicio, Integer mes,
+	private List<T> consultarNaApi(FiltroMSC filtro, Integer exercicio, Integer mes,
 			String codigoIbge, TipoMatrizSaldoContabeis tipoMatriz) {
 
-		List<Integer> listaClassesConta = !filtro.isListaClassesContaVazia()?filtro.getListaClasseConta():CLASSES_CONTAS_PATRIMONIAIS;
+		List<Integer> listaClassesConta = !filtro.isListaClassesContaVazia()?filtro.getListaClasseConta():getClassContas();
 		
-		List<MatrizSaldoContabeisPatrimonial> listaMSC = new ArrayList<>();
+		List<T> listaMSC = new ArrayList<>();
 		for (Integer classe: listaClassesConta) {
 			listaMSC.addAll(consultarNaApi(filtro, exercicio, mes, codigoIbge, tipoMatriz, classe));
 		}
 		return listaMSC;
 	}
 
-	private List<MatrizSaldoContabeisPatrimonial> consultarNaApi(FiltroMSC filtro, Integer exercicio, Integer mes,
+	private List<T> consultarNaApi(FiltroMSC filtro, Integer exercicio, Integer mes,
 			String codigoIbge, TipoMatrizSaldoContabeis tipoMatriz, Integer classeConta) {
 
 		List<TipoValorMatrizSaldoContabeis> listaTipoValor = !filtro.isListaTipoValorVazia()
 				? filtro.getListaTipoValor()
 				: Arrays.asList(TipoValorMatrizSaldoContabeis.values());
 		
-		List<MatrizSaldoContabeisPatrimonial> listaMSC = new ArrayList<>();
+		List<T> listaMSC = new ArrayList<>();
 		for (TipoValorMatrizSaldoContabeis tipoValor: listaTipoValor) {
 			listaMSC.addAll(consultarNaApi(exercicio, mes, codigoIbge, tipoMatriz, classeConta, tipoValor));
 			aguardarUmSegundo();
@@ -187,19 +184,19 @@ public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial> 
 		return listaMSC;
 	}
 
-	public List<MatrizSaldoContabeisPatrimonial> consultarNaApi(Integer exercicio, Integer mes, String codigoIbge,
+	public List<T> consultarNaApi(Integer exercicio, Integer mes, String codigoIbge,
 			TipoMatrizSaldoContabeis tipoMatriz, Integer classeConta, TipoValorMatrizSaldoContabeis tipoValorMatriz) {
 
-		List<MatrizSaldoContabeisPatrimonial> listaMSC = null;
+		List<T> listaMSC = null;
 		try {
 
-			MatrizSaldoContabeisPatrimonialResponse mscResponse = obterResponseDaApi(exercicio, mes,
+			MatrizSaldoContabeisResponse<T> mscResponse = obterResponseDaApi(exercicio, mes,
 					codigoIbge, tipoMatriz, classeConta, tipoValorMatriz);
 
 			listaMSC = mscResponse != null ? mscResponse.getItems()
-					: new ArrayList<MatrizSaldoContabeisPatrimonial>();
+					: new ArrayList<T>();
 		} catch (Exception e) {
-			logger.error("Erro para os parâmetros: exercicio: " + exercicio + ", mes: " + mes
+			getLogger().error("Erro para os parâmetros: exercicio: " + exercicio + ", mes: " + mes
 					+ ", classeConta:" + classeConta 
 					+ ", codigoTipoMatriz:" + tipoMatriz.getCodigo() + ", tipoValorMatriz: " + tipoValorMatriz.getCodigo() 
 					+ ", codigoIbge: " + codigoIbge);
@@ -207,19 +204,19 @@ public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial> 
 			listaMSC = new ArrayList<>();
 		}
 
-		logger.debug("Tamanho da lista de MSC os parâmetros: exercicio: "+ exercicio + ", mes: " + mes
+		getLogger().debug("Tamanho da lista de MSC os parâmetros: exercicio: "+ exercicio + ", mes: " + mes
 				+ ", classeConta:" + classeConta 
 				+ ", codigoTipoMatriz:" + tipoMatriz.getCodigo() + ", tipoValorMatriz: " + tipoValorMatriz.getCodigo() 
 				+ ", codigoIbge: " + codigoIbge + ": " + listaMSC.size());
 		return listaMSC;
 	}
 
-	private MatrizSaldoContabeisPatrimonialResponse obterResponseDaApi(Integer exercicio, Integer mes, String codigoIbge,
+	private MatrizSaldoContabeisResponse<T> obterResponseDaApi(Integer exercicio, Integer mes, String codigoIbge,
 			TipoMatrizSaldoContabeis tipoMatriz, Integer classeConta, TipoValorMatrizSaldoContabeis tipoValorMatriz) {
 
 		long ini = System.currentTimeMillis();
 
-		this.webTarget = this.client.target(URL_SERVICE).path(API_PATH_MSC_PATRIMONIAL)
+		this.webTarget = this.client.target(URL_SERVICE).path(getAPIPath())
 				.queryParam(API_QUERY_PARAM_AN_REFERENCIA, exercicio)
 				.queryParam(API_QUERY_PARAM_ME_REFERENCIA, mes)
 				.queryParam(API_QUERY_PARAM_ID_ENTE, codigoIbge)
@@ -227,34 +224,19 @@ public class MSCService extends SiconfiService<MatrizSaldoContabeisPatrimonial> 
 				.queryParam(API_QUERY_PARAM_CLASSE_CONTA, classeConta)
 				.queryParam(API_QUERY_PARAM_ID_TV, tipoValorMatriz.getCodigo());
 		Invocation.Builder invocationBuilder = this.webTarget.request(API_RESPONSE_TYPE);
-		logger.info("Get na API: " + this.webTarget.getUri().toString());
+		getLogger().info("Get na API: " + this.webTarget.getUri().toString());
 		Response response = invocationBuilder.get();
-		MatrizSaldoContabeisPatrimonialResponse mscResponse = response.readEntity(MatrizSaldoContabeisPatrimonialResponse.class);
+		MatrizSaldoContabeisResponse<T> mscResponse = response.readEntity(getResponseClassType());
 		
 		long fim = System.currentTimeMillis();
-		logger.debug("Tempo para consultar a MSC na API:" + (fim - ini));
+		getLogger().debug("Tempo para consultar a MSC na API:" + (fim - ini));
 		return mscResponse;
-	}
+	}	
 	
-	private EnteService getEnteService() {
+	protected EnteService getEnteService() {
 		if(enteService == null) {
 			enteService = new EnteService();
 		}
 		return enteService;
-	}
-
-	@Override
-	protected String[] getColunasArquivoCSV() {
-		return COLUNAS_ARQUIVO_CSV;
-	}
-
-	@Override
-	protected Class<MatrizSaldoContabeisPatrimonial> getClassType() {
-		return MatrizSaldoContabeisPatrimonial.class;
-	}
-	
-	@Override
-	protected String getNomePadraoArquivoCSV() {
-		return NOME_PADRAO_ARQUIVO_CSV;
 	}
 }

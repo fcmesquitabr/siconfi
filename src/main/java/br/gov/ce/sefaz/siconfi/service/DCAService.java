@@ -183,7 +183,7 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 	}
 
 	@Override
-	protected Class<DeclaracaoContasAnuais> getClassType() {
+	protected Class<DeclaracaoContasAnuais> getEntityClass() {
 		return DeclaracaoContasAnuais.class;
 	}
 	
@@ -191,5 +191,9 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 	protected String getNomePadraoArquivoCSV() {
 		return NOME_PADRAO_ARQUIVO_CSV;
 	}
-
+	
+	@Override
+	protected Logger getLogger() {
+		return logger;
+	}
 }

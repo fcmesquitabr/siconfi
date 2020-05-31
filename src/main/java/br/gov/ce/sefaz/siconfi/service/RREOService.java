@@ -236,7 +236,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 	}
 
 	@Override
-	protected Class<RelatorioResumidoExecucaoOrcamentaria> getClassType() {
+	protected Class<RelatorioResumidoExecucaoOrcamentaria> getEntityClass() {
 		return RelatorioResumidoExecucaoOrcamentaria.class;
 	}
 	
@@ -245,4 +245,8 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		return NOME_PADRAO_ARQUIVO_CSV;
 	}
 
+	@Override
+	protected Logger getLogger() {
+		return logger;
+	}
 }

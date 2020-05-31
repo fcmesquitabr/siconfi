@@ -26,28 +26,6 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio> {
 		super();
 	}
 	
-//	public void carregarDados(FiltroAnexoRelatorio filtro) {
-//		
-//		List<AnexoRelatorio> listaAnexos = consultarNaApi();	
-//		
-//		switch (filtro.getOpcaoSalvamento()) {
-//		case CONSOLE:
-//			exibirDadosNaConsole(listaAnexos);
-//			break;
-//		case ARQUIVO:
-//			escreverCabecalhoArquivoCsv(definirNomeArquivoCSV(filtro.getNomeArquivo()));
-//			salvarArquivoCsv(listaAnexos, definirNomeArquivoCSV(filtro.getNomeArquivo()));
-//			break;
-//		case BANCO:
-//			salvarNoBancoDeDados(listaAnexos);
-//			break;
-//		}
-//	}
-//
-//	private String definirNomeArquivoCSV(String nomeArquivo) {
-//		return !Utils.isStringVazia(nomeArquivo) ? nomeArquivo : NOME_PADRAO_ARQUIVO_CSV;
-//	}
-
 	@Override
 	public void excluirTodos() {
 		logger.info("Excluindo dados do banco de dados...");
@@ -93,13 +71,18 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio> {
 	}
 
 	@Override
-	protected Class<AnexoRelatorio> getClassType() {
+	protected Class<AnexoRelatorio> getEntityClass() {
 		return AnexoRelatorio.class;
 	}
 	
 	@Override
 	protected String getNomePadraoArquivoCSV() {
 		return NOME_PADRAO_ARQUIVO_CSV;
+	}
+
+	@Override
+	protected Logger getLogger() {
+		return logger;
 	}	
 
 }

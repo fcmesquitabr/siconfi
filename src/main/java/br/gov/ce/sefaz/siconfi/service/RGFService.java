@@ -266,7 +266,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 	}
 
 	@Override
-	protected Class<RelatorioGestaoFiscal> getClassType() {
+	protected Class<RelatorioGestaoFiscal> getEntityClass() {
 		return RelatorioGestaoFiscal.class;
 	}
 	
@@ -275,4 +275,8 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 		return NOME_PADRAO_ARQUIVO_CSV;
 	}
 
+	@Override
+	protected Logger getLogger() {
+		return logger;
+	}
 }
