@@ -7,6 +7,8 @@ import br.gov.ce.sefaz.siconfi.service.AnexoRelatorioService;
 import br.gov.ce.sefaz.siconfi.service.DCAService;
 import br.gov.ce.sefaz.siconfi.service.EnteService;
 import br.gov.ce.sefaz.siconfi.service.ExtratoEntregaService;
+import br.gov.ce.sefaz.siconfi.service.MSCControleService;
+import br.gov.ce.sefaz.siconfi.service.MSCOrcamentariaService;
 import br.gov.ce.sefaz.siconfi.service.MSCService;
 import br.gov.ce.sefaz.siconfi.service.RGFService;
 import br.gov.ce.sefaz.siconfi.service.RREOService;
@@ -62,6 +64,14 @@ public class ClientRestServiceMain {
 		case msc_patrimonial:
 			logger.info("Carregando dados do relatório MSC Patrimonial...");
 			carregarDadosMSCPatrimonial();
+			break;
+		case msc_orcamentaria:
+			logger.info("Carregando dados do relatório MSC Orcamentaria...");
+			carregarDadosMSCOrcamentaria();
+			break;
+		case msc_controle:
+			logger.info("Carregando dados do relatório MSC Controle...");
+			carregarDadosMSCControle();
 			break;
 		default:
 			exibirMensagemAjuda();
@@ -154,8 +164,22 @@ public class ClientRestServiceMain {
 		rreoService.carregarDados(filtro);		
 	}
 	
-	private static void carregarDadosMSCPatrimonial() {
-		
+	private static void carregarDadosMSCPatrimonial() {		
+		MSCService mscService = new MSCService();
+		mscService.carregarDados(getFiltroMSC());		
+	}
+
+	private static void carregarDadosMSCOrcamentaria() {
+		MSCOrcamentariaService mscService = new MSCOrcamentariaService();
+		mscService.carregarDados(getFiltroMSC());		
+	}
+
+	private static void carregarDadosMSCControle() {
+		MSCControleService mscService = new MSCControleService();
+		mscService.carregarDados(getFiltroMSC());		
+	}
+
+	private static FiltroMSC getFiltroMSC() {
 		FiltroMSC filtro = new FiltroMSC.Builder()
 				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
 				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
@@ -165,10 +189,8 @@ public class ClientRestServiceMain {
 				.tipoMatrizSaldoContabeis(LeitorParametrosPrograma.getOpcaoTipoMatrizSelecionado())
 				.listaClasseConta(LeitorParametrosPrograma.getOpcaoClassesContasSelecionadas())
 				.listaTipoValor(LeitorParametrosPrograma.getOpcaoTiposValorMatrizSelecionado())
-				.build();		
-
-		MSCService mscService = new MSCService();
-		mscService.carregarDados(filtro);		
+				.build();
+		return filtro;
 	}
 
 	private static void exibirMensagemAjuda() {

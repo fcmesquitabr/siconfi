@@ -293,12 +293,18 @@ public class LeitorParametrosPrograma {
 		try {
 			String opcao = System.getProperty(OPCAO_CLASSES_CONTA_CONTABIL);
 			if (Utils.isStringVazia(opcao)) {
-				opcaoClassesContasSelecionadas = SiconfiService.CLASSES_CONTAS_PATRIMONIAIS;
+				opcaoClassesContasSelecionadas = getRelatorioSelecionado().equals(Relatorio.msc_patrimonial)
+						? SiconfiService.CLASSES_CONTAS_PATRIMONIAIS
+						: getRelatorioSelecionado().equals(Relatorio.msc_orcamentaria)
+								? SiconfiService.CLASSES_CONTAS_ORCAMENTARIAS
+								: getRelatorioSelecionado().equals(Relatorio.msc_controle)
+										? SiconfiService.CLASSES_CONTAS_CONTROLE
+										: null;
 			} else {
 				String[] classesContaContabil = opcao.split(",");
 				opcaoClassesContasSelecionadas = new ArrayList<>();
 				for (String classe: classesContaContabil) {
-					opcaoClassesContasSelecionadas.add(Integer.valueOf(classe));
+					opcaoClassesContasSelecionadas.add(Integer.valueOf(classe.trim()));
 				}
 				if (Utils.isEmptyCollection(opcaoClassesContasSelecionadas)) {
 					throw new IllegalArgumentException("Opção de Classe de Conta Contábil inválida");
