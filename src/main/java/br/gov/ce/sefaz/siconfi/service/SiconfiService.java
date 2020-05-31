@@ -184,8 +184,12 @@ public abstract class SiconfiService <T> {
 	}
 
 	protected void persistir(List<T> lista) {
+		if(Utils.isEmptyCollection(lista)) {
+			logger.info("Sem dados para persistir");
+			return;
+		}
 		int i=1;
-		logger.info("Persistindo os dados obtidos...");
+		logger.info("Persistindo os dados obtidos (" + lista.size() + " registro(s))...");
 		for(T entity: lista) {
 			logger.debug("Inserindo registro " + (i++) + ":" + entity.toString());
 			getEntityManager().persist(entity);

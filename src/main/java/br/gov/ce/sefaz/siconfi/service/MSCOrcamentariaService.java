@@ -111,7 +111,8 @@ public class MSCOrcamentariaService extends SiconfiService<MatrizSaldoContabeisO
 		int i = query.executeUpdate();
 		logger.info("Linhas excluídas:" + i);
 	}
-
+	
+	@Override
 	public void excluirTodos() {
 		logger.info("Excluindo dados do banco de dados...");
 		int i = getEntityManager().createQuery("DELETE FROM MatrizSaldoContabeisOrcamentaria msc")
