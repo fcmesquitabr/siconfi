@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.Query;
-import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.LogManager;
@@ -15,8 +15,10 @@ import br.gov.ce.sefaz.siconfi.entity.RelatorioGestaoFiscal;
 import br.gov.ce.sefaz.siconfi.enums.Periodicidade;
 import br.gov.ce.sefaz.siconfi.enums.Poder;
 import br.gov.ce.sefaz.siconfi.enums.TipoDemonstrativoRGF;
-import br.gov.ce.sefaz.siconfi.response.RelatorioGestaoFiscalResponse;
-import br.gov.ce.sefaz.siconfi.util.FiltroRGF;
+import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosRGF;
+import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
+import br.gov.ce.sefaz.siconfi.util.Constantes;
+import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
@@ -40,7 +42,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 		super();
 	}
 
-	public void carregarDados(FiltroRGF filtroRGF) {
+	public void carregarDados(OpcoesCargaDadosRGF filtroRGF) {
 
 		List<RelatorioGestaoFiscal> listaRGF = consultarNaApi(filtroRGF);
 
@@ -58,7 +60,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 		}
 	}
 
-	protected void salvarNoBancoDeDados(FiltroRGF filtro, List<RelatorioGestaoFiscal> listaEntidades) {
+	protected void salvarNoBancoDeDados(OpcoesCargaDadosRGF filtro, List<RelatorioGestaoFiscal> listaEntidades) {
 		if (listaEntidades == null || listaEntidades.isEmpty())
 			return;
 		getEntityManager().getTransaction().begin();
@@ -82,7 +84,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 		logger.info("Linhas excluídas:" + i);
 	}
 
-	private void excluirRelatorioGestaoFiscal(FiltroRGF filtro) {
+	private void excluirRelatorioGestaoFiscal(OpcoesCargaDadosRGF filtro) {
 		logger.info("Excluindo dados do banco de dados...");
 
 		StringBuilder queryBuilder = new StringBuilder(
@@ -129,10 +131,10 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 		return new ArrayList<RelatorioGestaoFiscal>();
 	}
 
-	public List<RelatorioGestaoFiscal> consultarNaApi(FiltroRGF filtroRGF) {
+	public List<RelatorioGestaoFiscal> consultarNaApi(OpcoesCargaDadosRGF filtroRGF) {
 
 		List<Integer> listaExercicios = !filtroRGF.isListaExerciciosVazia() ? filtroRGF.getExercicios()
-				: EXERCICIOS_DISPONIVEIS;
+				: Constantes.EXERCICIOS_DISPONIVEIS;
 		List<RelatorioGestaoFiscal> listaRGF = new ArrayList<>();
 
 		for (Integer exercicio : listaExercicios) {
@@ -141,10 +143,10 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 		return listaRGF;
 	}
 
-	private List<RelatorioGestaoFiscal> consultarNaApi(FiltroRGF filtroRGF, Integer exercicio) {
+	private List<RelatorioGestaoFiscal> consultarNaApi(OpcoesCargaDadosRGF filtroRGF, Integer exercicio) {
 
 		List<Integer> listaQuadrimestres = !filtroRGF.isListaPeriodosVazia() ? filtroRGF.getPeriodos()
-				: QUADRIMESTRES;
+				: Constantes.QUADRIMESTRES;
 		List<RelatorioGestaoFiscal> listaRGF = new ArrayList<>();
 
 		for (Integer quadrimestre : listaQuadrimestres) {
@@ -153,7 +155,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 		return listaRGF;
 	}
 
-	private List<RelatorioGestaoFiscal> consultarNaApi(FiltroRGF filtroRGF, Integer exercicio, Integer quadrimestre) {
+	private List<RelatorioGestaoFiscal> consultarNaApi(OpcoesCargaDadosRGF filtroRGF, Integer exercicio, Integer quadrimestre) {
 
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbge(filtroRGF);
 		List<RelatorioGestaoFiscal> listaRGF = new ArrayList<>();
@@ -164,7 +166,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 		return listaRGF;
 	}
 
-	private List<RelatorioGestaoFiscal> consultarNaApi(FiltroRGF filtroRGF, Integer exercicio, Integer quadrimestre,
+	private List<RelatorioGestaoFiscal> consultarNaApi(OpcoesCargaDadosRGF filtroRGF, Integer exercicio, Integer quadrimestre,
 			String codigoIbge) {
 
 		List<Poder> listaPoder = !filtroRGF.isListaPoderesVazia() ? filtroRGF.getListaPoderes()
@@ -177,80 +179,35 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 		return listaRGF;
 	}
 
-	private List<RelatorioGestaoFiscal> consultarNaApi(FiltroRGF filtroRGF, Integer exercicio, Integer quadrimestre,
+	private List<RelatorioGestaoFiscal> consultarNaApi(OpcoesCargaDadosRGF filtroRGF, Integer exercicio, Integer quadrimestre,
 			String codigoIbge, Poder poder) {
 
 		List<String> listaAnexos = !filtroRGF.isListaAnexosVazia() ? filtroRGF.getListaAnexos() : ANEXOS_RGF;
 		List<RelatorioGestaoFiscal> listaRGF = new ArrayList<>();
 
 		for (String anexo : listaAnexos) {
-			List<RelatorioGestaoFiscal> listaRGFParcial = consultarNaApi(exercicio,
-					Periodicidade.QUADRIMESTRAL.getCodigo(), quadrimestre, TipoDemonstrativoRGF.RGF.getCodigo(), anexo,
-					poder.getCodigo(), codigoIbge);
+
+			APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil();
+			apiQueryParamUtil.addParamAnExercicio(exercicio)
+					.addParamIndicadorPeriodiciadade(Periodicidade.QUADRIMESTRAL.getCodigo())
+					.addParamPeriodo(quadrimestre)
+					.addParamIdEnte(codigoIbge)
+					.addParamTipoDemonstrativo(TipoDemonstrativoRGF.RGF.getCodigo())
+					.addParamPoder(poder.getCodigo())
+					.addParamAnexo(anexo);
+			List<RelatorioGestaoFiscal> listaRGFParcial = consultarNaApi(apiQueryParamUtil);
 			listaRGF.addAll(listaRGFParcial);
 			aguardarUmSegundo();
 		}
 		return listaRGF;
 	}
 
-	public List<RelatorioGestaoFiscal> consultarNaApi(Integer exercicio, String indicadorPeriodicidade, Integer periodo,
-			String codigoTipoDemonstrativo, String anexo, String codigoPoder, String codigoIbge) {
-
-		List<RelatorioGestaoFiscal> listaRGF = null;
-
-		try {
-
-			RelatorioGestaoFiscalResponse relatorioResponse = obterResponseDaApi(exercicio, indicadorPeriodicidade,
-					periodo, codigoTipoDemonstrativo, anexo, codigoPoder, codigoIbge);
-			listaRGF = relatorioResponse != null ? relatorioResponse.getItems()
-					: new ArrayList<RelatorioGestaoFiscal>();
-
-		} catch (Exception e) {
-			logger.error(
-					"Erro para os parâmetros: exercicio: " + exercicio + ", periodicidade: " + indicadorPeriodicidade
-							+ ", período: " + periodo + ", codigoTipoDemonstrativo:" + codigoTipoDemonstrativo
-							+ ", anexo: " + anexo + ", codigoPoder: " + codigoPoder + ", codigoIbge: " + codigoIbge);
-			e.printStackTrace();
-			listaRGF = new ArrayList<>();
-		}
-
-		logger.debug("Tamanho da lista para os paramêtros: exercicio: " + exercicio + ", periodicidade: "
-				+ indicadorPeriodicidade + ", período: " + periodo + ", codigoTipoDemonstrativo:"
-				+ codigoTipoDemonstrativo + ", anexo: " + anexo + ", codigoPoder: " + codigoPoder + ", codigoIbge: "
-				+ codigoIbge + ": " + listaRGF.size());
-		return listaRGF;
-	}
-
-	private RelatorioGestaoFiscalResponse obterResponseDaApi(Integer exercicio, String indicadorPeriodicidade,
-			Integer periodo, String codigoTipoDemonstrativo, String anexo, String codigoPoder, String codigoIbge) {
-
-		RelatorioGestaoFiscalResponse relatorioResponse = null;
-		long ini = System.currentTimeMillis();
-
-		try {
-			this.webTarget = this.client.target(URL_SERVICE).path(API_PATH_RGF)
-					.queryParam(API_QUERY_PARAM_AN_EXERCICIO, exercicio)
-					.queryParam(API_QUERY_PARAM_IN_PERIODICIDADE, indicadorPeriodicidade)
-					.queryParam(API_QUERY_PARAM_NR_PERIODO, periodo)
-					.queryParam(API_QUERY_PARAM_CO_TIPO_DEMONSTRATIVO, codigoTipoDemonstrativo)
-					.queryParam(API_QUERY_PARAM_NO_ANEXO, anexo.replaceAll(" ", "%20")) // Caso, não haja esse tratamento para o
-																			// caractere espaço, a API apresenta erro.
-					.queryParam("co_poder", codigoPoder).queryParam(API_QUERY_PARAM_ID_ENTE, codigoIbge);
-			Invocation.Builder invocationBuilder = this.webTarget.request(API_RESPONSE_TYPE);
-			logger.info("Get na API: " + this.webTarget.getUri().toString());
-			Response response = invocationBuilder.get();
-			relatorioResponse = response.readEntity(RelatorioGestaoFiscalResponse.class);
-		} catch (Exception e) {
-			logger.error("Erro ao consultar a API para os seguintes parâmetros: exercicio: " + exercicio
-					+ ", periodicidade: " + indicadorPeriodicidade + ", período: " + periodo
-					+ ", codigoTipoDemonstrativo:" + codigoTipoDemonstrativo + ", anexo: " + anexo + ", codigoPoder: "
-					+ codigoPoder + ", codigoIbge: " + codigoIbge);
-			e.printStackTrace();
-		} finally {
-			long fim = System.currentTimeMillis();
-			logger.debug("Tempo para consultar os RGF na API:" + (fim - ini));
-		}
-		return relatorioResponse;
+	@Override
+	protected List<RelatorioGestaoFiscal> lerEntidades(Response response) {
+		SiconfiResponse<RelatorioGestaoFiscal> rgfResponse = response
+				.readEntity(new GenericType<SiconfiResponse<RelatorioGestaoFiscal>>() {
+				});
+		return rgfResponse != null ? rgfResponse.getItems() : new ArrayList<RelatorioGestaoFiscal>();
 	}
 
 	private EnteService getEnteService() {
@@ -278,5 +235,10 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 	@Override
 	protected Logger getLogger() {
 		return logger;
+	}
+
+	@Override
+	protected String getApiPath() {
+		return API_PATH_RGF;
 	}
 }

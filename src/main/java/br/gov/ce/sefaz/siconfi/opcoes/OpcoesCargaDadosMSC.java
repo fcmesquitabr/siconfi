@@ -1,12 +1,13 @@
-package br.gov.ce.sefaz.siconfi.util;
+package br.gov.ce.sefaz.siconfi.opcoes;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import br.gov.ce.sefaz.siconfi.enums.TipoMatrizSaldoContabeis;
 import br.gov.ce.sefaz.siconfi.enums.TipoValorMatrizSaldoContabeis;
+import br.gov.ce.sefaz.siconfi.util.Utils;
 
-public class FiltroMSC extends FiltroBase {
+public class OpcoesCargaDadosMSC extends OpcoesCargaDados {
 
 	private TipoMatrizSaldoContabeis tipoMatrizSaldoContabeis;
 	
@@ -14,7 +15,7 @@ public class FiltroMSC extends FiltroBase {
 	
 	private List<TipoValorMatrizSaldoContabeis> listaTipoValor;
 
-	public FiltroMSC() {
+	public OpcoesCargaDadosMSC() {
 		super();
 	}
 
@@ -60,14 +61,14 @@ public class FiltroMSC extends FiltroBase {
 		this.listaTipoValor = listaTipoValor;
 	}
 	
-	protected FiltroMSC (Builder builder) {
+	protected OpcoesCargaDadosMSC (Builder builder) {
 		super(builder);
 		this.tipoMatrizSaldoContabeis =  builder.tipoMatrizSaldoContabeis;
 		this.listaClasseConta = builder.listaClasseConta;
 		this.listaTipoValor = builder.listaTipoValor;
 	}
 	
-	public static class Builder extends FiltroBase.Builder<Builder> {
+	public static class Builder extends OpcoesCargaDados.Builder<Builder> {
 		
 		private TipoMatrizSaldoContabeis tipoMatrizSaldoContabeis;		
 		private List<Integer> listaClasseConta;		
@@ -90,8 +91,8 @@ public class FiltroMSC extends FiltroBase {
 			return this;
 		}
 
-		public FiltroMSC build() {
-			return new FiltroMSC(this);
+		public OpcoesCargaDadosMSC build() {
+			return new OpcoesCargaDadosMSC(this);
 		}
 	}
 }

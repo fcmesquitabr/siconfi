@@ -3,6 +3,13 @@ package br.gov.ce.sefaz.siconfi.main;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosAnexoRelatorio;
+import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosDCA;
+import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosEnte;
+import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosExtratoEntrega;
+import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosMSC;
+import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosRGF;
+import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosRREO;
 import br.gov.ce.sefaz.siconfi.service.AnexoRelatorioService;
 import br.gov.ce.sefaz.siconfi.service.DCAService;
 import br.gov.ce.sefaz.siconfi.service.EnteService;
@@ -12,14 +19,7 @@ import br.gov.ce.sefaz.siconfi.service.MSCOrcamentariaService;
 import br.gov.ce.sefaz.siconfi.service.MSCPatrimonialService;
 import br.gov.ce.sefaz.siconfi.service.RGFService;
 import br.gov.ce.sefaz.siconfi.service.RREOService;
-import br.gov.ce.sefaz.siconfi.service.SiconfiService;
-import br.gov.ce.sefaz.siconfi.util.FiltroAnexoRelatorio;
-import br.gov.ce.sefaz.siconfi.util.FiltroDCA;
-import br.gov.ce.sefaz.siconfi.util.FiltroEnte;
-import br.gov.ce.sefaz.siconfi.util.FiltroExtratoEntrega;
-import br.gov.ce.sefaz.siconfi.util.FiltroMSC;
-import br.gov.ce.sefaz.siconfi.util.FiltroRGF;
-import br.gov.ce.sefaz.siconfi.util.FiltroRREO;
+import br.gov.ce.sefaz.siconfi.util.Constantes;
 import br.gov.ce.sefaz.siconfi.util.LeitorParametrosPrograma;
 
 public class ClientRestServiceMain {
@@ -83,28 +83,28 @@ public class ClientRestServiceMain {
 
 	private static void carregarEntes() {
 
-		FiltroEnte filtroEnte = new FiltroEnte.Builder()
+		OpcoesCargaDadosEnte opcoes = new OpcoesCargaDadosEnte.Builder()
 				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
 				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
 				.build();
 
 		EnteService enteService = new EnteService();
-		enteService.carregarDados(filtroEnte);
+		enteService.carregarDados(opcoes);
 	}
 
 	private static void carregarAnexosRelatorios() {
 		
-		FiltroAnexoRelatorio filtroAnexoRelatorio = new FiltroAnexoRelatorio.Builder()
+		OpcoesCargaDadosAnexoRelatorio opcoes = new OpcoesCargaDadosAnexoRelatorio.Builder()
 				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
 				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
 				.build();
 		AnexoRelatorioService anexoRelatorioService = new AnexoRelatorioService();		
-		anexoRelatorioService.carregarDados(filtroAnexoRelatorio);
+		anexoRelatorioService.carregarDados(opcoes);
 	}
 
 	private static void carregarExtratosEntregas() {
 		
-		FiltroExtratoEntrega filtroExtratoEntrega = new FiltroExtratoEntrega.Builder()
+		OpcoesCargaDadosExtratoEntrega opcoes = new OpcoesCargaDadosExtratoEntrega.Builder()
 				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
 				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
 				.esfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada())
@@ -113,12 +113,12 @@ public class ClientRestServiceMain {
 				.build();
 		
 		ExtratoEntregaService extratoEntregaService = new ExtratoEntregaService();
-		extratoEntregaService.carregarDados(filtroExtratoEntrega);
+		extratoEntregaService.carregarDados(opcoes);
 	}
 
 	private static void carregarDadosDCA() {
 		
-		FiltroDCA filtro = new FiltroDCA.Builder()
+		OpcoesCargaDadosDCA opcoes = new OpcoesCargaDadosDCA.Builder()
 				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
 				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
 				.esfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada())
@@ -128,12 +128,12 @@ public class ClientRestServiceMain {
 				.build();
 		
 		DCAService dcaService = new DCAService();
-		dcaService.carregarDados(filtro);		
+		dcaService.carregarDados(opcoes);		
 	}
 
 	private static void carregarDadosRGF() {
 		
-		FiltroRGF filtro = new FiltroRGF.Builder()
+		OpcoesCargaDadosRGF opcoes = new OpcoesCargaDadosRGF.Builder()
 				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
 				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
 				.esfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada())
@@ -145,12 +145,12 @@ public class ClientRestServiceMain {
 				.build();		
 		
 		RGFService rgfService = new RGFService();
-		rgfService.carregarDados(filtro);		
+		rgfService.carregarDados(opcoes);		
 	}
 	
 	private static void carregarDadosRREO() {
 		
-		FiltroRREO filtro = new FiltroRREO.Builder()
+		OpcoesCargaDadosRREO opcoes = new OpcoesCargaDadosRREO.Builder()
 				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
 				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
 				.esfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada())
@@ -161,26 +161,26 @@ public class ClientRestServiceMain {
 				.build();		
 		
 		RREOService rreoService = new RREOService();
-		rreoService.carregarDados(filtro);		
+		rreoService.carregarDados(opcoes);		
 	}
 	
 	private static void carregarDadosMSCPatrimonial() {		
 		MSCPatrimonialService mscService = new MSCPatrimonialService();
-		mscService.carregarDados(getFiltroMSC());		
+		mscService.carregarDados(getOpcoesCargaDadosMSC());		
 	}
 
 	private static void carregarDadosMSCOrcamentaria() {
 		MSCOrcamentariaService mscService = new MSCOrcamentariaService();
-		mscService.carregarDados(getFiltroMSC());		
+		mscService.carregarDados(getOpcoesCargaDadosMSC());		
 	}
 
 	private static void carregarDadosMSCControle() {
 		MSCControleService mscService = new MSCControleService();
-		mscService.carregarDados(getFiltroMSC());		
+		mscService.carregarDados(getOpcoesCargaDadosMSC());		
 	}
 
-	private static FiltroMSC getFiltroMSC() {
-		FiltroMSC filtro = new FiltroMSC.Builder()
+	private static OpcoesCargaDadosMSC getOpcoesCargaDadosMSC() {
+		OpcoesCargaDadosMSC opcoes = new OpcoesCargaDadosMSC.Builder()
 				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
 				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
 				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
@@ -190,7 +190,7 @@ public class ClientRestServiceMain {
 				.listaClasseConta(LeitorParametrosPrograma.getOpcaoClassesContasSelecionadas())
 				.listaTipoValor(LeitorParametrosPrograma.getOpcaoTiposValorMatrizSelecionado())
 				.build();
-		return filtro;
+		return opcoes;
 	}
 
 	private static void exibirMensagemAjuda() {
@@ -202,10 +202,10 @@ public class ClientRestServiceMain {
 		System.out.println("\t Valores possíveis: BANCO, ARQUIVO, CONSOLE");
 		System.out.println("Opção -DcaminhoArquivo (Opcional. Considerada apenas quando a opção de saída de dados é ARQUIVO) ");
 		System.out.println("\t Exemplo: -DcaminhoArquivo=\"C:\\nome_do_arquivo.csv\"");		
-		System.out.println("Opção -Dexercicios (Opcional. Valor padrão: " + SiconfiService.EXERCICIOS_DISPONIVEIS + ") ");
+		System.out.println("Opção -Dexercicios (Opcional. Valor padrão: " + Constantes.EXERCICIOS_DISPONIVEIS + ") ");
 		System.out.println("\t Valores possíveis: lista de exercício separados por vírgula. Exemplo: -Dexercicios=2020,2019");
 		System.out.println("Opção -Dperiodos (Opcional. Considerada apenas para RREO, RGF e MSC. Valor Padrão para RREO: "
-				+ SiconfiService.BIMESTRES + ". Valor Padrão para RGF: " + SiconfiService.QUADRIMESTRES + ". Valor Padrão para MSC: " + SiconfiService.MESES +") ");
+				+ Constantes.BIMESTRES + ". Valor Padrão para RGF: " + Constantes.QUADRIMESTRES + ". Valor Padrão para MSC: " + Constantes.MESES +") ");
 		System.out.println("\t Valores possíveis: lista de periodos (bimestres, quadrimestres) separados por vírgula. Exemplo: -Dperiodos=1,2,3");
 		System.out.println("Opção -Desfera (Opcional). Valor padrão: ED. Caso seja utilizada a opção -Dente, essa opção é desconsiderada");
 		System.out.println("\t Valores possíveis: Esfera dos entes da Federação. Valores: U - União, E - Estados, D - Distrito Federal, "

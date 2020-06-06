@@ -16,7 +16,6 @@ import br.gov.ce.sefaz.siconfi.enums.TipoValorMatrizSaldoContabeis;
 import br.gov.ce.sefaz.siconfi.service.DCAService;
 import br.gov.ce.sefaz.siconfi.service.RGFService;
 import br.gov.ce.sefaz.siconfi.service.RREOService;
-import br.gov.ce.sefaz.siconfi.service.SiconfiService;
 
 public class LeitorParametrosPrograma {
 
@@ -153,7 +152,7 @@ public class LeitorParametrosPrograma {
 		try {
 			String opcao = System.getProperty(OPCAO_EXERCICIOS);
 			if (Utils.isStringVazia(opcao)) {
-				opcaoExerciciosSelecionados = SiconfiService.EXERCICIOS_DISPONIVEIS;
+				opcaoExerciciosSelecionados = Constantes.EXERCICIOS_DISPONIVEIS;
 			} else {
 				String[] exercicios = opcao.split(",");
 				opcaoExerciciosSelecionados = new ArrayList<Integer>();
@@ -178,9 +177,9 @@ public class LeitorParametrosPrograma {
 			String opcao = System.getProperty(OPCAO_PERIODOS);
 			
 			if (Utils.isStringVazia(opcao)) {
-				opcaoPeriodosSelecionados = (relatorioSelecionado.equals(Relatorio.rreo)) ? SiconfiService.BIMESTRES
-						: (relatorioSelecionado.equals(Relatorio.rgf)) ? SiconfiService.QUADRIMESTRES
-								: (relatorioSelecionado.equals(Relatorio.msc_patrimonial)) ? SiconfiService.MESES : null;
+				opcaoPeriodosSelecionados = (relatorioSelecionado.equals(Relatorio.rreo)) ? Constantes.BIMESTRES
+						: (relatorioSelecionado.equals(Relatorio.rgf)) ? Constantes.QUADRIMESTRES
+								: (relatorioSelecionado.equals(Relatorio.msc_patrimonial)) ? Constantes.MESES : null;
 			} else {
 				String[] periodos = opcao.split(",");
 				opcaoPeriodosSelecionados = new ArrayList<Integer>();
@@ -294,11 +293,11 @@ public class LeitorParametrosPrograma {
 			String opcao = System.getProperty(OPCAO_CLASSES_CONTA_CONTABIL);
 			if (Utils.isStringVazia(opcao)) {
 				opcaoClassesContasSelecionadas = getRelatorioSelecionado().equals(Relatorio.msc_patrimonial)
-						? SiconfiService.CLASSES_CONTAS_PATRIMONIAIS
+						? Constantes.CLASSES_CONTAS_PATRIMONIAIS
 						: getRelatorioSelecionado().equals(Relatorio.msc_orcamentaria)
-								? SiconfiService.CLASSES_CONTAS_ORCAMENTARIAS
+								? Constantes.CLASSES_CONTAS_ORCAMENTARIAS
 								: getRelatorioSelecionado().equals(Relatorio.msc_controle)
-										? SiconfiService.CLASSES_CONTAS_CONTROLE
+										? Constantes.CLASSES_CONTAS_CONTROLE
 										: null;
 			} else {
 				String[] classesContaContabil = opcao.split(",");

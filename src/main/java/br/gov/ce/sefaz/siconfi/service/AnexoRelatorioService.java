@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.AnexoRelatorio;
-import br.gov.ce.sefaz.siconfi.response.AnexoRelatorioResponse;
+import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
 
 public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio> {
 
@@ -37,10 +38,16 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio> {
 		
 		List<AnexoRelatorio> listaAnexos = null;		
 		try {
+			long ini = System.currentTimeMillis();
 			
-			AnexoRelatorioResponse anexoRelatorioResponse = obterResponseDaApi();
-			listaAnexos = anexoRelatorioResponse != null ? anexoRelatorioResponse.getItems() : new ArrayList<AnexoRelatorio>();
+			this.webTarget = this.client.target(URL_SERVICE).path(API_PATH_ANEXO_RELATORIO);
+			Invocation.Builder invocationBuilder = this.webTarget.request(API_RESPONSE_TYPE);
 			
+			logger.info("Fazendo Get na API: " + this.webTarget.getUri().toString());
+			Response response = invocationBuilder.get();			
+			listaAnexos = lerEntidades(response);
+			long fim = System.currentTimeMillis();			
+			logger.debug("Tempo para consultar os anexos dos relatórios na API:" + (fim -ini));
 		} catch (Exception e) {
 			logger.error(e);
 			listaAnexos =  new ArrayList<>();
@@ -50,19 +57,12 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio> {
 		return listaAnexos;
 	}
 
-	private AnexoRelatorioResponse obterResponseDaApi() {
-		long ini = System.currentTimeMillis();
-		
-		this.webTarget = this.client.target(URL_SERVICE).path(API_PATH_ANEXO_RELATORIO);
-		Invocation.Builder invocationBuilder = this.webTarget.request(API_RESPONSE_TYPE);
-		
-		logger.info("Fazendo Get na API: " + this.webTarget.getUri().toString());
-		Response response = invocationBuilder.get();
-		AnexoRelatorioResponse anexoRelatorioResponse = response.readEntity( AnexoRelatorioResponse.class );
-		
-		long fim = System.currentTimeMillis();			
-		logger.debug("Tempo para consultar os anexos dos relatórios na API:" + (fim -ini));
-		return anexoRelatorioResponse;
+	@Override
+	protected List<AnexoRelatorio> lerEntidades(Response response) {
+		SiconfiResponse<AnexoRelatorio> anexoRelatorioResponse = response
+				.readEntity(new GenericType<SiconfiResponse<AnexoRelatorio>>() {
+				});
+		return anexoRelatorioResponse != null ? anexoRelatorioResponse.getItems() : new ArrayList<AnexoRelatorio>();
 	}
 
 	@Override
@@ -83,6 +83,10 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio> {
 	@Override
 	protected Logger getLogger() {
 		return logger;
-	}	
+	}
 
+	@Override
+	protected String getApiPath() {
+		return API_PATH_ANEXO_RELATORIO;
+	}	
 }

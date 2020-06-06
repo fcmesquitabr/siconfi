@@ -1,13 +1,17 @@
 package br.gov.ce.sefaz.siconfi.service;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.MatrizSaldoContabeisControle;
-import br.gov.ce.sefaz.siconfi.response.MatrizSaldoContabeisControleResponse;
-import br.gov.ce.sefaz.siconfi.response.MatrizSaldoContabeisResponse;
+import br.gov.ce.sefaz.siconfi.util.Constantes;
+import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
 
 public class MSCControleService extends MSCService<MatrizSaldoContabeisControle>{
 
@@ -39,27 +43,30 @@ public class MSCControleService extends MSCService<MatrizSaldoContabeisControle>
 	}
 
 	@Override
-	protected String getAPIPath() {
-		return API_PATH_MSC_CONTROLE;
-	}
-
-	@Override
-	protected Class<? extends MatrizSaldoContabeisResponse<MatrizSaldoContabeisControle>> getResponseClassType() {
-		return MatrizSaldoContabeisControleResponse.class;
-	}
-
-	@Override
 	protected String getEntityName() {
 		return MatrizSaldoContabeisControle.class.getSimpleName();
 	}
 
 	@Override
 	protected List<Integer> getClassContas() {
-		return CLASSES_CONTAS_CONTROLE;
+		return Constantes.CLASSES_CONTAS_CONTROLE;
 	}
 
 	@Override
 	protected Logger getLogger() {
 		return logger;
+	}
+
+	@Override
+	protected List<MatrizSaldoContabeisControle> lerEntidades(Response response) {
+		SiconfiResponse<MatrizSaldoContabeisControle> mscResponse = response
+				.readEntity(new GenericType<SiconfiResponse<MatrizSaldoContabeisControle>>() {
+				});
+		return mscResponse != null ? mscResponse.getItems() : new ArrayList<MatrizSaldoContabeisControle>();	
+	}
+
+	@Override
+	protected String getApiPath() {
+		return API_PATH_MSC_CONTROLE;
 	}
 }

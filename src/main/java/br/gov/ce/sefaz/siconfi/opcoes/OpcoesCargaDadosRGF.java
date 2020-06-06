@@ -1,10 +1,11 @@
-package br.gov.ce.sefaz.siconfi.util;
+package br.gov.ce.sefaz.siconfi.opcoes;
 
 import java.util.List;
 
 import br.gov.ce.sefaz.siconfi.enums.Poder;
+import br.gov.ce.sefaz.siconfi.util.Utils;
 
-public class FiltroRGF extends FiltroBase {
+public class OpcoesCargaDadosRGF extends OpcoesCargaDados {
 	
 	private List<String> listaAnexos;
 	
@@ -34,18 +35,18 @@ public class FiltroRGF extends FiltroBase {
 		this.listaPoderes = listaPoderes;
 	}
 	
-	public FiltroRGF() {
+	public OpcoesCargaDadosRGF() {
 		super();
 	}
 
-	public FiltroRGF(Builder builder) {
+	public OpcoesCargaDadosRGF(Builder builder) {
 		super(builder);
 		this.listaAnexos = builder.listaAnexos;
 		this.listaPoderes = builder.listaPoderes;
 	}
 
 
-	public static class Builder extends FiltroBase.Builder<Builder> {
+	public static class Builder extends OpcoesCargaDados.Builder<Builder> {
 		
 		private List<String> listaAnexos;		
 		private List<Poder> listaPoderes;
@@ -62,8 +63,8 @@ public class FiltroRGF extends FiltroBase {
 			return this;
 		}
 
-		public FiltroRGF build() {
-			return new FiltroRGF(this);
+		public OpcoesCargaDadosRGF build() {
+			return new OpcoesCargaDadosRGF(this);
 		}
 	}
 }

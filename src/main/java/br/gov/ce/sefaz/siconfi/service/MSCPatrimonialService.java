@@ -1,13 +1,17 @@
 package br.gov.ce.sefaz.siconfi.service;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.MatrizSaldoContabeisPatrimonial;
-import br.gov.ce.sefaz.siconfi.response.MatrizSaldoContabeisPatrimonialResponse;
-import br.gov.ce.sefaz.siconfi.response.MatrizSaldoContabeisResponse;
+import br.gov.ce.sefaz.siconfi.util.Constantes;
+import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
 
 public class MSCPatrimonialService extends MSCService<MatrizSaldoContabeisPatrimonial> {
 
@@ -41,13 +45,11 @@ public class MSCPatrimonialService extends MSCService<MatrizSaldoContabeisPatrim
 	}
 
 	@Override
-	protected String getAPIPath() {
-		return API_PATH_MSC_PATRIMONIAL;
-	}
-
-	@Override
-	protected Class<? extends MatrizSaldoContabeisResponse<MatrizSaldoContabeisPatrimonial>> getResponseClassType() {
-		return MatrizSaldoContabeisPatrimonialResponse.class;
+	protected List<MatrizSaldoContabeisPatrimonial> lerEntidades(Response response) {
+		SiconfiResponse<MatrizSaldoContabeisPatrimonial> mscResponse = response
+				.readEntity(new GenericType<SiconfiResponse<MatrizSaldoContabeisPatrimonial>>() {
+				});
+		return mscResponse != null ? mscResponse.getItems() : new ArrayList<MatrizSaldoContabeisPatrimonial>();	
 	}
 
 	@Override
@@ -57,11 +59,17 @@ public class MSCPatrimonialService extends MSCService<MatrizSaldoContabeisPatrim
 
 	@Override
 	protected List<Integer> getClassContas() {
-		return CLASSES_CONTAS_PATRIMONIAIS;
+		return Constantes.CLASSES_CONTAS_PATRIMONIAIS;
 	}
 	
 	@Override
 	protected Logger getLogger() {
 		return logger;
 	}
+
+	@Override
+	protected String getApiPath() {
+		return API_PATH_MSC_PATRIMONIAL;
+	}
+
 }

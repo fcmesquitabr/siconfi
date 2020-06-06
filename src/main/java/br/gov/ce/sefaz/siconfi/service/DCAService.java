@@ -5,15 +5,17 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.Query;
-import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.DeclaracaoContasAnuais;
-import br.gov.ce.sefaz.siconfi.response.DeclaracaoContasAnuaisResponse;
-import br.gov.ce.sefaz.siconfi.util.FiltroDCA;
+import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosDCA;
+import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
+import br.gov.ce.sefaz.siconfi.util.Constantes;
+import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
@@ -37,26 +39,26 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 		super();
 	}
 
-	public void carregarDados(FiltroDCA filtroDCA) {
+	public void carregarDados(OpcoesCargaDadosDCA opcoesCargaDados) {
 		
-		List<DeclaracaoContasAnuais> listaDCA = consultarNaApi(filtroDCA);	
+		List<DeclaracaoContasAnuais> listaDCA = consultarNaApi(opcoesCargaDados);	
 		
-		switch (filtroDCA.getOpcaoSalvamento()) {
+		switch (opcoesCargaDados.getOpcaoSalvamento()) {
 		case CONSOLE:
 			exibirDadosNaConsole(listaDCA);
 			break;
 		case ARQUIVO:
-			String nomeArquivo = definirNomeArquivoCSV(filtroDCA);
+			String nomeArquivo = definirNomeArquivoCSV(opcoesCargaDados);
 			escreverCabecalhoArquivoCsv(nomeArquivo);
 			salvarArquivoCsv(listaDCA, nomeArquivo);
 			break;
 		case BANCO:
-			salvarNoBancoDeDados(filtroDCA, listaDCA);
+			salvarNoBancoDeDados(opcoesCargaDados, listaDCA);
 			break;
 		}
 	}
 
-	protected void salvarNoBancoDeDados(FiltroDCA filtro, List<DeclaracaoContasAnuais> listaEntidades) {
+	protected void salvarNoBancoDeDados(OpcoesCargaDadosDCA filtro, List<DeclaracaoContasAnuais> listaEntidades) {
 		if(Utils.isEmptyCollection(listaEntidades)) return;
 		getEntityManager().getTransaction().begin();		
 		excluirDeclaracaoContasAnuais(filtro);
@@ -65,7 +67,7 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 		fecharContextoPersistencia();		
 	}
 
-	private void excluirDeclaracaoContasAnuais(FiltroDCA filtro) {
+	private void excluirDeclaracaoContasAnuais(OpcoesCargaDadosDCA filtro) {
 		logger.info("Excluindo dados do banco de dados...");
 		
 		StringBuilder queryBuilder = new StringBuilder("DELETE FROM DeclaracaoContasAnuais dca WHERE dca.exercicio IN (:exercicios) ");
@@ -109,9 +111,9 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 		return new ArrayList<DeclaracaoContasAnuais>();
 	}
 
-	public List<DeclaracaoContasAnuais> consultarNaApi(FiltroDCA filtroDCA){
+	public List<DeclaracaoContasAnuais> consultarNaApi(OpcoesCargaDadosDCA filtroDCA){
 		
-		List<Integer> listaExercicios = (filtroDCA.getExercicios()!=null?filtroDCA.getExercicios():EXERCICIOS_DISPONIVEIS);
+		List<Integer> listaExercicios = (filtroDCA.getExercicios()!=null?filtroDCA.getExercicios(): Constantes.EXERCICIOS_DISPONIVEIS);
 		List<String> listaAnexos = !filtroDCA.isListaAnexosVazia() ? filtroDCA.getListaAnexos() : ANEXOS_DCA;
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbge(filtroDCA);
 		
@@ -120,7 +122,13 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 		for (Integer exercicio: listaExercicios) {
 			for(String codigoIbge: listaCodigoIbge) {
 				for (String anexo: listaAnexos) {
-					List<DeclaracaoContasAnuais> listaDCAParcial = consultarNaApi(exercicio,anexo, codigoIbge);	
+					
+					APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil();
+					apiQueryParamUtil.addParamAnExercicio(exercicio)
+						.addParamIdEnte(codigoIbge)
+						.addParamAnexo(anexo);
+					
+					List<DeclaracaoContasAnuais> listaDCAParcial = consultarNaApi(apiQueryParamUtil);	
 					listaDCA.addAll(listaDCAParcial);
 					aguardarUmSegundo();
 				}
@@ -129,47 +137,14 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 		return listaDCA;
 	}
 
-	public List<DeclaracaoContasAnuais> consultarNaApi(Integer exercicio, String anexo, String codigoIbge) {
-		
-		List<DeclaracaoContasAnuais> listaDCA = null;
-		
-		try {
-
-			DeclaracaoContasAnuaisResponse dcaResponse = obterResponseDaApi(exercicio, anexo, codigoIbge);
-			listaDCA = dcaResponse != null ? dcaResponse.getItems() : new ArrayList<DeclaracaoContasAnuais>();
-
-		} catch (Exception e) {
-			logger.error("Erro para os parâmetros: exercicio: " + exercicio 
-					+ ", anexo: " + anexo 
-					+ ", codigoIbge: " + codigoIbge);
-			e.printStackTrace();
-			listaDCA = new ArrayList<>();
-		}
-		
-		logger.debug("Tamanho da lista para os paramêtros: exercicio: " + exercicio
-				+ ", anexo: " + anexo 
-				+ ", codigoIbge: " + codigoIbge + ": " + listaDCA.size());
-		return listaDCA;
+	@Override
+	protected List<DeclaracaoContasAnuais> lerEntidades(Response response) {
+		SiconfiResponse<DeclaracaoContasAnuais> dcaResponse = response
+				.readEntity(new GenericType<SiconfiResponse<DeclaracaoContasAnuais>>() {
+				});
+		return dcaResponse != null ? dcaResponse.getItems() : new ArrayList<DeclaracaoContasAnuais>();
 	}
 
-	private DeclaracaoContasAnuaisResponse obterResponseDaApi(Integer exercicio, String anexo, String codigoIbge) {
-
-		long ini = System.currentTimeMillis();
-
-		this.webTarget = this.client.target(URL_SERVICE).path(API_PATH_DCA)
-				.queryParam(API_QUERY_PARAM_AN_EXERCICIO, exercicio)
-				.queryParam(API_QUERY_PARAM_NO_ANEXO, anexo.replaceAll(" ", "%20"))
-				.queryParam(API_QUERY_PARAM_ID_ENTE, codigoIbge);
-		Invocation.Builder invocationBuilder = this.webTarget.request(API_RESPONSE_TYPE);
-		logger.info("Get na API: " + this.webTarget.getUri().toString());
-		Response response = invocationBuilder.get();
-		DeclaracaoContasAnuaisResponse dcaResponse = response.readEntity(DeclaracaoContasAnuaisResponse.class);
-		
-		long fim = System.currentTimeMillis();
-		logger.debug("Tempo para consultar as DCA na API:" + (fim - ini));
-		return dcaResponse;
-	}
-	
 	private EnteService getEnteService() {
 		if(enteService == null) {
 			enteService = new EnteService();
@@ -195,5 +170,10 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais>{
 	@Override
 	protected Logger getLogger() {
 		return logger;
+	}
+
+	@Override
+	protected String getApiPath() {
+		return API_PATH_DCA;
 	}
 }

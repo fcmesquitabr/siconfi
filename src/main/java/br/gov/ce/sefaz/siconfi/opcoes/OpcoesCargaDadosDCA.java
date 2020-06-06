@@ -1,12 +1,14 @@
-package br.gov.ce.sefaz.siconfi.util;
+package br.gov.ce.sefaz.siconfi.opcoes;
 
 import java.util.List;
 
-public class FiltroRREO extends FiltroBase {
-	
+import br.gov.ce.sefaz.siconfi.util.Utils;
+
+public class OpcoesCargaDadosDCA extends OpcoesCargaDados {
+
 	private List<String> listaAnexos;
-	
-	public FiltroRREO() {
+
+	public OpcoesCargaDadosDCA() {
 		super();
 	}
 
@@ -22,12 +24,12 @@ public class FiltroRREO extends FiltroBase {
 		this.listaAnexos = listaAnexos;
 	}
 	
-	protected FiltroRREO(Builder builder) {
+	protected OpcoesCargaDadosDCA(Builder builder) {
 		super(builder);
 		this.listaAnexos = builder.listaAnexos;
 	}
 	
-	public static class Builder extends FiltroBase.Builder<Builder> {
+	public static class Builder extends OpcoesCargaDados.Builder<Builder> {
 		
 		private List<String> listaAnexos;
 		
@@ -38,9 +40,8 @@ public class FiltroRREO extends FiltroBase {
 			return this;
 		}
 		
-		public FiltroRREO build() {
-			return new FiltroRREO(this);
+		public OpcoesCargaDadosDCA build() {
+			return new OpcoesCargaDadosDCA(this);
 		}
 	}
-
 }

@@ -1,11 +1,12 @@
-package br.gov.ce.sefaz.siconfi.util;
+package br.gov.ce.sefaz.siconfi.opcoes;
 
 import java.util.List;
 
 import br.gov.ce.sefaz.siconfi.enums.Esfera;
 import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
+import br.gov.ce.sefaz.siconfi.util.Utils;
 
-public class FiltroBase {
+public class OpcoesCargaDados {
 	
 	private List<Integer> exercicios;
 	
@@ -19,7 +20,7 @@ public class FiltroBase {
 
 	private String nomeArquivo;
 
-	public FiltroBase() {
+	public OpcoesCargaDados() {
 		super();
 	}
 
@@ -132,12 +133,12 @@ public class FiltroBase {
 			return (T) this;
 		}
 		
-		public FiltroBase build() {
-			return new FiltroBase(this);
+		public OpcoesCargaDados build() {
+			return new OpcoesCargaDados(this);
 		}
 	}
 	
-	protected FiltroBase (Builder<?> builder) {
+	protected OpcoesCargaDados (Builder<?> builder) {
 		this.codigosIBGE = builder.codigosIBGE;
 		this.esfera = builder.esfera;
 		this.exercicios = builder.exercicios;

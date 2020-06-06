@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.persistence.Query;
 import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.LogManager;
@@ -13,8 +14,8 @@ import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.enums.Esfera;
-import br.gov.ce.sefaz.siconfi.response.EnteResponse;
-import br.gov.ce.sefaz.siconfi.util.FiltroBase;
+import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDados;
+import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
 
 public class EnteService extends SiconfiService <Ente>{
 
@@ -49,10 +50,18 @@ public class EnteService extends SiconfiService <Ente>{
 		
 		List<Ente> listaEntes;
 		try {
+
+			long ini = System.currentTimeMillis();
 			
-			EnteResponse enteResponse = obterResponseDaApi();
-			listaEntes = enteResponse!=null?enteResponse.getItems():new ArrayList<Ente>();	
+			this.webTarget = this.client.target(URL_SERVICE).path(API_PATH_ENTES);
+			Invocation.Builder invocationBuilder =  this.webTarget.request(API_RESPONSE_TYPE); 
 			
+			logger.info("Fazendo get na API: " + this.webTarget.getUri().toString());
+			Response response = invocationBuilder.get();
+			listaEntes = lerEntidades(response);
+			long fim = System.currentTimeMillis();			
+			logger.debug("Tempo para consultar os entes na API:" + (fim -ini));
+
 		} catch(Exception e) {
 			logger.error(e);
 			listaEntes = new ArrayList<>();
@@ -62,40 +71,33 @@ public class EnteService extends SiconfiService <Ente>{
 		return listaEntes;
 	}
 
-	private EnteResponse obterResponseDaApi() {
-		long ini = System.currentTimeMillis();
-		
-		this.webTarget = this.client.target(URL_SERVICE).path(API_PATH_ENTES);
-		Invocation.Builder invocationBuilder =  this.webTarget.request(API_RESPONSE_TYPE); 
-		
-		logger.info("Fazendo get na API: " + this.webTarget.getUri().toString());
-		Response response = invocationBuilder.get();
-		EnteResponse enteResponse = response.readEntity(EnteResponse.class);
-		
-		long fim = System.currentTimeMillis();			
-		logger.debug("Tempo para consultar os entes na API:" + (fim -ini));
-		return enteResponse;
+	@Override
+	protected List<Ente> lerEntidades(Response response) {
+		SiconfiResponse<Ente> enteResponse = response
+				.readEntity(new GenericType<SiconfiResponse<Ente>>() {
+				});
+		return enteResponse != null ? enteResponse.getItems() : new ArrayList<Ente>();
 	}
-	
-	public List<String> obterListaCodigosIbge(FiltroBase filtro) {
+
+	public List<String> obterListaCodigosIbge(OpcoesCargaDados opcoes) {
 		List<String> listaCodigoIbge = null;
 		
-		if(filtro.isExisteCodigosIbge()) {			
-			listaCodigoIbge = filtro.getCodigosIBGE();
+		if(opcoes.isExisteCodigosIbge()) {			
+			listaCodigoIbge = opcoes.getCodigosIBGE();
 		} else {			
-			listaCodigoIbge = obterListaCodigoIbgePelaEsfera(filtro);
+			listaCodigoIbge = obterListaCodigoIbgePelaEsfera(opcoes);
 		}
 		return listaCodigoIbge;
 	}
 
-	private List<String> obterListaCodigoIbgePelaEsfera(FiltroBase filtro) {
+	private List<String> obterListaCodigoIbgePelaEsfera(OpcoesCargaDados opcoes) {
 		
 		List<Ente> listaEntes = null;
 	
-		if(filtro.getEsfera() == null || filtro.getEsfera().equals(Esfera.ESTADOS_E_DISTRITO_FEDERAL)) {
+		if(opcoes.getEsfera() == null || opcoes.getEsfera().equals(Esfera.ESTADOS_E_DISTRITO_FEDERAL)) {
 			listaEntes = consultarEntesNaBase(Arrays.asList(Esfera.ESTADO.getCodigo(),Esfera.DISTRITO_FEDERAL.getCodigo()));				
 		} else {
-			listaEntes = consultarEntesNaBase(Arrays.asList(filtro.getEsfera().getCodigo()));
+			listaEntes = consultarEntesNaBase(Arrays.asList(opcoes.getEsfera().getCodigo()));
 		}
 		
 		return obterListaCodigoIbge(listaEntes);
@@ -127,5 +129,10 @@ public class EnteService extends SiconfiService <Ente>{
 	@Override
 	protected Logger getLogger() {
 		return logger;
+	}
+
+	@Override
+	protected String getApiPath() {
+		return API_PATH_ENTES;
 	}
 }

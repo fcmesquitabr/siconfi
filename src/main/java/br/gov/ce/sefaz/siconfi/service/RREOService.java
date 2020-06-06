@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.Query;
-import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.LogManager;
@@ -13,8 +13,10 @@ import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.RelatorioResumidoExecucaoOrcamentaria;
 import br.gov.ce.sefaz.siconfi.enums.TipoDemonstrativoRREO;
-import br.gov.ce.sefaz.siconfi.response.RelatorioResumidoExecucaoOrcamentariaResponse;
-import br.gov.ce.sefaz.siconfi.util.FiltroRREO;
+import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosRREO;
+import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
+import br.gov.ce.sefaz.siconfi.util.Constantes;
+import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamentaria> {
@@ -41,7 +43,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		super();
 	}
 
-	public void carregarDados(FiltroRREO filtro) {
+	public void carregarDados(OpcoesCargaDadosRREO filtro) {
 
 		List<RelatorioResumidoExecucaoOrcamentaria> listaRREO = consultarNaApi(filtro);
 
@@ -60,7 +62,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		}
 	}
 
-	protected void salvarNoBancoDeDados(FiltroRREO filtro, List<RelatorioResumidoExecucaoOrcamentaria> listaEntidades) {
+	protected void salvarNoBancoDeDados(OpcoesCargaDadosRREO filtro, List<RelatorioResumidoExecucaoOrcamentaria> listaEntidades) {
 		if (listaEntidades == null || listaEntidades.isEmpty())
 			return;
 		getEntityManager().getTransaction().begin();
@@ -70,7 +72,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		fecharContextoPersistencia();
 	}
 
-	private void excluirRelatorioResumidoExecucaoOrcamentaria(FiltroRREO filtro) {
+	private void excluirRelatorioResumidoExecucaoOrcamentaria(OpcoesCargaDadosRREO filtro) {
 		logger.info("Excluindo dados do banco de dados...");
 
 		StringBuilder queryBuilder = new StringBuilder(
@@ -126,10 +128,10 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		return new ArrayList<RelatorioResumidoExecucaoOrcamentaria>();
 	}
 
-	public List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi(FiltroRREO filtro) {
+	public List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi(OpcoesCargaDadosRREO filtro) {
 
 		List<Integer> listaExercicios = !filtro.isListaExerciciosVazia() ? filtro.getExercicios()
-				: EXERCICIOS_DISPONIVEIS;
+				: Constantes.EXERCICIOS_DISPONIVEIS;
 		List<RelatorioResumidoExecucaoOrcamentaria> listaRREO = new ArrayList<>();
 
 		for (Integer exercicio : listaExercicios) {
@@ -138,9 +140,9 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		return listaRREO;
 	}
 
-	private List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi(FiltroRREO filtro, Integer exercicio) {
+	private List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi(OpcoesCargaDadosRREO filtro, Integer exercicio) {
 
-		List<Integer> listaSemestres = !filtro.isListaPeriodosVazia() ? filtro.getPeriodos() : SEMESTRES;
+		List<Integer> listaSemestres = !filtro.isListaPeriodosVazia() ? filtro.getPeriodos() : Constantes.BIMESTRES;
 		List<RelatorioResumidoExecucaoOrcamentaria> listaRREO = new ArrayList<>();
 
 		for (Integer semestre: listaSemestres) {
@@ -149,78 +151,43 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		return listaRREO;
 	}
 
-	private List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi(FiltroRREO filtro, Integer exercicio, Integer semestre) {
+	private List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi(OpcoesCargaDadosRREO filtro, Integer exercicio, Integer bimestre) {
 
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbge(filtro);
 		List<RelatorioResumidoExecucaoOrcamentaria> listaRREO = new ArrayList<>();
 
 		for (String codigoIbge : listaCodigoIbge) {
-			listaRREO.addAll(consultarNaApi(filtro, exercicio, semestre, codigoIbge));
+			listaRREO.addAll(consultarNaApi(filtro, exercicio, bimestre, codigoIbge));
 		}
 		return listaRREO;
 	}
 
-	private List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi(FiltroRREO filtro, Integer exercicio, Integer semestre,
+	private List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi(OpcoesCargaDadosRREO filtro, Integer exercicio, Integer bimestre,
 			String codigoIbge) {
 
 		List<String> listaAnexos = !filtro.isListaAnexosVazia() ? filtro.getListaAnexos() : ANEXOS_RREO;
 		List<RelatorioResumidoExecucaoOrcamentaria> listaRREO = new ArrayList<>();
 
 		for (String anexo : listaAnexos) {
-			List<RelatorioResumidoExecucaoOrcamentaria> listaRREOParcial = consultarNaApi(exercicio,
-					semestre, TipoDemonstrativoRREO.RREO.getCodigo(), anexo,
-					codigoIbge);
+			APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil();
+			apiQueryParamUtil.addParamAnExercicio(exercicio)
+					.addParamPeriodo(bimestre)
+					.addParamIdEnte(codigoIbge)
+					.addParamTipoDemonstrativo(TipoDemonstrativoRREO.RREO.getCodigo())
+					.addParamAnexo(anexo);
+			List<RelatorioResumidoExecucaoOrcamentaria> listaRREOParcial = consultarNaApi(apiQueryParamUtil);
 			listaRREO.addAll(listaRREOParcial);
 			aguardarUmSegundo();
 		}
 		return listaRREO;
 	}
 
-	public List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi(Integer exercicio, Integer periodo,
-			String codigoTipoDemonstrativo, String anexo, String codigoIbge) {
-
-		List<RelatorioResumidoExecucaoOrcamentaria> listaRREO = null;
-		try {
-
-			RelatorioResumidoExecucaoOrcamentariaResponse relatorioResponse = obterResponseDaApi(exercicio, periodo,
-					codigoTipoDemonstrativo, anexo, codigoIbge);
-
-			listaRREO = relatorioResponse != null ? relatorioResponse.getItems()
-					: new ArrayList<RelatorioResumidoExecucaoOrcamentaria>();
-		} catch (Exception e) {
-			logger.error("Erro para os parâmetros: exercicio: " + exercicio + ", período: " + periodo
-					+ ", codigoTipoDemonstrativo:" + codigoTipoDemonstrativo + ", anexo: " + anexo + ", codigoIbge: "
-					+ codigoIbge);
-			e.printStackTrace();
-			listaRREO = new ArrayList<>();
-		}
-
-		logger.debug("Tamanho da lista de RREO os parâmetros: exercicio: " + exercicio + ", período: " + periodo
-				+ ", codigoTipoDemonstrativo:" + codigoTipoDemonstrativo + ", anexo: " + anexo + ", codigoIbge: "
-				+ codigoIbge + ": " + listaRREO.size());
-		return listaRREO;
-	}
-
-	private RelatorioResumidoExecucaoOrcamentariaResponse obterResponseDaApi(Integer exercicio, Integer periodo,
-			String codigoTipoDemonstrativo, String anexo, String codigoIbge) {
-
-		long ini = System.currentTimeMillis();
-
-		this.webTarget = this.client.target(URL_SERVICE).path(API_PATH_RREO)
-				.queryParam(API_QUERY_PARAM_AN_EXERCICIO, exercicio)
-				.queryParam(API_QUERY_PARAM_NR_PERIODO, periodo)
-				.queryParam(API_QUERY_PARAM_CO_TIPO_DEMONSTRATIVO, codigoTipoDemonstrativo)
-				.queryParam(API_QUERY_PARAM_NO_ANEXO, anexo.replaceAll(" ", "%20"))
-				.queryParam(API_QUERY_PARAM_ID_ENTE, codigoIbge);
-		Invocation.Builder invocationBuilder = this.webTarget.request(API_RESPONSE_TYPE);
-		logger.info("Fazendo Get na API: " + this.webTarget.getUri().toString());
-		Response response = invocationBuilder.get();
-		RelatorioResumidoExecucaoOrcamentariaResponse relatorioResponse = response
-				.readEntity(RelatorioResumidoExecucaoOrcamentariaResponse.class);
-
-		long fim = System.currentTimeMillis();
-		logger.debug("Tempo para consultar o RREO na API:" + (fim - ini));
-		return relatorioResponse;
+	@Override
+	protected List<RelatorioResumidoExecucaoOrcamentaria> lerEntidades(Response response) {
+		SiconfiResponse<RelatorioResumidoExecucaoOrcamentaria> rreoResponse = response
+				.readEntity(new GenericType<SiconfiResponse<RelatorioResumidoExecucaoOrcamentaria>>() {
+				});
+		return rreoResponse != null ? rreoResponse.getItems() : new ArrayList<RelatorioResumidoExecucaoOrcamentaria>();
 	}
 
 	private EnteService getEnteService() {
@@ -248,5 +215,10 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 	@Override
 	protected Logger getLogger() {
 		return logger;
+	}
+
+	@Override
+	protected String getApiPath() {
+		return API_PATH_RREO;
 	}
 }

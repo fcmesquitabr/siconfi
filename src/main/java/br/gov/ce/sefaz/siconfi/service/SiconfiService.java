@@ -1,6 +1,6 @@
 package br.gov.ce.sefaz.siconfi.service;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -8,31 +8,18 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.Logger;
 
+import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDados;
+import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
 import br.gov.ce.sefaz.siconfi.util.CsvUtil;
-import br.gov.ce.sefaz.siconfi.util.FiltroBase;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public abstract class SiconfiService <T> {
-
-	public static final List<Integer> EXERCICIOS_DISPONIVEIS = Arrays.asList(2020);
-
-	public static final List<Integer> MESES = Arrays.asList(1); //1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
-
-	public static final List<Integer> BIMESTRES = Arrays.asList(1); //1, 2, 3, 4, 5, 6
-	
-	public static final List<Integer> QUADRIMESTRES = Arrays.asList(1); //1, 2, 3
-	
-	public static final List<Integer> SEMESTRES = Arrays.asList(1, 2);
-
-	public static final List<Integer> CLASSES_CONTAS_PATRIMONIAIS = Arrays.asList(1, 2, 3, 4);
-
-	public static final List<Integer> CLASSES_CONTAS_ORCAMENTARIAS = Arrays.asList(5, 6);
-
-	public static final List<Integer> CLASSES_CONTAS_CONTROLE = Arrays.asList(7, 8);
 
 	protected Client client;
 	 
@@ -41,28 +28,6 @@ public abstract class SiconfiService <T> {
 	public static final String URL_SERVICE = "http://apidatalake.tesouro.gov.br/ords/siconfi/tt/";
 
 	public static final String API_RESPONSE_TYPE = "application/json;charset=UTF-8";
-
-	public static final String API_QUERY_PARAM_AN_REFERENCIA = "an_referencia";
-
-	public static final String API_QUERY_PARAM_ME_REFERENCIA = "me_referencia";
-
-	public static final String API_QUERY_PARAM_AN_EXERCICIO = "an_exercicio";
-
-	public static final String API_QUERY_PARAM_ID_ENTE = "id_ente"; 
-
-	public static final String API_QUERY_PARAM_NO_ANEXO = "no_anexo"; 
-
-	public static final String API_QUERY_PARAM_IN_PERIODICIDADE = "in_periodicidade"; 
-
-	public static final String API_QUERY_PARAM_NR_PERIODO = "nr_periodo"; 
-
-	public static final String API_QUERY_PARAM_CO_TIPO_DEMONSTRATIVO = "co_tipo_demonstrativo"; 
-
-	public static final String API_QUERY_PARAM_CO_TIPO_MATRIZ = "co_tipo_matriz"; 
-
-	public static final String API_QUERY_PARAM_CLASSE_CONTA = "classe_conta"; 
-
-	public static final String API_QUERY_PARAM_ID_TV = "id_tv"; 
 
 	private EntityManagerFactory emf;
 	
@@ -81,23 +46,27 @@ public abstract class SiconfiService <T> {
 	protected abstract String[] getColunasArquivoCSV();
 
 	protected abstract Class<T> getEntityClass();
-
+	
 	protected abstract Logger getLogger();
 	
-	public void carregarDados(FiltroBase filtro) {
+	protected abstract List<T> lerEntidades(Response response);	
+
+	protected abstract String getApiPath();
+
+	public void carregarDados(OpcoesCargaDados opcoes) {
 		
-		List<T> listaEntes = consultarNaApi();	
+		List<T> listaEntidades = consultarNaApi();	
 		
-		switch (filtro.getOpcaoSalvamento()) {
+		switch (opcoes.getOpcaoSalvamento()) {
 		case CONSOLE:
-			exibirDadosNaConsole(listaEntes);
+			exibirDadosNaConsole(listaEntidades);
 			break;
 		case ARQUIVO:
-			escreverCabecalhoArquivoCsv(definirNomeArquivoCSV(filtro));
-			salvarArquivoCsv(listaEntes, definirNomeArquivoCSV(filtro));
+			escreverCabecalhoArquivoCsv(definirNomeArquivoCSV(opcoes));
+			salvarArquivoCsv(listaEntidades, definirNomeArquivoCSV(opcoes));
 			break;
 		case BANCO:
-			salvarNoBancoDeDados(listaEntes);
+			salvarNoBancoDeDados(listaEntidades);
 			break;
 		}
 	}
@@ -108,8 +77,8 @@ public abstract class SiconfiService <T> {
 		}
 	}
 
-	protected String definirNomeArquivoCSV(FiltroBase filtro) {
-		return !filtro.isNomeArquivoVazio() ? filtro.getNomeArquivo() : getNomePadraoArquivoCSV();
+	protected String definirNomeArquivoCSV(OpcoesCargaDados opcoes) {
+		return !opcoes.isNomeArquivoVazio() ? opcoes.getNomeArquivo() : getNomePadraoArquivoCSV();
 	}
 
 	protected void escreverCabecalhoArquivoCsv(String nomeArquivo) {
@@ -166,11 +135,11 @@ public abstract class SiconfiService <T> {
 	}
 	
 	protected void fecharContextoPersistencia() {
-		if(em!=null) {
-			em.close();			
+		if (em != null) {
+			em.close();
 		}
-		if(emf!=null) {
-			emf.close();			
+		if (emf != null) {
+			emf.close();
 		}
 	}
 	
@@ -193,5 +162,59 @@ public abstract class SiconfiService <T> {
 			getLogger().debug("Inserindo registro " + (i++) + ":" + entity.toString());
 			getEntityManager().persist(entity);
 		}
+	}
+
+	public List<T> consultarNaApi (APIQueryParamUtil apiQueryParamUtil) {
+
+		List<T> listaEntidades = null;		
+		try {
+
+			long ini = System.currentTimeMillis();			
+			Response response = obterResponseAPI(apiQueryParamUtil);				
+			listaEntidades = lerEntidades(response);
+			mensagemTempoConsultaAPI(ini);	
+			
+		} catch (Exception e) {
+			mensagemLogErroConsultaNaAPI(apiQueryParamUtil);
+			e.printStackTrace();
+			listaEntidades =  new ArrayList<>();
+		}
+		
+		mensagemLogTamanhoDaLista(apiQueryParamUtil, listaEntidades);		
+		return listaEntidades;
+	}
+
+	private void mensagemLogErroConsultaNaAPI(APIQueryParamUtil apiQueryParamUtil) {
+		StringBuilder mensagemLog = new StringBuilder("Erro de consulta na API para os parâmetros:");
+		apiQueryParamUtil.getMapQueryParam().forEach((chave, valor) -> mensagemLog.append(chave + ": " + valor.toString() + ", "));
+		getLogger().info(mensagemLog.toString());
+	}
+
+	private Response obterResponseAPI(APIQueryParamUtil apiQueryParamUtil) {
+		
+		this.webTarget = this.client.target(URL_SERVICE).path(getApiPath());
+		apiQueryParamUtil.getMapQueryParam().forEach((chave, valor) -> inserirAPIQueryParam(chave, valor));
+		Invocation.Builder invocationBuilder =  this.webTarget.request(API_RESPONSE_TYPE); 
+		
+		getLogger().info("Fazendo get na API: " + webTarget.getUri().toString());			
+		Response response = invocationBuilder.get();
+		return response;
+		
+	}
+
+	private void mensagemTempoConsultaAPI(long ini) {
+		long fim = System.currentTimeMillis();			
+		getLogger().debug("Tempo para consultar na API:" + (fim -ini));
+	} 
+	
+	private void mensagemLogTamanhoDaLista(APIQueryParamUtil apiQueryParamUtil, List<T> listaEntidades) {
+		StringBuilder mensagemLog = new StringBuilder("Tamanho da lista de entidades para os parâmetros ");
+		apiQueryParamUtil.getMapQueryParam().forEach((chave, valor) -> mensagemLog.append(chave + ": " + valor.toString() + ", "));
+		mensagemLog.append(": " + listaEntidades.size());
+		getLogger().debug(mensagemLog.toString());
+	}
+	
+	private void inserirAPIQueryParam(String chave, Object valor) {
+		this.webTarget = this.webTarget.queryParam(chave, valor);
 	}
 }

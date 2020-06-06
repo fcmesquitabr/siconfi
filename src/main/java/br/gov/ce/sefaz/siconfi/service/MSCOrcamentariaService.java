@@ -1,13 +1,17 @@
 package br.gov.ce.sefaz.siconfi.service;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.MatrizSaldoContabeisOrcamentaria;
-import br.gov.ce.sefaz.siconfi.response.MatrizSaldoContabeisOrcamentariaResponse;
-import br.gov.ce.sefaz.siconfi.response.MatrizSaldoContabeisResponse;
+import br.gov.ce.sefaz.siconfi.util.Constantes;
+import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
 
 public class MSCOrcamentariaService extends MSCService<MatrizSaldoContabeisOrcamentaria> {
 
@@ -42,27 +46,30 @@ public class MSCOrcamentariaService extends MSCService<MatrizSaldoContabeisOrcam
 	}
 
 	@Override
-	protected String getAPIPath() {
-		return API_PATH_MSC_ORCAMENTARIA;
-	}
-
-	@Override
-	protected Class<? extends MatrizSaldoContabeisResponse<MatrizSaldoContabeisOrcamentaria>> getResponseClassType() {
-		return MatrizSaldoContabeisOrcamentariaResponse.class;
-	}
-
-	@Override
 	protected String getEntityName() {
 		return MatrizSaldoContabeisOrcamentaria.class.getSimpleName();
 	}
 
 	@Override
 	protected List<Integer> getClassContas() {
-		return CLASSES_CONTAS_ORCAMENTARIAS;
+		return Constantes.CLASSES_CONTAS_ORCAMENTARIAS;
 	}
 	
 	@Override
 	protected Logger getLogger() {
 		return logger;
+	}
+
+	@Override
+	protected List<MatrizSaldoContabeisOrcamentaria> lerEntidades(Response response) {
+		SiconfiResponse<MatrizSaldoContabeisOrcamentaria> mscResponse = response
+				.readEntity(new GenericType<SiconfiResponse<MatrizSaldoContabeisOrcamentaria>>() {
+				});
+		return mscResponse != null ? mscResponse.getItems() : new ArrayList<MatrizSaldoContabeisOrcamentaria>();
+	}
+
+	@Override
+	protected String getApiPath() {
+		return API_PATH_MSC_ORCAMENTARIA;
 	}
 }

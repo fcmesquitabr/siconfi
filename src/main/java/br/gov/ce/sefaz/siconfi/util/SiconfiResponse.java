@@ -1,4 +1,4 @@
-package br.gov.ce.sefaz.siconfi.response;
+package br.gov.ce.sefaz.siconfi.util;
 
 import java.util.List;
 
@@ -12,6 +12,10 @@ public class SiconfiResponse<T> {
 	private Integer offset;
 	private Integer count;
 	
+	public SiconfiResponse() {
+		super();
+	}
+
 	@JsonIgnore
 	private String links = null;
 	
