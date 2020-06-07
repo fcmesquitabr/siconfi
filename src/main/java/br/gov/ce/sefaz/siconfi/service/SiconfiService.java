@@ -16,10 +16,11 @@ import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDados;
 import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
+import br.gov.ce.sefaz.siconfi.util.Constantes;
 import br.gov.ce.sefaz.siconfi.util.CsvUtil;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
-public abstract class SiconfiService <T> {
+public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 
 	protected Client client;
 	 
@@ -37,38 +38,44 @@ public abstract class SiconfiService <T> {
 		this.client = ClientBuilder.newClient();  		
 	}
 	
-	public abstract List<T> consultarNaApi();
-
-	public abstract void excluirTodos();
-
 	protected abstract String getNomePadraoArquivoCSV();
 
 	protected abstract String[] getColunasArquivoCSV();
 
 	protected abstract Class<T> getEntityClass();
-	
+
+	protected abstract String getEntityName();
+
 	protected abstract Logger getLogger();
 	
 	protected abstract List<T> lerEntidades(Response response);	
 
 	protected abstract String getApiPath();
 
-	public void carregarDados(OpcoesCargaDados opcoes) {
+	public void carregarDados(O opcoes) {
 		
-		List<T> listaEntidades = consultarNaApi();	
+		List<T> listaEntidades = null;	
 		
 		switch (opcoes.getOpcaoSalvamento()) {
 		case CONSOLE:
+			listaEntidades = consultarNaApi(opcoes);
 			exibirDadosNaConsole(listaEntidades);
 			break;
 		case ARQUIVO:
 			escreverCabecalhoArquivoCsv(definirNomeArquivoCSV(opcoes));
+			consultarNaApiESalvarArquivoCsv(opcoes);
 			salvarArquivoCsv(listaEntidades, definirNomeArquivoCSV(opcoes));
 			break;
 		case BANCO:
-			salvarNoBancoDeDados(listaEntidades);
+			listaEntidades = consultarNaApi(opcoes);
+			salvarNoBancoDeDados(opcoes, listaEntidades);
 			break;
 		}
+	}
+
+	public List<T> consultarNaApi(O opcoes){	
+		APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil();
+		return consultarNaApi(apiQueryParamUtil);
 	}
 
 	protected void exibirDadosNaConsole (List<T> listaEntidades) {
@@ -99,6 +106,20 @@ public abstract class SiconfiService <T> {
 		}
 	}
 
+	protected void consultarNaApiESalvarArquivoCsv(O opcoes){
+		
+		List<Integer> listaExercicios = (opcoes.getExercicios() != null ? opcoes.getExercicios()
+				: Constantes.EXERCICIOS_DISPONIVEIS);		
+		for (Integer exercicio : listaExercicios) {
+			consultarNaApiESalvarArquivoCsv(opcoes, exercicio);
+		}
+	}
+	
+	protected void consultarNaApiESalvarArquivoCsv(O opcoes, Integer exercicio) {	
+		List<T> listaEntidades = consultarNaApi(opcoes);
+		salvarArquivoCsv(listaEntidades, definirNomeArquivoCSV(opcoes));
+	}
+
 	/**
 	 * Segundo documentação da API, existe o limite de 1 requisição por segundo
 	 */
@@ -110,12 +131,24 @@ public abstract class SiconfiService <T> {
 		}
 	}
 	
-	protected void salvarNoBancoDeDados(List<T> listaEntidades) {
+	protected void salvarNoBancoDeDados(O opcoes, List<T> listaEntidades) {
+		if(Utils.isEmptyCollection(listaEntidades)) return;
+		
 		getEntityManager().getTransaction().begin();		
-		excluirTodos();
+		excluir(opcoes);
 		persistir(listaEntidades);
 		commitTransaction();
 		fecharContextoPersistencia();		
+	}
+
+	protected void excluir(O opcoes) {
+		excluirTodos();
+	}
+
+	public void excluirTodos() {
+		getLogger().info("Excluindo dados do banco de dados...");
+		int i = getEntityManager().createQuery("DELETE FROM " + getEntityName()).executeUpdate();
+		getLogger().info("Linhas excluídas:" + i);
 	}
 
 	protected EntityManager getEntityManager () {

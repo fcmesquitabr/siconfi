@@ -21,7 +21,7 @@ import br.gov.ce.sefaz.siconfi.util.Constantes;
 import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
-public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
+public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCargaDadosRGF> {
 
 	private static final Logger logger = LogManager.getLogger(RGFService.class);
 
@@ -70,13 +70,6 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 		fecharContextoPersistencia();
 	}
 
-	@Override
-	public void excluirTodos() {
-		logger.info("Excluindo dados do banco de dados...");
-		int i = getEntityManager().createQuery("DELETE FROM RelatorioGestaoFiscal rgf").executeUpdate();
-		logger.info("Linhas excluídas:" + i);
-	}
-
 	public void excluirRGF(Integer exercicio) {
 		logger.info("Excluindo dados do banco de dados...");
 		int i = getEntityManager().createQuery("DELETE FROM RelatorioGestaoFiscal rgf WHERE rgf.exercicio=" + exercicio)
@@ -94,7 +87,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 			queryBuilder.append(" AND rgf.periodo IN (:periodos)");
 		}
 
-		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbge(filtro);
+		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(filtro);
 		if (!Utils.isEmptyCollection(listaCodigoIbge)) {
 			queryBuilder.append(" AND rgf.cod_ibge IN (:codigosIbge)");
 		}
@@ -127,10 +120,6 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 		logger.info("Linhas excluídas:" + i);
 	}
 
-	public List<RelatorioGestaoFiscal> consultarNaApi() {
-		return new ArrayList<RelatorioGestaoFiscal>();
-	}
-
 	public List<RelatorioGestaoFiscal> consultarNaApi(OpcoesCargaDadosRGF filtroRGF) {
 
 		List<Integer> listaExercicios = !filtroRGF.isListaExerciciosVazia() ? filtroRGF.getExercicios()
@@ -157,7 +146,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 
 	private List<RelatorioGestaoFiscal> consultarNaApi(OpcoesCargaDadosRGF filtroRGF, Integer exercicio, Integer quadrimestre) {
 
-		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbge(filtroRGF);
+		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(filtroRGF);
 		List<RelatorioGestaoFiscal> listaRGF = new ArrayList<>();
 
 		for (String codigoIbge : listaCodigoIbge) {
@@ -195,8 +184,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 					.addParamTipoDemonstrativo(TipoDemonstrativoRGF.RGF.getCodigo())
 					.addParamPoder(poder.getCodigo())
 					.addParamAnexo(anexo);
-			List<RelatorioGestaoFiscal> listaRGFParcial = consultarNaApi(apiQueryParamUtil);
-			listaRGF.addAll(listaRGFParcial);
+			listaRGF.addAll(consultarNaApi(apiQueryParamUtil));
 			aguardarUmSegundo();
 		}
 		return listaRGF;
@@ -215,6 +203,11 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal> {
 			enteService = new EnteService();
 		}
 		return enteService;
+	}
+
+	@Override
+	protected String getEntityName() {
+		return RelatorioGestaoFiscal.class.getSimpleName();
 	}
 
 	@Override

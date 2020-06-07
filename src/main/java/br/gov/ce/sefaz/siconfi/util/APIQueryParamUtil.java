@@ -32,62 +32,86 @@ public class APIQueryParamUtil {
 	private Map<String, Object> mapQueryParam = new HashMap<String, Object>();
 	
 	public APIQueryParamUtil addParamAnExercicio(Integer exercicio) {
-		mapQueryParam.put(API_QUERY_PARAM_AN_EXERCICIO, exercicio);
+		if(exercicio!=null) {
+			mapQueryParam.put(API_QUERY_PARAM_AN_EXERCICIO, exercicio);			
+		}
 		return this;
 	}
 
 	public APIQueryParamUtil addParamAnReferencia(Integer anoReferencia) {
-		mapQueryParam.put(API_QUERY_PARAM_AN_REFERENCIA, anoReferencia);
+		if(anoReferencia!=null) {
+			mapQueryParam.put(API_QUERY_PARAM_AN_REFERENCIA, anoReferencia);			
+		}
 		return this;
 	}
 
 	public APIQueryParamUtil addParamIdEnte(String codIbge) {
-		mapQueryParam.put(API_QUERY_PARAM_ID_ENTE, codIbge);
+		if(!Utils.isStringVazia(codIbge)) {
+			mapQueryParam.put(API_QUERY_PARAM_ID_ENTE, codIbge);			
+		}
 		return this;
 	}
 
 	public APIQueryParamUtil addParamPeriodo(Integer periodo) {
-		mapQueryParam.put(API_QUERY_PARAM_NR_PERIODO, periodo);
+		if(periodo!=null) {
+			mapQueryParam.put(API_QUERY_PARAM_NR_PERIODO, periodo);			
+		}
 		return this;
 	}
 
 	public APIQueryParamUtil addParamMesReferencia(Integer mes) {
-		mapQueryParam.put(API_QUERY_PARAM_ME_REFERENCIA, mes);
+		if(mes!=null) {
+			mapQueryParam.put(API_QUERY_PARAM_ME_REFERENCIA, mes);			
+		}
 		return this;
 	}
 
 	public APIQueryParamUtil addParamIndicadorPeriodiciadade(String indicadorPeriodicidade) {
-		mapQueryParam.put(API_QUERY_PARAM_IN_PERIODICIDADE, indicadorPeriodicidade);
+		if(!Utils.isStringVazia(indicadorPeriodicidade)) {
+			mapQueryParam.put(API_QUERY_PARAM_IN_PERIODICIDADE, indicadorPeriodicidade);			
+		}
 		return this;
 	}
 
 	public APIQueryParamUtil addParamPoder(String poder) {
-		mapQueryParam.put(API_QUERY_PARAM_CO_PODER, poder);
+		if(!Utils.isStringVazia(poder)) {
+			mapQueryParam.put(API_QUERY_PARAM_CO_PODER, poder);			
+		}
 		return this;
 	}
 
 	public APIQueryParamUtil addParamTipoDemonstrativo(String tipoDemonstrativo) {
-		mapQueryParam.put(API_QUERY_PARAM_CO_TIPO_DEMONSTRATIVO, tipoDemonstrativo);
+		if(!Utils.isStringVazia(tipoDemonstrativo)) {
+			mapQueryParam.put(API_QUERY_PARAM_CO_TIPO_DEMONSTRATIVO, tipoDemonstrativo);			
+		}
 		return this;
 	}
 
 	public APIQueryParamUtil addParamAnexo(String anexo) {
-		mapQueryParam.put(API_QUERY_PARAM_NO_ANEXO, anexo.replaceAll(" ", "%20"));
+		if(!Utils.isStringVazia(anexo)) {
+			mapQueryParam.put(API_QUERY_PARAM_NO_ANEXO, anexo.replaceAll(" ", "%20"));			
+		}
 		return this;
 	}
 
 	public APIQueryParamUtil addParamClasseConta(Integer classeConta) {
-		mapQueryParam.put(API_QUERY_PARAM_CLASSE_CONTA, classeConta);
+		if(classeConta!=null) {
+			mapQueryParam.put(API_QUERY_PARAM_CLASSE_CONTA, classeConta);			
+		}
 		return this;
 	}
 
 	public APIQueryParamUtil addParamTipoMatriz(String tipoMatriz) {
-		mapQueryParam.put(API_QUERY_PARAM_CO_TIPO_MATRIZ, tipoMatriz);
+		if(!Utils.isStringVazia(tipoMatriz)) {
+			mapQueryParam.put(API_QUERY_PARAM_CO_TIPO_MATRIZ, tipoMatriz);			
+		}
 		return this;
 	}
 
 	public APIQueryParamUtil addParamTipoValorMatriz(String tipoValorMatriz) {
-		mapQueryParam.put(API_QUERY_PARAM_ID_TV, tipoValorMatriz);
+		if(!Utils.isStringVazia(tipoValorMatriz)) {
+			mapQueryParam.put(API_QUERY_PARAM_ID_TV, tipoValorMatriz);			
+		}
 		return this;
 	}
 

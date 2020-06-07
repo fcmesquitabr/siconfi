@@ -3,9 +3,9 @@ package br.gov.ce.sefaz.siconfi.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.Query;
-import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 
@@ -15,17 +15,18 @@ import org.apache.logging.log4j.Logger;
 import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.enums.Esfera;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDados;
+import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
 import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
 
-public class EnteService extends SiconfiService <Ente>{
+public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 
 	private static final Logger logger = LogManager.getLogger(EnteService.class);
 	
-	private static String[] COLUNAS_ARQUIVO_CSV = new String[]{"cod_ibge","ente","capital","regiao","uf","esfera","exercicio","populacao","cnpj"};
+	private static final String[] COLUNAS_ARQUIVO_CSV = new String[]{"cod_ibge","ente","capital","regiao","uf","esfera","exercicio","populacao","cnpj"};
 	
-	private static String NOME_PADRAO_ARQUIVO_CSV = "entes.csv";
+	private static final String NOME_PADRAO_ARQUIVO_CSV = "entes.csv";
 	
-	private static String API_PATH_ENTES = "entes";
+	private static final String API_PATH_ENTES = "entes";
 	
 	public EnteService() {
 		super();
@@ -39,36 +40,12 @@ public class EnteService extends SiconfiService <Ente>{
 		return query.getResultList();		 
 	}
 
-	@Override
-	public void excluirTodos() {
-		logger.info("Excluindo dados do banco de dados...");
-		int i = getEntityManager().createQuery("DELETE FROM Ente e").executeUpdate();
-		logger.info("Linhas excluídas:" + i);
-	}
-	
-	public List<Ente> consultarNaApi(){
-		
-		List<Ente> listaEntes;
-		try {
-
-			long ini = System.currentTimeMillis();
-			
-			this.webTarget = this.client.target(URL_SERVICE).path(API_PATH_ENTES);
-			Invocation.Builder invocationBuilder =  this.webTarget.request(API_RESPONSE_TYPE); 
-			
-			logger.info("Fazendo get na API: " + this.webTarget.getUri().toString());
-			Response response = invocationBuilder.get();
-			listaEntes = lerEntidades(response);
-			long fim = System.currentTimeMillis();			
-			logger.debug("Tempo para consultar os entes na API:" + (fim -ini));
-
-		} catch(Exception e) {
-			logger.error(e);
-			listaEntes = new ArrayList<>();
-		}
-		
-		logger.debug("Tamanho da lista de entes:" + listaEntes.size());
-		return listaEntes;
+	public List<Ente> consultarEntesNaAPI(List<String> listaEsfera){
+		logger.debug("Consultando a API e filtrando para as seguintes esferas: " + listaEsfera);
+		List<Ente> listaTodosEntes = consultarNaApi(new APIQueryParamUtil());
+		List<Ente> listaEntes = listaTodosEntes.parallelStream().filter(ente -> listaEsfera.contains(ente.getEsfera()))
+				.collect(Collectors.toList());		
+		return listaEntes;		 
 	}
 
 	@Override
@@ -79,18 +56,29 @@ public class EnteService extends SiconfiService <Ente>{
 		return enteResponse != null ? enteResponse.getItems() : new ArrayList<Ente>();
 	}
 
-	public List<String> obterListaCodigosIbge(OpcoesCargaDados opcoes) {
+	public List<String> obterListaCodigosIbgeNaBase(OpcoesCargaDados opcoes) {
 		List<String> listaCodigoIbge = null;
 		
 		if(opcoes.isExisteCodigosIbge()) {			
 			listaCodigoIbge = opcoes.getCodigosIBGE();
 		} else {			
-			listaCodigoIbge = obterListaCodigoIbgePelaEsfera(opcoes);
+			listaCodigoIbge = obterListaCodigoIbgePelaEsferaNaBase(opcoes);
 		}
 		return listaCodigoIbge;
 	}
 
-	private List<String> obterListaCodigoIbgePelaEsfera(OpcoesCargaDados opcoes) {
+	public List<String> obterListaCodigosIbgeNaAPI(OpcoesCargaDados opcoes) {
+		List<String> listaCodigoIbge = null;
+		
+		if(opcoes.isExisteCodigosIbge()) {			
+			listaCodigoIbge = opcoes.getCodigosIBGE();
+		} else {			
+			listaCodigoIbge = obterListaCodigoIbgePelaEsferaNaAPI(opcoes);
+		}
+		return listaCodigoIbge;
+	}
+
+	private List<String> obterListaCodigoIbgePelaEsferaNaBase(OpcoesCargaDados opcoes) {
 		
 		List<Ente> listaEntes = null;
 	
@@ -102,13 +90,31 @@ public class EnteService extends SiconfiService <Ente>{
 		
 		return obterListaCodigoIbge(listaEntes);
 	}
+
+	private List<String> obterListaCodigoIbgePelaEsferaNaAPI(OpcoesCargaDados opcoes) {
+		
+		List<Ente> listaEntes = null;
 	
+		if(opcoes.getEsfera() == null || opcoes.getEsfera().equals(Esfera.ESTADOS_E_DISTRITO_FEDERAL)) {
+			listaEntes = consultarEntesNaAPI(Arrays.asList(Esfera.ESTADO.getCodigo(),Esfera.DISTRITO_FEDERAL.getCodigo()));				
+		} else {
+			listaEntes = consultarEntesNaAPI(Arrays.asList(opcoes.getEsfera().getCodigo()));
+		}
+		
+		return obterListaCodigoIbge(listaEntes);
+	}
+
 	private List<String> obterListaCodigoIbge (List<Ente> listaEntes){
 		List<String> listaCodigoIbge = new ArrayList<String>();		
 		for(Ente ente: listaEntes) {
 			listaCodigoIbge.add(ente.getCod_ibge());
 		}
 		return listaCodigoIbge;
+	}
+
+	@Override
+	protected String getEntityName() {
+		return Ente.class.getSimpleName();
 	}
 
 	@Override

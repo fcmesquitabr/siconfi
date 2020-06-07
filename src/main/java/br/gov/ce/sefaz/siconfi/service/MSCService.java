@@ -14,15 +14,13 @@ import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
 import br.gov.ce.sefaz.siconfi.util.Constantes;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
-public abstract class MSCService<T extends MatrizSaldoContabeis> extends SiconfiService<T> {
+public abstract class MSCService<T extends MatrizSaldoContabeis> extends SiconfiService<T, OpcoesCargaDadosMSC> {
 
 	private EnteService enteService;
 	
 	public MSCService() {
 		super();
 	}
-
-	protected abstract String getEntityName();
 
 	protected abstract List<Integer> getClassContas();
 
@@ -61,7 +59,7 @@ public abstract class MSCService<T extends MatrizSaldoContabeis> extends Siconfi
 		
 		StringBuilder queryBuilder = new StringBuilder("DELETE FROM " + getEntityName() + " msc WHERE msc.exercicio IN (:exercicios) ");
 
-		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbge(filtro);
+		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(filtro);
 		if(!Utils.isEmptyCollection(listaCodigoIbge)) {
 			queryBuilder.append(" AND msc.cod_ibge IN (:codigosIbge)");
 		}
@@ -101,18 +99,6 @@ public abstract class MSCService<T extends MatrizSaldoContabeis> extends Siconfi
 		getLogger().info("Linhas excluídas:" + i);
 	}
 
-	@Override
-	public void excluirTodos() {
-		getLogger().info("Excluindo dados do banco de dados...");
-		int i = getEntityManager().createQuery("DELETE FROM " + getEntityName() + " mscp")
-				.executeUpdate();
-		getLogger().info("Linhas excluídas:" + i);
-	}
-
-	public List<T> consultarNaApi() {
-		return new ArrayList<T>();
-	}
-
 	public List<T> consultarNaApi(OpcoesCargaDadosMSC opcoes) {
 
 		List<Integer> listaExercicios = !opcoes.isListaExerciciosVazia() ? opcoes.getExercicios()
@@ -138,7 +124,7 @@ public abstract class MSCService<T extends MatrizSaldoContabeis> extends Siconfi
 
 	private List<T> consultarNaApi(OpcoesCargaDadosMSC filtro, Integer exercicio, Integer mes) {
 
-		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbge(filtro);
+		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(filtro);
 		TipoMatrizSaldoContabeis tipoMatriz = filtro.getTipoMatrizSaldoContabeis() != null
 				? filtro.getTipoMatrizSaldoContabeis()
 				: TipoMatrizSaldoContabeis.MSCC;

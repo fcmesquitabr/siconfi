@@ -19,7 +19,7 @@ import br.gov.ce.sefaz.siconfi.util.Constantes;
 import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
-public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamentaria> {
+public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamentaria, OpcoesCargaDadosRREO> {
 
 	private static final Logger logger = LogManager.getLogger(RREOService.class);
 
@@ -82,7 +82,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 			queryBuilder.append(" AND rreo.periodo IN (:periodos)");
 		}
 
-		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbge(filtro);
+		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(filtro);
 		if (!Utils.isEmptyCollection(listaCodigoIbge)) {
 			queryBuilder.append(" AND rreo.cod_ibge IN (:codigosIbge)");
 		}
@@ -116,18 +116,6 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		logger.info("Linhas excluídas:" + i);
 	}
 
-	@Override
-	public void excluirTodos() {
-		logger.info("Excluindo dados do banco de dados...");
-		int i = getEntityManager().createQuery("DELETE FROM RelatorioResumidoExecucaoOrcamentaria rreo")
-				.executeUpdate();
-		logger.info("Linhas excluídas:" + i);
-	}
-
-	public List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi() {
-		return new ArrayList<RelatorioResumidoExecucaoOrcamentaria>();
-	}
-
 	public List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi(OpcoesCargaDadosRREO filtro) {
 
 		List<Integer> listaExercicios = !filtro.isListaExerciciosVazia() ? filtro.getExercicios()
@@ -153,7 +141,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 
 	private List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi(OpcoesCargaDadosRREO filtro, Integer exercicio, Integer bimestre) {
 
-		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbge(filtro);
+		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(filtro);
 		List<RelatorioResumidoExecucaoOrcamentaria> listaRREO = new ArrayList<>();
 
 		for (String codigoIbge : listaCodigoIbge) {
@@ -195,6 +183,11 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 			enteService = new EnteService();
 		}
 		return enteService;
+	}
+
+	@Override
+	protected String getEntityName() {
+		return RelatorioResumidoExecucaoOrcamentaria.class.getSimpleName();
 	}
 
 	@Override

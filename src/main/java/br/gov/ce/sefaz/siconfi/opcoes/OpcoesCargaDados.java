@@ -1,9 +1,12 @@
 package br.gov.ce.sefaz.siconfi.opcoes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import br.gov.ce.sefaz.siconfi.enums.Esfera;
 import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
+import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
+import br.gov.ce.sefaz.siconfi.util.Constantes;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class OpcoesCargaDados {
@@ -22,6 +25,43 @@ public class OpcoesCargaDados {
 
 	public OpcoesCargaDados() {
 		super();
+	}
+
+	public List<APIQueryParamUtil> obterListaAPIQueryParamUtil(){
+		List<Integer> listaExercicios = !Utils.isEmptyCollection(getExercicios()) ? getExercicios()
+				: Constantes.EXERCICIOS_DISPONIVEIS;
+		
+		List<APIQueryParamUtil> listaAPIQueryParamUtil = new ArrayList<>();				
+		for (Integer exercicio : listaExercicios) {
+			listaAPIQueryParamUtil.addAll(obterListaAPIQueryParamUtil(exercicio));
+		}
+		return listaAPIQueryParamUtil;		
+	}
+
+	public List<APIQueryParamUtil> obterListaAPIQueryParamUtil(Integer exercicio){		
+		List<APIQueryParamUtil> listaAPIQueryParamUtil = new ArrayList<>();				
+		if(!Utils.isEmptyCollection(getPeriodos())) {
+			for (Integer periodo:getPeriodos()) {
+				listaAPIQueryParamUtil.addAll(obterListaAPIQueryParamUtil(exercicio, periodo));
+			}
+		} else {
+			for (String codigoIbge : getCodigosIBGE()) {
+				APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil();
+				apiQueryParamUtil.addParamAnReferencia(exercicio).addParamIdEnte(codigoIbge);
+				listaAPIQueryParamUtil.add(apiQueryParamUtil);
+			}			
+		}
+		return listaAPIQueryParamUtil;		
+	}
+
+	public List<APIQueryParamUtil> obterListaAPIQueryParamUtil(Integer exercicio, Integer periodo){		
+		List<APIQueryParamUtil> listaAPIQueryParamUtil = new ArrayList<>();				
+		for (String codigoIbge : getCodigosIBGE()) {
+			APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil();
+			apiQueryParamUtil.addParamAnReferencia(exercicio).addParamPeriodo(periodo).addParamIdEnte(codigoIbge);
+			listaAPIQueryParamUtil.add(apiQueryParamUtil);
+		}
+		return listaAPIQueryParamUtil;		
 	}
 
 	public boolean isNomeArquivoVazio() {
