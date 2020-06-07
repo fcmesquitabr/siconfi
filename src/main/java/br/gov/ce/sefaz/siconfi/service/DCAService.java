@@ -14,7 +14,6 @@ import org.apache.logging.log4j.Logger;
 import br.gov.ce.sefaz.siconfi.entity.DeclaracaoContasAnuais;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosDCA;
 import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
-import br.gov.ce.sefaz.siconfi.util.Constantes;
 import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
@@ -38,36 +37,9 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 	public DCAService() {
 		super();
 	}
-
-	public void carregarDados(OpcoesCargaDadosDCA opcoesCargaDados) {
-		
-		List<DeclaracaoContasAnuais> listaDCA = consultarNaApi(opcoesCargaDados);	
-		
-		switch (opcoesCargaDados.getOpcaoSalvamento()) {
-		case CONSOLE:
-			exibirDadosNaConsole(listaDCA);
-			break;
-		case ARQUIVO:
-			String nomeArquivo = definirNomeArquivoCSV(opcoesCargaDados);
-			escreverCabecalhoArquivoCsv(nomeArquivo);
-			salvarArquivoCsv(listaDCA, nomeArquivo);
-			break;
-		case BANCO:
-			salvarNoBancoDeDados(opcoesCargaDados, listaDCA);
-			break;
-		}
-	}
-
-	protected void salvarNoBancoDeDados(OpcoesCargaDadosDCA filtro, List<DeclaracaoContasAnuais> listaEntidades) {
-		if(Utils.isEmptyCollection(listaEntidades)) return;
-		getEntityManager().getTransaction().begin();		
-		excluirDeclaracaoContasAnuais(filtro);
-		persistir(listaEntidades);
-		commitTransaction();
-		fecharContextoPersistencia();		
-	}
-
-	private void excluirDeclaracaoContasAnuais(OpcoesCargaDadosDCA filtro) {
+	
+	@Override
+	protected void excluir(OpcoesCargaDadosDCA filtro) {
 		logger.info("Excluindo dados do banco de dados...");
 		
 		StringBuilder queryBuilder = new StringBuilder("DELETE FROM DeclaracaoContasAnuais dca WHERE dca.exercicio IN (:exercicios) ");
@@ -94,49 +66,40 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 		logger.info("Linhas excluídas:" + i);
 	}
 
-	public void excluirDCA(Integer exercicio) {
-		logger.info("Excluindo dados do banco de dados...");		
-		int i = getEntityManager().createQuery("DELETE FROM DeclaracaoContasAnuais dca WHERE dca.exercicio="+exercicio).executeUpdate();
-		logger.info("Linhas excluídas:" + i);
-	}
-
-	public List<DeclaracaoContasAnuais> consultarNaApi(OpcoesCargaDadosDCA opcoesCargaDados){
-		
-		List<Integer> listaExercicios = (opcoesCargaDados.getExercicios()!=null?opcoesCargaDados.getExercicios(): Constantes.EXERCICIOS_DISPONIVEIS);
-		
-		List<DeclaracaoContasAnuais> listaDCA = new ArrayList<>();
-		
-		for (Integer exercicio : listaExercicios) {
-			consultarNaApiNoExercicio(opcoesCargaDados, exercicio);
-		}
-		return listaDCA;
-	}
-
-	private List<DeclaracaoContasAnuais> consultarNaApiNoExercicio(OpcoesCargaDadosDCA opcoesCargaDados,
+	@Override
+	protected void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosDCA opcoesCargaDados,
 			Integer exercicio) {
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(opcoesCargaDados);
-		List<DeclaracaoContasAnuais> listaDCA = new ArrayList<DeclaracaoContasAnuais>();
 		
 		for (String codigoIbge : listaCodigoIbge) {
-			listaDCA.addAll(consultarNaApiNoExercicioEnte(opcoesCargaDados, exercicio, codigoIbge));
+			consultarNaApiEGerarSaidaDados(opcoesCargaDados, exercicio, codigoIbge);
 		}
-		return listaDCA;
 	}
 
-	private List<DeclaracaoContasAnuais> consultarNaApiNoExercicioEnte(OpcoesCargaDadosDCA opcoesCargaDados,
+	private void consultarNaApiEGerarSaidaDados (OpcoesCargaDadosDCA opcoes,
 			Integer exercicio, String codigoIbge) {
 
-		List<String> listaAnexos = !opcoesCargaDados.isListaAnexosVazia() ? opcoesCargaDados.getListaAnexos()
+		List<String> listaAnexos = !opcoes.isListaAnexosVazia() ? opcoes.getListaAnexos()
 				: ANEXOS_DCA;
-		List<DeclaracaoContasAnuais> listaDCA = new ArrayList<>();
 
 		for (String anexo : listaAnexos) {
 			APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil().addParamAnExercicio(exercicio)
 					.addParamIdEnte(codigoIbge).addParamAnexo(anexo);
-			listaDCA.addAll(consultarNaApi(apiQueryParamUtil));
+			List<DeclaracaoContasAnuais> listaDcaParcial = consultarNaApi(apiQueryParamUtil);
+			gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, codigoIbge,anexo), listaDcaParcial);
 			aguardarUmSegundo();
 		}
-		return listaDCA;
+	}
+
+	private OpcoesCargaDadosDCA getOpcoesParcial(OpcoesCargaDadosDCA opcoes, Integer exercicio,
+			String codigoIbge, String anexo) {
+		OpcoesCargaDadosDCA opcoesParcial = new OpcoesCargaDadosDCA();
+		opcoesParcial.setOpcaoSalvamento(opcoes.getOpcaoSalvamento());
+		opcoesParcial.setNomeArquivo(opcoes.getNomeArquivo());
+		opcoesParcial.setExercicios(Arrays.asList(exercicio));
+		opcoesParcial.setCodigosIBGE(Arrays.asList(codigoIbge));
+		opcoesParcial.setListaAnexos(Arrays.asList(anexo));
+		return opcoesParcial;
 	}
 
 	@Override

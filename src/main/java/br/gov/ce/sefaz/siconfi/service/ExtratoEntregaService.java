@@ -1,6 +1,7 @@
 package br.gov.ce.sefaz.siconfi.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.Query;
@@ -54,20 +55,29 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 		logger.info("Linhas excluídas:" + i);
 	}
 	
-	protected void consultarNaApiESalvarArquivoCsv(OpcoesCargaDadosExtratoEntrega opcoes, Integer exercicio){
+	protected void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosExtratoEntrega opcoes, Integer exercicio){
 		
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(opcoes);
-		String nomearquivo = definirNomeArquivoCSV(opcoes);
 		
 		for (String codigoIbge : listaCodigoIbge) {
 			APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil().addParamAnReferencia(exercicio)
 					.addParamIdEnte(codigoIbge);
 			List<ExtratoEntrega> listaExtratosParcial = consultarNaApi(apiQueryParamUtil);
-			salvarArquivoCsv(listaExtratosParcial, nomearquivo);
+			gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, codigoIbge), listaExtratosParcial);
 			aguardarUmSegundo();
 		}
 	}
 
+	private OpcoesCargaDadosExtratoEntrega getOpcoesParcial(OpcoesCargaDadosExtratoEntrega opcoes, Integer exercicio,
+			String codigoIbge) {
+		OpcoesCargaDadosExtratoEntrega opcoesParcial = new OpcoesCargaDadosExtratoEntrega();
+		opcoesParcial.setOpcaoSalvamento(opcoes.getOpcaoSalvamento());
+		opcoesParcial.setNomeArquivo(opcoes.getNomeArquivo());
+		opcoesParcial.setExercicios(Arrays.asList(exercicio));
+		opcoesParcial.setCodigosIBGE(Arrays.asList(codigoIbge));
+		return opcoesParcial;
+	}
+	
 	public List<ExtratoEntrega> consultarNaApi(OpcoesCargaDadosExtratoEntrega opcoes){
 		
 		List<Integer> listaExercicios = (opcoes.getExercicios()!=null?opcoes.getExercicios():Constantes.EXERCICIOS_DISPONIVEIS);

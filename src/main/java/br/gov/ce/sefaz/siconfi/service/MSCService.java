@@ -1,6 +1,5 @@
 package br.gov.ce.sefaz.siconfi.service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,38 +22,9 @@ public abstract class MSCService<T extends MatrizSaldoContabeis> extends Siconfi
 	}
 
 	protected abstract List<Integer> getClassContas();
-
-	public void carregarDados(OpcoesCargaDadosMSC opcoes) {
-		
-		List<T> listaMSC = consultarNaApi(opcoes);	
-		
-		switch (opcoes.getOpcaoSalvamento()) {
-		case CONSOLE:
-			exibirDadosNaConsole(listaMSC);
-			break;
-		case ARQUIVO:
-			String nomeArquivo = definirNomeArquivoCSV(opcoes);
-			escreverCabecalhoArquivoCsv(nomeArquivo);
-			salvarArquivoCsv(listaMSC, nomeArquivo);
-			break;
-		case BANCO:
-			salvarNoBancoDeDados(opcoes, listaMSC);
-			break;
-		}
-	}
-
-	protected void salvarNoBancoDeDados(OpcoesCargaDadosMSC opcoes, List<T> listaEntidades) {
-		
-		if(Utils.isEmptyCollection(listaEntidades)) return;
-		
-		getEntityManager().getTransaction().begin();		
-		excluirMatrizSaldosContabeis(opcoes);
-		persistir(listaEntidades);
-		commitTransaction();
-		fecharContextoPersistencia();		
-	}
-
-	private void excluirMatrizSaldosContabeis(OpcoesCargaDadosMSC filtro) {
+	
+	@Override
+	protected void excluir(OpcoesCargaDadosMSC filtro) {
 		getLogger().info("Excluindo dados do banco de dados...");
 		
 		StringBuilder queryBuilder = new StringBuilder("DELETE FROM " + getEntityName() + " msc WHERE msc.exercicio IN (:exercicios) ");
@@ -99,63 +69,44 @@ public abstract class MSCService<T extends MatrizSaldoContabeis> extends Siconfi
 		getLogger().info("Linhas excluídas:" + i);
 	}
 
-	public List<T> consultarNaApi(OpcoesCargaDadosMSC opcoes) {
-
-		List<Integer> listaExercicios = !opcoes.isListaExerciciosVazia() ? opcoes.getExercicios()
-				: Constantes.EXERCICIOS_DISPONIVEIS;
-		List<T> listaMSC = new ArrayList<>();
-
-		for (Integer exercicio : listaExercicios) {
-			listaMSC.addAll(consultarNaApi(opcoes, exercicio));
-		}
-		return listaMSC;
-	}
-
-	private List<T> consultarNaApi(OpcoesCargaDadosMSC opcoes, Integer exercicio) {
+	protected void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosMSC opcoes, Integer exercicio) {
 
 		List<Integer> listaMeses = !opcoes.isListaPeriodosVazia() ? opcoes.getPeriodos() : Constantes.MESES;
-		List<T> listaMSC = new ArrayList<>();
 
 		for (Integer mes: listaMeses) {
-			listaMSC.addAll(consultarNaApi(opcoes, exercicio, mes));
+			consultarNaApiEGerarSaidaDados(opcoes, exercicio, mes);
 		}
-		return listaMSC;
 	}
 
-	private List<T> consultarNaApi(OpcoesCargaDadosMSC filtro, Integer exercicio, Integer mes) {
+	private void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosMSC filtro, Integer exercicio, Integer mes) {
 
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(filtro);
 		TipoMatrizSaldoContabeis tipoMatriz = filtro.getTipoMatrizSaldoContabeis() != null
 				? filtro.getTipoMatrizSaldoContabeis()
 				: TipoMatrizSaldoContabeis.MSCC;
 
-		List<T> listaMSC = new ArrayList<>();		
 		for (String codigoIbge : listaCodigoIbge) {
-			listaMSC.addAll(consultarNaApi(filtro, exercicio, mes, codigoIbge, tipoMatriz));
+			consultarNaApiEGerarSaidaDados(filtro, exercicio, mes, codigoIbge, tipoMatriz);
 		}
-		return listaMSC;
 	}
 
-	private List<T> consultarNaApi(OpcoesCargaDadosMSC filtro, Integer exercicio, Integer mes,
+	private void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosMSC filtro, Integer exercicio, Integer mes,
 			String codigoIbge, TipoMatrizSaldoContabeis tipoMatriz) {
 
 		List<Integer> listaClassesConta = !filtro.isListaClassesContaVazia()?filtro.getListaClasseConta():getClassContas();
 		
-		List<T> listaMSC = new ArrayList<>();
 		for (Integer classe: listaClassesConta) {
-			listaMSC.addAll(consultarNaApi(filtro, exercicio, mes, codigoIbge, tipoMatriz, classe));
+			consultarNaApiEGerarSaidaDados(filtro, exercicio, mes, codigoIbge, tipoMatriz, classe);
 		}
-		return listaMSC;
 	}
 
-	private List<T> consultarNaApi(OpcoesCargaDadosMSC filtro, Integer exercicio, Integer mes,
+	private void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosMSC opcoes, Integer exercicio, Integer mes,
 			String codigoIbge, TipoMatrizSaldoContabeis tipoMatriz, Integer classeConta) {
 
-		List<TipoValorMatrizSaldoContabeis> listaTipoValor = !filtro.isListaTipoValorVazia()
-				? filtro.getListaTipoValor()
+		List<TipoValorMatrizSaldoContabeis> listaTipoValor = !opcoes.isListaTipoValorVazia()
+				? opcoes.getListaTipoValor()
 				: Arrays.asList(TipoValorMatrizSaldoContabeis.values());
 		
-		List<T> listaMSC = new ArrayList<>();
 		for (TipoValorMatrizSaldoContabeis tipoValor: listaTipoValor) {
 			APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil();
 			apiQueryParamUtil.addParamAnReferencia(exercicio)
@@ -165,12 +116,28 @@ public abstract class MSCService<T extends MatrizSaldoContabeis> extends Siconfi
 					.addParamTipoMatriz(tipoMatriz.getCodigo())
 					.addParamTipoValorMatriz(tipoValor.getCodigo());
 
-			listaMSC.addAll(consultarNaApi(apiQueryParamUtil));
+			List<T> listaMSCParcial = consultarNaApi(apiQueryParamUtil);
+			gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, mes, codigoIbge, classeConta, tipoMatriz, tipoValor),
+					listaMSCParcial);
 			aguardarUmSegundo();
 		}
-		return listaMSC;
 	}
-		
+
+	private OpcoesCargaDadosMSC getOpcoesParcial(OpcoesCargaDadosMSC opcoes, Integer exercicio, Integer mes,
+			String codigoIbge, Integer classeConta, TipoMatrizSaldoContabeis tipoMatriz,
+			TipoValorMatrizSaldoContabeis tipoValor) {
+		OpcoesCargaDadosMSC opcoesParcial = new OpcoesCargaDadosMSC();
+		opcoesParcial.setOpcaoSalvamento(opcoes.getOpcaoSalvamento());
+		opcoesParcial.setNomeArquivo(opcoes.getNomeArquivo());
+		opcoesParcial.setExercicios(Arrays.asList(exercicio));
+		opcoesParcial.setPeriodos(Arrays.asList(mes));
+		opcoesParcial.setCodigosIBGE(Arrays.asList(codigoIbge));
+		opcoesParcial.setListaClasseConta(Arrays.asList(classeConta));
+		opcoesParcial.setTipoMatrizSaldoContabeis(tipoMatriz);
+		opcoesParcial.setListaTipoValor(Arrays.asList(tipoValor));
+		return opcoesParcial;
+	}
+
 	protected EnteService getEnteService() {
 		if(enteService == null) {
 			enteService = new EnteService();

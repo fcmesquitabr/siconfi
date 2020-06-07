@@ -25,14 +25,14 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 
 	private static final Logger logger = LogManager.getLogger(RGFService.class);
 
-	public static List<String> ANEXOS_RGF = Arrays.asList("RGF-Anexo 01", "RGF-Anexo 02", "RGF-Anexo 03",
+	public static final List<String> ANEXOS_RGF = Arrays.asList("RGF-Anexo 01", "RGF-Anexo 02", "RGF-Anexo 03",
 			"RGF-Anexo 04", "RGF-Anexo 05", "RGF-Anexo 06");
 
-	private static String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "periodicidade", "periodo", "uf",
+	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "periodicidade", "periodo", "uf",
 			"cod_ibge", "cod_poder", "instituicao", "anexo", "cod_conta", "conta", "coluna", "rotulo", "populacao",
 			"valorFormatado" };
 
-	private static String NOME_PADRAO_ARQUIVO_CSV = "rgf.csv";
+	private static final String NOME_PADRAO_ARQUIVO_CSV = "rgf.csv";
 
 	private static final String API_PATH_RGF = "rgf";
 
@@ -42,42 +42,8 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 		super();
 	}
 
-	public void carregarDados(OpcoesCargaDadosRGF filtroRGF) {
-
-		List<RelatorioGestaoFiscal> listaRGF = consultarNaApi(filtroRGF);
-
-		switch (filtroRGF.getOpcaoSalvamento()) {
-		case CONSOLE:
-			exibirDadosNaConsole(listaRGF);
-			break;
-		case ARQUIVO:
-			escreverCabecalhoArquivoCsv(definirNomeArquivoCSV(filtroRGF));
-			salvarArquivoCsv(listaRGF, definirNomeArquivoCSV(filtroRGF));
-			break;
-		case BANCO:
-			salvarNoBancoDeDados(filtroRGF, listaRGF);
-			break;
-		}
-	}
-
-	protected void salvarNoBancoDeDados(OpcoesCargaDadosRGF filtro, List<RelatorioGestaoFiscal> listaEntidades) {
-		if (listaEntidades == null || listaEntidades.isEmpty())
-			return;
-		getEntityManager().getTransaction().begin();
-		excluirRelatorioGestaoFiscal(filtro);
-		persistir(listaEntidades);
-		commitTransaction();
-		fecharContextoPersistencia();
-	}
-
-	public void excluirRGF(Integer exercicio) {
-		logger.info("Excluindo dados do banco de dados...");
-		int i = getEntityManager().createQuery("DELETE FROM RelatorioGestaoFiscal rgf WHERE rgf.exercicio=" + exercicio)
-				.executeUpdate();
-		logger.info("Linhas excluídas:" + i);
-	}
-
-	private void excluirRelatorioGestaoFiscal(OpcoesCargaDadosRGF filtro) {
+	@Override
+	protected void excluir(OpcoesCargaDadosRGF filtro) {
 		logger.info("Excluindo dados do banco de dados...");
 
 		StringBuilder queryBuilder = new StringBuilder(
@@ -120,59 +86,42 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 		logger.info("Linhas excluídas:" + i);
 	}
 
-	public List<RelatorioGestaoFiscal> consultarNaApi(OpcoesCargaDadosRGF filtroRGF) {
+	@Override
+	protected void consultarNaApiEGerarSaidaDados (OpcoesCargaDadosRGF opcoes, Integer exercicio) {
 
-		List<Integer> listaExercicios = !filtroRGF.isListaExerciciosVazia() ? filtroRGF.getExercicios()
-				: Constantes.EXERCICIOS_DISPONIVEIS;
-		List<RelatorioGestaoFiscal> listaRGF = new ArrayList<>();
-
-		for (Integer exercicio : listaExercicios) {
-			listaRGF.addAll(consultarNaApi(filtroRGF, exercicio));
-		}
-		return listaRGF;
-	}
-
-	private List<RelatorioGestaoFiscal> consultarNaApi(OpcoesCargaDadosRGF filtroRGF, Integer exercicio) {
-
-		List<Integer> listaQuadrimestres = !filtroRGF.isListaPeriodosVazia() ? filtroRGF.getPeriodos()
+		List<Integer> listaQuadrimestres = !opcoes.isListaPeriodosVazia() ? opcoes.getPeriodos()
 				: Constantes.QUADRIMESTRES;
-		List<RelatorioGestaoFiscal> listaRGF = new ArrayList<>();
 
 		for (Integer quadrimestre : listaQuadrimestres) {
-			listaRGF.addAll(consultarNaApi(filtroRGF, exercicio, quadrimestre));
+			consultarNaApiEGerarSaidaDados(opcoes, exercicio, quadrimestre);
 		}
-		return listaRGF;
 	}
 
-	private List<RelatorioGestaoFiscal> consultarNaApi(OpcoesCargaDadosRGF filtroRGF, Integer exercicio, Integer quadrimestre) {
+	private void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosRGF filtroRGF, Integer exercicio,
+			Integer quadrimestre) {
 
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(filtroRGF);
-		List<RelatorioGestaoFiscal> listaRGF = new ArrayList<>();
 
 		for (String codigoIbge : listaCodigoIbge) {
-			listaRGF.addAll(consultarNaApi(filtroRGF, exercicio, quadrimestre, codigoIbge));
+			consultarNaApiEGerarSaidaDados(filtroRGF, exercicio, quadrimestre, codigoIbge);
 		}
-		return listaRGF;
 	}
 
-	private List<RelatorioGestaoFiscal> consultarNaApi(OpcoesCargaDadosRGF filtroRGF, Integer exercicio, Integer quadrimestre,
+	private void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosRGF filtroRGF, Integer exercicio, Integer quadrimestre,
 			String codigoIbge) {
 
 		List<Poder> listaPoder = !filtroRGF.isListaPoderesVazia() ? filtroRGF.getListaPoderes()
 				: Arrays.asList(Poder.values());
-		List<RelatorioGestaoFiscal> listaRGF = new ArrayList<>();
 
 		for (Poder poder : listaPoder) {
-			listaRGF.addAll(consultarNaApi(filtroRGF, exercicio, quadrimestre, codigoIbge, poder));
+			consultarNaApiEGerarSaidaDados(filtroRGF, exercicio, quadrimestre, codigoIbge, poder);
 		}
-		return listaRGF;
 	}
 
-	private List<RelatorioGestaoFiscal> consultarNaApi(OpcoesCargaDadosRGF filtroRGF, Integer exercicio, Integer quadrimestre,
+	private void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosRGF opcoes, Integer exercicio, Integer quadrimestre,
 			String codigoIbge, Poder poder) {
 
-		List<String> listaAnexos = !filtroRGF.isListaAnexosVazia() ? filtroRGF.getListaAnexos() : ANEXOS_RGF;
-		List<RelatorioGestaoFiscal> listaRGF = new ArrayList<>();
+		List<String> listaAnexos = !opcoes.isListaAnexosVazia() ? opcoes.getListaAnexos() : ANEXOS_RGF;
 
 		for (String anexo : listaAnexos) {
 
@@ -184,10 +133,23 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 					.addParamTipoDemonstrativo(TipoDemonstrativoRGF.RGF.getCodigo())
 					.addParamPoder(poder.getCodigo())
 					.addParamAnexo(anexo);
-			listaRGF.addAll(consultarNaApi(apiQueryParamUtil));
+			List<RelatorioGestaoFiscal> listaRGFParcial = consultarNaApi(apiQueryParamUtil);
+			gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, quadrimestre, codigoIbge, poder, anexo), listaRGFParcial);
 			aguardarUmSegundo();
 		}
-		return listaRGF;
+	}
+		
+	private OpcoesCargaDadosRGF getOpcoesParcial(OpcoesCargaDadosRGF opcoes, Integer exercicio, Integer quadrimestre, String codigoIbge,
+			Poder poder, String anexo) {
+		OpcoesCargaDadosRGF opcoesParcial = new OpcoesCargaDadosRGF();
+		opcoesParcial.setOpcaoSalvamento(opcoes.getOpcaoSalvamento());
+		opcoesParcial.setNomeArquivo(opcoes.getNomeArquivo());
+		opcoesParcial.setExercicios(Arrays.asList(exercicio));
+		opcoesParcial.setPeriodos(Arrays.asList(quadrimestre));
+		opcoesParcial.setCodigosIBGE(Arrays.asList(codigoIbge));
+		opcoesParcial.setListaPoderes(Arrays.asList(poder));
+		opcoesParcial.setListaAnexos(Arrays.asList(anexo));
+		return opcoesParcial;
 	}
 
 	@Override

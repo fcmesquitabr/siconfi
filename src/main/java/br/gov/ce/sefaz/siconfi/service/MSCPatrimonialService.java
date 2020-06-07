@@ -17,11 +17,11 @@ public class MSCPatrimonialService extends MSCService<MatrizSaldoContabeisPatrim
 
 	private static final Logger logger = LogManager.getLogger(MSCPatrimonialService.class);
 
-	private static String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "mes_referencia", "cod_ibge", "poder_orgao", "tipo_matriz",
+	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "mes_referencia", "cod_ibge", "poder_orgao", "tipo_matriz",
 			"class_conta", "natureza_conta", "conta_contabil", "financeiro_permanente", "ano_fonte_recursos", "fonte_recursos", 
 			"divida_consolidada", "data_referencia", "entrada_msc", "tipo_valor", "valorFormatado"};
 	
-	private static String NOME_PADRAO_ARQUIVO_CSV = "msc_patrimonial.csv";
+	private static final String NOME_PADRAO_ARQUIVO_CSV = "msc_patrimonial.csv";
 
 	private static final String API_PATH_MSC_PATRIMONIAL = "msc_patrimonial";
 

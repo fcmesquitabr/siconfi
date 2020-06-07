@@ -14,6 +14,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.Logger;
 
+import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDados;
 import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
 import br.gov.ce.sefaz.siconfi.util.Constantes;
@@ -51,31 +52,13 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	protected abstract List<T> lerEntidades(Response response);	
 
 	protected abstract String getApiPath();
+	
+	protected abstract void excluir(O opcoes);
 
 	public void carregarDados(O opcoes) {
-		
-		List<T> listaEntidades = null;	
-		
-		switch (opcoes.getOpcaoSalvamento()) {
-		case CONSOLE:
-			listaEntidades = consultarNaApi(opcoes);
-			exibirDadosNaConsole(listaEntidades);
-			break;
-		case ARQUIVO:
-			escreverCabecalhoArquivoCsv(definirNomeArquivoCSV(opcoes));
-			consultarNaApiESalvarArquivoCsv(opcoes);
-			salvarArquivoCsv(listaEntidades, definirNomeArquivoCSV(opcoes));
-			break;
-		case BANCO:
-			listaEntidades = consultarNaApi(opcoes);
-			salvarNoBancoDeDados(opcoes, listaEntidades);
-			break;
-		}
-	}
-
-	public List<T> consultarNaApi(O opcoes){	
-		APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil();
-		return consultarNaApi(apiQueryParamUtil);
+		escreverCabecalhoArquivoCsv(opcoes);			
+		consultarNaApiEGerarSaidaDados(opcoes);
+		fecharContextoPersistencia();
 	}
 
 	protected void exibirDadosNaConsole (List<T> listaEntidades) {
@@ -88,10 +71,12 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 		return !opcoes.isNomeArquivoVazio() ? opcoes.getNomeArquivo() : getNomePadraoArquivoCSV();
 	}
 
-	protected void escreverCabecalhoArquivoCsv(String nomeArquivo) {
-		getLogger().info("Escrevendo o cabeçalho no arquivo CSV...");
-		CsvUtil<T> csvUtil = new CsvUtil<T>(getEntityClass());
-		csvUtil.writeHeader(getColunasArquivoCSV(), nomeArquivo);
+	protected void escreverCabecalhoArquivoCsv(OpcoesCargaDados opcoes) { 
+		if(OpcaoSalvamentoDados.ARQUIVO.equals(opcoes.getOpcaoSalvamento())) {
+			getLogger().info("Escrevendo o cabeçalho no arquivo CSV...");
+			CsvUtil<T> csvUtil = new CsvUtil<T>(getEntityClass());
+			csvUtil.writeHeader(getColunasArquivoCSV(), definirNomeArquivoCSV(opcoes));
+		}
 	}
 
 	protected void salvarArquivoCsv(List<T> listaObjetos, String nomeArquivo) {
@@ -106,18 +91,33 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 		}
 	}
 
-	protected void consultarNaApiESalvarArquivoCsv(O opcoes){
-		
-		List<Integer> listaExercicios = (opcoes.getExercicios() != null ? opcoes.getExercicios()
-				: Constantes.EXERCICIOS_DISPONIVEIS);		
-		for (Integer exercicio : listaExercicios) {
-			consultarNaApiESalvarArquivoCsv(opcoes, exercicio);
+	protected void consultarNaApiEGerarSaidaDados(O opcoes){
+		for (Integer exercicio : getExercicios(opcoes)) {
+			consultarNaApiEGerarSaidaDados(opcoes, exercicio);
 		}
 	}
 	
-	protected void consultarNaApiESalvarArquivoCsv(O opcoes, Integer exercicio) {	
-		List<T> listaEntidades = consultarNaApi(opcoes);
-		salvarArquivoCsv(listaEntidades, definirNomeArquivoCSV(opcoes));
+	private List<Integer> getExercicios (O opcoes){
+		return (opcoes.getExercicios() != null ? opcoes.getExercicios() : Constantes.EXERCICIOS_DISPONIVEIS);
+	}
+	
+	protected void consultarNaApiEGerarSaidaDados(O opcoes, Integer exercicio) {	
+		List<T> listaEntidades = consultarNaApi(new APIQueryParamUtil());;
+		gerarSaidaDados(opcoes, listaEntidades);			
+	}
+	
+	protected void gerarSaidaDados(O opcoes, List<T> listaEntidades) {
+		switch (opcoes.getOpcaoSalvamento()) {
+		case CONSOLE:
+			exibirDadosNaConsole(listaEntidades);
+			break;
+		case ARQUIVO:
+			salvarArquivoCsv(listaEntidades, definirNomeArquivoCSV(opcoes));
+			break;
+		case BANCO:
+			salvarNoBancoDeDados(opcoes, listaEntidades);
+			break;
+		}
 	}
 
 	/**
@@ -133,16 +133,11 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	
 	protected void salvarNoBancoDeDados(O opcoes, List<T> listaEntidades) {
 		if(Utils.isEmptyCollection(listaEntidades)) return;
-		
+	
 		getEntityManager().getTransaction().begin();		
 		excluir(opcoes);
 		persistir(listaEntidades);
 		commitTransaction();
-		fecharContextoPersistencia();		
-	}
-
-	protected void excluir(O opcoes) {
-		excluirTodos();
 	}
 
 	public void excluirTodos() {
@@ -225,14 +220,15 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 
 	private Response obterResponseAPI(APIQueryParamUtil apiQueryParamUtil) {
 		
+		
 		this.webTarget = this.client.target(URL_SERVICE).path(getApiPath());
 		apiQueryParamUtil.getMapQueryParam().forEach((chave, valor) -> inserirAPIQueryParam(chave, valor));
-		Invocation.Builder invocationBuilder =  this.webTarget.request(API_RESPONSE_TYPE); 
-		
+		Invocation.Builder invocationBuilder =  this.webTarget.request(API_RESPONSE_TYPE); 	
+
 		getLogger().info("Fazendo get na API: " + webTarget.getUri().toString());			
 		Response response = invocationBuilder.get();
-		return response;
 		
+		return response;		
 	}
 
 	private void mensagemTempoConsultaAPI(long ini) {

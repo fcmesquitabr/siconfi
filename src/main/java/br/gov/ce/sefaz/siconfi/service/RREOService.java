@@ -23,56 +23,28 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 
 	private static final Logger logger = LogManager.getLogger(RREOService.class);
 
-	public static List<String> ANEXOS_RREO = Arrays.asList("RREO-Anexo 01", "RREO-Anexo 02", "RREO-Anexo 03",
+	public static final List<String> ANEXOS_RREO = Arrays.asList("RREO-Anexo 01", "RREO-Anexo 02", "RREO-Anexo 03",
 			"RREO-Anexo 04", "RREO-Anexo 04 - RGPS", "RREO-Anexo 04 - RPPS", "RREO-Anexo 04.0 - RGPS",
 			"RREO-Anexo 04.1", "RREO-Anexo 04.2", "RREO-Anexo 04.3 - RGPS", "RREO-Anexo 05", "RREO-Anexo 06",
 			"RREO-Anexo 07", "RREO-Anexo 09", "RREO-Anexo 10 - RGPS", "RREO-Anexo 10 - RPPS", "RREO-Anexo 11",
 			"RREO-Anexo 13", "RREO-Anexo 14");
 
-	private static String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "periodicidade", "periodo", "uf",
+	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "periodicidade", "periodo", "uf",
 			"cod_ibge", "instituicao", "demonstrativo", "anexo", "cod_conta", "conta", "coluna", "rotulo", "populacao",
 			"valorFormatado" };
 
-	private EnteService enteService;
-
-	private static String NOME_PADRAO_ARQUIVO_CSV = "rreo.csv";
-
+	private static final String NOME_PADRAO_ARQUIVO_CSV = "rreo.csv";
+	
 	private static final String API_PATH_RREO = "rreo";
+	
+	private EnteService enteService;
 
 	public RREOService() {
 		super();
 	}
 
-	public void carregarDados(OpcoesCargaDadosRREO filtro) {
-
-		List<RelatorioResumidoExecucaoOrcamentaria> listaRREO = consultarNaApi(filtro);
-
-		switch (filtro.getOpcaoSalvamento()) {
-		case CONSOLE:
-			exibirDadosNaConsole(listaRREO);
-			break;
-		case ARQUIVO:
-			String nomeArquivo = definirNomeArquivoCSV(filtro);
-			escreverCabecalhoArquivoCsv(nomeArquivo);
-			salvarArquivoCsv(listaRREO, nomeArquivo);
-			break;
-		case BANCO:
-			salvarNoBancoDeDados(filtro, listaRREO);
-			break;
-		}
-	}
-
-	protected void salvarNoBancoDeDados(OpcoesCargaDadosRREO filtro, List<RelatorioResumidoExecucaoOrcamentaria> listaEntidades) {
-		if (listaEntidades == null || listaEntidades.isEmpty())
-			return;
-		getEntityManager().getTransaction().begin();
-		excluirRelatorioResumidoExecucaoOrcamentaria(filtro);
-		persistir(listaEntidades);
-		commitTransaction();
-		fecharContextoPersistencia();
-	}
-
-	private void excluirRelatorioResumidoExecucaoOrcamentaria(OpcoesCargaDadosRREO filtro) {
+	@Override
+	protected void excluir(OpcoesCargaDadosRREO filtro) {
 		logger.info("Excluindo dados do banco de dados...");
 
 		StringBuilder queryBuilder = new StringBuilder(
@@ -108,53 +80,29 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		logger.info("Linhas excluídas:" + i);
 	}
 
-	public void excluirRREO(Integer exercicio) {
-		logger.info("Excluindo dados do banco de dados...");
-		int i = getEntityManager()
-				.createQuery("DELETE FROM RelatorioResumidoExecucaoOrcamentaria rreo WHERE rreo.exercicio=" + exercicio)
-				.executeUpdate();
-		logger.info("Linhas excluídas:" + i);
-	}
+	@Override
+	protected void consultarNaApiEGerarSaidaDados (OpcoesCargaDadosRREO opcoes, Integer exercicio) {
 
-	public List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi(OpcoesCargaDadosRREO filtro) {
-
-		List<Integer> listaExercicios = !filtro.isListaExerciciosVazia() ? filtro.getExercicios()
-				: Constantes.EXERCICIOS_DISPONIVEIS;
-		List<RelatorioResumidoExecucaoOrcamentaria> listaRREO = new ArrayList<>();
-
-		for (Integer exercicio : listaExercicios) {
-			listaRREO.addAll(consultarNaApi(filtro, exercicio));
-		}
-		return listaRREO;
-	}
-
-	private List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi(OpcoesCargaDadosRREO filtro, Integer exercicio) {
-
-		List<Integer> listaSemestres = !filtro.isListaPeriodosVazia() ? filtro.getPeriodos() : Constantes.BIMESTRES;
-		List<RelatorioResumidoExecucaoOrcamentaria> listaRREO = new ArrayList<>();
+		List<Integer> listaSemestres = !opcoes.isListaPeriodosVazia() ? opcoes.getPeriodos() : Constantes.BIMESTRES;
 
 		for (Integer semestre: listaSemestres) {
-			listaRREO.addAll(consultarNaApi(filtro, exercicio, semestre));
+			consultarNaApiEGerarSaidaDados(opcoes, exercicio, semestre);
 		}
-		return listaRREO;
 	}
 
-	private List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi(OpcoesCargaDadosRREO filtro, Integer exercicio, Integer bimestre) {
+	private void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosRREO opcoes, Integer exercicio, Integer bimestre) {
 
-		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(filtro);
-		List<RelatorioResumidoExecucaoOrcamentaria> listaRREO = new ArrayList<>();
+		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(opcoes);
 
 		for (String codigoIbge : listaCodigoIbge) {
-			listaRREO.addAll(consultarNaApi(filtro, exercicio, bimestre, codigoIbge));
+			consultarNaApiEGerarSaidaDados(opcoes, exercicio, bimestre, codigoIbge);
 		}
-		return listaRREO;
 	}
 
-	private List<RelatorioResumidoExecucaoOrcamentaria> consultarNaApi(OpcoesCargaDadosRREO filtro, Integer exercicio, Integer bimestre,
-			String codigoIbge) {
+	private void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosRREO opcoes,
+			Integer exercicio, Integer bimestre, String codigoIbge) {
 
-		List<String> listaAnexos = !filtro.isListaAnexosVazia() ? filtro.getListaAnexos() : ANEXOS_RREO;
-		List<RelatorioResumidoExecucaoOrcamentaria> listaRREO = new ArrayList<>();
+		List<String> listaAnexos = !opcoes.isListaAnexosVazia() ? opcoes.getListaAnexos() : ANEXOS_RREO;
 
 		for (String anexo : listaAnexos) {
 			APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil();
@@ -164,10 +112,21 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 					.addParamTipoDemonstrativo(TipoDemonstrativoRREO.RREO.getCodigo())
 					.addParamAnexo(anexo);
 			List<RelatorioResumidoExecucaoOrcamentaria> listaRREOParcial = consultarNaApi(apiQueryParamUtil);
-			listaRREO.addAll(listaRREOParcial);
+			gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, bimestre, codigoIbge, anexo), listaRREOParcial);
 			aguardarUmSegundo();
 		}
-		return listaRREO;
+	}
+
+	private OpcoesCargaDadosRREO getOpcoesParcial(OpcoesCargaDadosRREO opcoes, Integer exercicio, Integer bimestre,
+			String codigoIbge, String anexo) {
+		OpcoesCargaDadosRREO opcoesParcial = new OpcoesCargaDadosRREO();
+		opcoesParcial.setOpcaoSalvamento(opcoes.getOpcaoSalvamento());
+		opcoesParcial.setNomeArquivo(opcoes.getNomeArquivo());
+		opcoesParcial.setExercicios(Arrays.asList(exercicio));
+		opcoesParcial.setPeriodos(Arrays.asList(bimestre));
+		opcoesParcial.setCodigosIBGE(Arrays.asList(codigoIbge));
+		opcoesParcial.setListaAnexos(Arrays.asList(anexo));
+		return opcoesParcial;
 	}
 
 	@Override

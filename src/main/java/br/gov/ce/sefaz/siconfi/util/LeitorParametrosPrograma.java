@@ -3,6 +3,7 @@ package br.gov.ce.sefaz.siconfi.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -229,7 +230,8 @@ public class LeitorParametrosPrograma {
 			if (!Utils.isStringVazia(opcao)) {
 				String[] anexos = opcao.split(",");
 				opcaoAnexosSelecionados = Arrays.asList(anexos);
-				if(opcaoAnexosSelecionados == null || opcaoAnexosSelecionados.isEmpty()) {
+				opcaoAnexosSelecionados = opcaoAnexosSelecionados.stream().map(String::trim).collect(Collectors.toList());
+				if(Utils.isEmptyCollection(opcaoAnexosSelecionados)) {
 					throw new IllegalArgumentException("Opção de Anexos inválida");
 				}
 			} else {
@@ -252,7 +254,7 @@ public class LeitorParametrosPrograma {
 			if (Utils.isStringVazia(opcaoTipoMatriz)) {
 				opcaoTipoMatrizSelecionado = TipoMatrizSaldoContabeis.MSCC;
 			} else {
-				opcaoTipoMatrizSelecionado = TipoMatrizSaldoContabeis.valueOf(opcaoTipoMatriz);			
+				opcaoTipoMatrizSelecionado = TipoMatrizSaldoContabeis.valueOf(opcaoTipoMatriz.trim());			
 			}
 			logger.info("Opção de Tipo de Matriz de Saldo selecionado:" + opcaoTipoMatriz);			
 		} catch(Exception e) {
@@ -272,7 +274,7 @@ public class LeitorParametrosPrograma {
 				String[] tiposValorMatriz = opcao.split(",");
 				opcaoTiposValorMatrizSelecionado = new ArrayList<>();
 				for (String tipoValorCodigo: tiposValorMatriz) {
-					TipoValorMatrizSaldoContabeis tipoValorMatriz = TipoValorMatrizSaldoContabeis.valueOf(tipoValorCodigo);
+					TipoValorMatrizSaldoContabeis tipoValorMatriz = TipoValorMatrizSaldoContabeis.valueOf(tipoValorCodigo.trim());
 					opcaoTiposValorMatrizSelecionado.add(tipoValorMatriz);
 				}
 				if (Utils.isEmptyCollection(opcaoTiposValorMatrizSelecionado)) {

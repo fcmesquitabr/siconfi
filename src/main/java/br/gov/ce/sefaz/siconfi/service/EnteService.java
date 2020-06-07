@@ -22,7 +22,8 @@ public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 
 	private static final Logger logger = LogManager.getLogger(EnteService.class);
 	
-	private static final String[] COLUNAS_ARQUIVO_CSV = new String[]{"cod_ibge","ente","capital","regiao","uf","esfera","exercicio","populacao","cnpj"};
+	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "cod_ibge", "ente", "capital", "regiao", "uf",
+			"esfera", "exercicio", "populacao", "cnpj" };
 	
 	private static final String NOME_PADRAO_ARQUIVO_CSV = "entes.csv";
 	
@@ -110,6 +111,11 @@ public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 			listaCodigoIbge.add(ente.getCod_ibge());
 		}
 		return listaCodigoIbge;
+	}
+
+	@Override
+	protected void excluir(OpcoesCargaDados opcoes) {
+		excluirTodos();
 	}
 
 	@Override

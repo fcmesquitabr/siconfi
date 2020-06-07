@@ -36,6 +36,11 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio, Opcoes
 	}
 
 	@Override
+	protected void excluir(OpcoesCargaDados opcoes) {
+		excluirTodos();
+	}
+
+	@Override
 	protected String getEntityName() {
 		return AnexoRelatorio.class.getSimpleName();
 	}
