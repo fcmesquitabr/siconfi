@@ -1,34 +1,74 @@
 package br.gov.ce.sefaz.siconfi.entity;
 
+import java.util.Date;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
+@Table(schema = "TAB_SICONFI", name = "RELATORIO_EXE_ORCAMEN")
 @Entity
 public class RelatorioResumidoExecucaoOrcamentaria {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "SEQ_RELATORIO_EXE_ORCAMEN")
 	private Integer id;
-	
+
+	@Column(name = "NUM_EXERCICIO")
 	private Integer exercicio;
+	
+	@Column(name = "TXT_DEMONSTRATIVO")
 	private String demonstrativo;
+	
+	@Column(name = "NUM_PERIODO")
 	private Integer periodo;
+	
+	@Column(name = "DSC_PERIODICIDADE")
 	private String periodicidade;
+	
+	@Column(name = "DSC_INSTITUICAO")
 	private String instituicao;
+		
+	@Column(name = "COD_IBGE")
 	private String cod_ibge;
+	
+	@Column(name = "COD_UF")
 	private String uf;
+	
+	@Column(name = "QTD_POPULACAO")
 	private Long populacao;
+	
+	@Column(name = "TXT_ANEXO")
 	private String anexo;
+	
+	@Column(name = "TXT_ROTULO")
 	private String rotulo;
+	
+	@Column(name = "TXT_COLUNA")
 	private String coluna;
+	
+	@Column(name = "COD_CONTA")
 	private String cod_conta;
+	
+	@Column(name = "DSC_CONTA")
 	private String conta;
+	
+	@Column(name = "VLR_EXECUCAO_ORCAMENTARIA")
 	private Double valor; 
+	
+	@Column(name = "DAT_ALTERACAO")
+	@Temporal(value = TemporalType.TIMESTAMP)
+	private Date dataHoraAlteracao;
+
 	@Transient
 	private String valorFormatado;
 	
@@ -125,6 +165,13 @@ public class RelatorioResumidoExecucaoOrcamentaria {
 	public String getValorFormatado() {
 		if(valorFormatado == null) valorFormatado = Utils.getValorFormatado(valor);
 		return valorFormatado;
+	}
+	
+	public Date getDataHoraAlteracao() {
+		return dataHoraAlteracao;
+	}
+	public void setDataHoraAlteracao(Date dataHoraAlteracao) {
+		this.dataHoraAlteracao = dataHoraAlteracao;
 	}
 	@Override
 	public String toString() {

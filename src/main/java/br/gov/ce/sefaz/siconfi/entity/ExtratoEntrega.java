@@ -1,30 +1,62 @@
 package br.gov.ce.sefaz.siconfi.entity;
 
+import java.util.Date;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
+@Table(schema = "TAB_SICONFI", name = "EXTRATO_ENTREGA")
 @Entity
 public class ExtratoEntrega {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "SEQ_EXTRATO_ENTREGA")
 	private Integer id;
 	
+	@Column(name = "NUM_EXERCICIO")
 	private Integer exercicio;
+	
+	@Column(name = "COD_IBGE")
 	private String cod_ibge;
+	
+	@Column(name = "QTD_POPULACAO")
 	private Long populacao;
+	
+	@Column(name = "DSC_INSTITUICAO")
 	private String instituicao;
+	
+	@Column(name = "DSC_ENTREGAVEL")
 	private String entregavel;
+	
+	@Column(name = "NUM_PERIODO")
 	private Integer periodo;
+	
+	@Column(name = "DSC_PERIODICIDADE")
 	private String periodicidade;
+	
+	@Column(name = "STA_RELATORIO")
 	private String status_relatorio;
-	private String data_status;
+	
+	@Column(name = "DAT_STATUS")
+	private Date data_status;
+	
+	@Column(name = "DSC_FORMA_ENVIO")
 	private String forma_envio;
+	
+	@Column(name = "TIP_RELATORIO")
 	private String tipo_relatorio;
-	
-	
+		
+	@Column(name = "DAT_ALTERACAO")
+	@Temporal(value = TemporalType.TIMESTAMP)
+	private Date dataHoraAlteracao;
+
 	public Integer getId() {
 		return id;
 	}
@@ -79,10 +111,10 @@ public class ExtratoEntrega {
 	public void setStatus_relatorio(String status_relatorio) {
 		this.status_relatorio = status_relatorio;
 	}
-	public String getData_status() {
+	public Date getData_status() {
 		return data_status;
 	}
-	public void setData_status(String data_status) {
+	public void setData_status(Date data_status) {
 		this.data_status = data_status;
 	}
 	public String getForma_envio() {
@@ -96,6 +128,13 @@ public class ExtratoEntrega {
 	}
 	public void setTipo_relatorio(String tipo_relatorio) {
 		this.tipo_relatorio = tipo_relatorio;
+	}
+	
+	public Date getDataHoraAlteracao() {
+		return dataHoraAlteracao;
+	}
+	public void setDataHoraAlteracao(Date dataHoraAlteracao) {
+		this.dataHoraAlteracao = dataHoraAlteracao;
 	}
 	@Override
 	public String toString() {

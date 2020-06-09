@@ -1,14 +1,26 @@
 package br.gov.ce.sefaz.siconfi.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
+@Table(schema = "TAB_SICONFI", name = "MATRIZ_SAL_CONT_CONTROLE")
 @Entity
 public class MatrizSaldoContabeisControle extends MatrizSaldoContabeis {
 
+	@Column(name = "DSC_FUNCAO")
     private String funcao;
+	
+	@Column(name = "DSC_SUBFUNCAO")
     private String subfuncao;
+	
+	@Column(name = "NUM_EDUCACAO_SAUDE")
     private Integer educacao_saude;
+	
+	@Column(name = "DSC_NATUREZA_DESPESA")
     private String natureza_despesa;
+	
+	@Column(name = "NUM_ANO_INSCRICAO")
     private Integer ano_inscricao;
 
 	@Override

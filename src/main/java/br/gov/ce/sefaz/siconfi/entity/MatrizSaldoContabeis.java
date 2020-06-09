@@ -1,11 +1,16 @@
 package br.gov.ce.sefaz.siconfi.entity;
 
+import java.util.Date;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import br.gov.ce.sefaz.siconfi.util.Utils;
@@ -16,24 +21,55 @@ public abstract class MatrizSaldoContabeis {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "SEQ_MATRIZ_CONTROLE")
 	protected Integer id;
 
+	@Column(name = "NUM_EXERCICIO")
 	protected Integer exercicio;
+	
+	@Column(name = "NUM_MES_REFERENCIA")
 	protected Integer mes_referencia;
+	
+	@Column(name = "COD_IBGE")
 	protected String cod_ibge;
+	
+	@Column(name = "DSC_PODER_ORGAO")
 	protected String poder_orgao;
+	
+	@Column(name = "TIP_MATRIZ")
 	protected String tipo_matriz;	
-	protected Integer classe_conta;
-	protected String natureza_conta;
-	protected String conta_contabil;
 
+	@Column(name = "NUM_CLASSE_CONTA")
+	protected Integer classe_conta;
+	
+	@Column(name = "DSC_NATUREZA_CONTA")
+	protected String natureza_conta;
+	
+	@Column(name = "COD_CONTA_CONTABIL")
+	protected String conta_contabil;
+	
+	@Column(name = "NUM_ANO_FONTE_RECURSOS")
     protected Integer ano_fonte_recursos;
+	
+	@Column(name = "DSC_FONTE_RECURSOS")
     protected String fonte_recursos;
 
-	protected String data_referencia;
+	@Column(name = "DAT_REFERENCIA")
+	@Temporal(value = TemporalType.TIMESTAMP)
+	protected Date data_referencia;
+	
+	@Column(name = "NUM_ENTRADA_MSC")
 	protected Integer entrada_msc;
+	
+	@Column(name = "TIP_VALOR")
 	protected String tipo_valor;
+
+	@Column(name = "VLR_SALDO_CONTROLE")
 	protected Double valor;
+
+	@Column(name = "DAT_ALTERACAO")
+	@Temporal(value = TemporalType.TIMESTAMP)
+	private Date dataHoraAlteracao;
 
 	@Transient
 	protected String valorFormatado;
@@ -131,11 +167,11 @@ public abstract class MatrizSaldoContabeis {
 		this.conta_contabil = conta_contabil;
 	}
 
-	public String getData_referencia() {
+	public Date getData_referencia() {
 		return data_referencia;
 	}
 
-	public void setData_referencia(String data_referencia) {
+	public void setData_referencia(Date data_referencia) {
 		this.data_referencia = data_referencia;
 	}
 
@@ -161,5 +197,13 @@ public abstract class MatrizSaldoContabeis {
 
 	public void setValor(Double valor) {
 		this.valor = valor;
+	}
+
+	public Date getDataHoraAlteracao() {
+		return dataHoraAlteracao;
+	}
+
+	public void setDataHoraAlteracao(Date dataHoraAlteracao) {
+		this.dataHoraAlteracao = dataHoraAlteracao;
 	}
 }

@@ -1,11 +1,17 @@
 package br.gov.ce.sefaz.siconfi.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Table;
 
+@Table(schema = "TAB_SICONFI", name = "MATRIZ_SAL_CONT_PATRIMON")
 @Entity
 public class MatrizSaldoContabeisPatrimonial extends MatrizSaldoContabeis {
 
+	@Column(name = "NUM_FINANCEIRO_PERMANENTE")
     private Integer financeiro_permanente;
+	
+	@Column(name = "NUM_DIVIDA_CONSOLIDADA")
     private Integer divida_consolidada;
 
 	@Override
