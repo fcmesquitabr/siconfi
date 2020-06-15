@@ -18,7 +18,7 @@ public class MSCOrcamentariaService extends MSCService<MatrizSaldoContabeisOrcam
 	private static final Logger logger = LogManager.getLogger(MSCOrcamentariaService.class);
 
 	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "mes_referencia", "cod_ibge", "poder_orgao", "tipo_matriz",
-			"class_conta", "natureza_conta", "conta_contabil", "funcao", "subfuncao", "educacao_saude", 
+			"classe_conta", "natureza_conta", "conta_contabil", "funcao", "subfuncao", "educacao_saude", 
 			"natureza_despesa", "ano_inscricao", "natureza_receita","ano_fonte_recursos", "fonte_recursos", 
 			"data_referencia", "entrada_msc", "tipo_valor", "valorFormatado"};
 	

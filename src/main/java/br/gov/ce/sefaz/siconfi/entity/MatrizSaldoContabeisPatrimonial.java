@@ -8,11 +8,17 @@ import javax.persistence.Table;
 @Entity
 public class MatrizSaldoContabeisPatrimonial extends MatrizSaldoContabeis {
 
+	@Column(name = "SEQ_MATRIZ_PATRIMONIAL")
+	protected Integer id;
+	
 	@Column(name = "NUM_FINANCEIRO_PERMANENTE")
     private Integer financeiro_permanente;
 	
 	@Column(name = "NUM_DIVIDA_CONSOLIDADA")
     private Integer divida_consolidada;
+
+	@Column(name = "VLR_SALDO_PATRIMONIAL")
+	protected Double valor;
 
 	@Override
 	public String toString() {

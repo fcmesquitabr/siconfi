@@ -1,15 +1,11 @@
 package br.gov.ce.sefaz.siconfi.entity;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import br.gov.ce.sefaz.siconfi.util.Utils;
@@ -21,7 +17,7 @@ public class RelatorioGestaoFiscal {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "SEQ_RELATORIO_GES_FISCAL")
-	private Integer id;
+	private Long id;
 	
 	@Column(name = "NUM_EXERCICIO")
 	private Integer exercicio;
@@ -65,18 +61,13 @@ public class RelatorioGestaoFiscal {
 	@Column(name = "VLR_GESTAO_FISCAL")
 	private Double valor;
 	
-	@Column(name = "DAT_ALTERACAO")
-	@Temporal(value = TemporalType.TIMESTAMP)
-	private Date dataHoraAlteracao;
-
 	@Transient
 	private String valorFormatado;
-	
-	
-	public Integer getId() {
+		
+	public Long getId() {
 		return id;
 	}
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	public Integer getExercicio() {
@@ -164,16 +155,10 @@ public class RelatorioGestaoFiscal {
 		this.valor = valor;
 	}
 	public String getValorFormatado() {
-		if(valorFormatado == null) valorFormatado = Utils.getValorFormatado(valor);
+		if(valorFormatado == null) valorFormatado = Utils.getValorFormatado(valor.doubleValue());
 		return valorFormatado;
 	}
 	
-	public Date getDataHoraAlteracao() {
-		return dataHoraAlteracao;
-	}
-	public void setDataHoraAlteracao(Date dataHoraAlteracao) {
-		this.dataHoraAlteracao = dataHoraAlteracao;
-	}
 	@Override
 	public String toString() {
 		return "RelatorioGestaoFiscal [exercicio=" + exercicio + ", periodo=" + periodo + ", periodicidade="

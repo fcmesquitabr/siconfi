@@ -26,6 +26,9 @@ public class MatrizSaldoContabeisOrcamentaria extends MatrizSaldoContabeis {
 	@Column(name = "DSC_NATUREZA_RECEITA")
     private String natureza_receita;
 
+	@Column(name = "VLR_SALDO_ORCAMENTARIO")
+	protected Double valor;
+
 	@Override
 	public String toString() {
 		return "MatrizSaldoContabeisOrcamentaria [id=" + id + ", exercicio=" + exercicio + ", mes_referencia="

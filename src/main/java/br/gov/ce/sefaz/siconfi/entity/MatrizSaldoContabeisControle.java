@@ -8,6 +8,9 @@ import javax.persistence.Table;
 @Entity
 public class MatrizSaldoContabeisControle extends MatrizSaldoContabeis {
 
+	@Column(name = "SEQ_MATRIZ_CONTROLE")
+	protected Integer id;
+
 	@Column(name = "DSC_FUNCAO")
     private String funcao;
 	
@@ -22,6 +25,9 @@ public class MatrizSaldoContabeisControle extends MatrizSaldoContabeis {
 	
 	@Column(name = "NUM_ANO_INSCRICAO")
     private Integer ano_inscricao;
+
+	@Column(name = "VLR_SALDO_CONTROLE")
+	protected Double valor;
 
 	@Override
 	public String toString() {

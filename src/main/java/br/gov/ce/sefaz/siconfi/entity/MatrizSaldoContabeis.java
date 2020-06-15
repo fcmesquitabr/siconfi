@@ -3,25 +3,24 @@ package br.gov.ce.sefaz.siconfi.entity;
 import java.util.Date;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
-@Entity
+@MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class MatrizSaldoContabeis {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "SEQ_MATRIZ_CONTROLE")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	protected Integer id;
 
 	@Column(name = "NUM_EXERCICIO")
@@ -64,12 +63,8 @@ public abstract class MatrizSaldoContabeis {
 	@Column(name = "TIP_VALOR")
 	protected String tipo_valor;
 
-	@Column(name = "VLR_SALDO_CONTROLE")
+	@Transient
 	protected Double valor;
-
-	@Column(name = "DAT_ALTERACAO")
-	@Temporal(value = TemporalType.TIMESTAMP)
-	private Date dataHoraAlteracao;
 
 	@Transient
 	protected String valorFormatado;
@@ -197,13 +192,5 @@ public abstract class MatrizSaldoContabeis {
 
 	public void setValor(Double valor) {
 		this.valor = valor;
-	}
-
-	public Date getDataHoraAlteracao() {
-		return dataHoraAlteracao;
-	}
-
-	public void setDataHoraAlteracao(Date dataHoraAlteracao) {
-		this.dataHoraAlteracao = dataHoraAlteracao;
 	}
 }

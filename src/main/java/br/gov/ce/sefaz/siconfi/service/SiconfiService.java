@@ -137,6 +137,7 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 		getEntityManager().getTransaction().begin();		
 		excluir(opcoes);
 		persistir(listaEntidades);
+		getEntityManager().flush();
 		commitTransaction();
 	}
 
@@ -147,16 +148,16 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	}
 
 	protected EntityManager getEntityManager () {
-		getLogger().debug("Criando EntityManager");
 		if(em == null && getEntityManagerFactory()!=null) {
+			getLogger().debug("Criando EntityManager");
 			em = getEntityManagerFactory().createEntityManager();
 		}
 		return em;
 	}
 	
 	private EntityManagerFactory getEntityManagerFactory() {
-		getLogger().debug("Criando EntityManagerFactory");
 		if(this.emf == null) {
+			getLogger().debug("Criando EntityManagerFactory");
 			this.emf = Persistence.createEntityManagerFactory("siconfiUnit");
 		}
 		return emf;
@@ -172,11 +173,11 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	}
 	
 	protected void commitTransaction() {
-		getLogger().debug("Fazendo commit...");
+		getLogger().info("Fazendo commit...");
 		long ini = System.currentTimeMillis();
 		getEntityManager().getTransaction().commit();
 		long fim = System.currentTimeMillis();
-		getLogger().debug("Tempo para commit:" + (fim -ini));
+		getLogger().info("Tempo para commit:" + (fim -ini));
 	}
 
 	protected void persistir(List<T> lista) {
@@ -188,7 +189,7 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 		getLogger().info("Persistindo os dados obtidos (" + lista.size() + " registro(s))...");
 		for(T entity: lista) {
 			getLogger().debug("Inserindo registro " + (i++) + ":" + entity.toString());
-			getEntityManager().persist(entity);
+			entity = getEntityManager().merge(entity);
 		}
 	}
 
