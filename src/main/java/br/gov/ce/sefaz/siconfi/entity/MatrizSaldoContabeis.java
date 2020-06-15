@@ -3,26 +3,18 @@ package br.gov.ce.sefaz.siconfi.entity;
 import java.util.Date;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
-@Entity
+@MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class MatrizSaldoContabeis {
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "SEQ_MATRIZ_CONTROLE")
-	protected Integer id;
 
 	@Column(name = "NUM_EXERCICIO")
 	protected Integer exercicio;
@@ -77,14 +69,6 @@ public abstract class MatrizSaldoContabeis {
 	public String getValorFormatado() {
 		if(valorFormatado == null) valorFormatado = Utils.getValorFormatado(valor);
 		return valorFormatado;
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public Integer getExercicio() {

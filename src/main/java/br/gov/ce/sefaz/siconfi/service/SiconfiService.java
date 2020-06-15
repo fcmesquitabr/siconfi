@@ -13,6 +13,9 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.Logger;
+import org.glassfish.jersey.client.ClientConfig;
+
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
 import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDados;
@@ -36,7 +39,9 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	private EntityManager em;
 	
 	public SiconfiService(){
-		this.client = ClientBuilder.newClient();  		
+		ClientConfig clientConfig = new ClientConfig();
+		clientConfig.register(JacksonJsonProvider.class);
+		this.client = ClientBuilder.newClient(clientConfig);
 	}
 	
 	protected abstract String getNomePadraoArquivoCSV();

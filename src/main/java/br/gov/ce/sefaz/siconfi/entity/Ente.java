@@ -57,6 +57,10 @@ public class Ente {
 	@Temporal(value = TemporalType.TIMESTAMP)
 	private Date dataHoraAlteracao;
 
+	public Ente() {
+		super();
+	}
+	
 	public Integer getId() {
 		return id;
 	}

@@ -2,11 +2,19 @@ package br.gov.ce.sefaz.siconfi.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Table(schema = "TAB_SICONFI", name = "MATRIZ_SAL_CONT_PATRIMON")
 @Entity
 public class MatrizSaldoContabeisPatrimonial extends MatrizSaldoContabeis {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "SEQ_MATRIZ_PATRIMONIAL")
+	private Integer id;
 
 	@Column(name = "NUM_FINANCEIRO_PERMANENTE")
     private Integer financeiro_permanente;
@@ -25,6 +33,14 @@ public class MatrizSaldoContabeisPatrimonial extends MatrizSaldoContabeis {
 				+ ", entrada_msc=" + entrada_msc + ", tipo_valor=" + tipo_valor + ", valor=" + valor + "]";
 	}
 	
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
 	public String getPoder_orgao() {
 		return poder_orgao;
 	}
