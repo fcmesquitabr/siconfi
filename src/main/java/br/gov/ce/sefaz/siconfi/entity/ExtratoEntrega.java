@@ -8,8 +8,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 @Table(schema = "TAB_SICONFI", name = "EXTRATO_ENTREGA")
 @Entity
@@ -53,10 +51,6 @@ public class ExtratoEntrega {
 	@Column(name = "TIP_RELATORIO")
 	private String tipo_relatorio;
 		
-	@Column(name = "DAT_ALTERACAO")
-	@Temporal(value = TemporalType.TIMESTAMP)
-	private Date dataHoraAlteracao;
-
 	public Integer getId() {
 		return id;
 	}
@@ -130,12 +124,6 @@ public class ExtratoEntrega {
 		this.tipo_relatorio = tipo_relatorio;
 	}
 	
-	public Date getDataHoraAlteracao() {
-		return dataHoraAlteracao;
-	}
-	public void setDataHoraAlteracao(Date dataHoraAlteracao) {
-		this.dataHoraAlteracao = dataHoraAlteracao;
-	}
 	@Override
 	public String toString() {
 		return "ExtratoEntrega [exercicio=" + exercicio + ", cod_ibge=" + cod_ibge + ", populacao=" + populacao

@@ -3,6 +3,9 @@ package br.gov.ce.sefaz.siconfi.entity;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
@@ -15,6 +18,11 @@ import br.gov.ce.sefaz.siconfi.util.Utils;
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class MatrizSaldoContabeis {
+
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	protected Integer id;
 
 	@Column(name = "NUM_EXERCICIO")
 	protected Integer exercicio;
@@ -56,12 +64,8 @@ public abstract class MatrizSaldoContabeis {
 	@Column(name = "TIP_VALOR")
 	protected String tipo_valor;
 
-	@Column(name = "VLR_SALDO_CONTROLE")
+	@Transient
 	protected Double valor;
-
-	@Column(name = "DAT_ALTERACAO")
-	@Temporal(value = TemporalType.TIMESTAMP)
-	private Date dataHoraAlteracao;
 
 	@Transient
 	protected String valorFormatado;
@@ -69,6 +73,14 @@ public abstract class MatrizSaldoContabeis {
 	public String getValorFormatado() {
 		if(valorFormatado == null) valorFormatado = Utils.getValorFormatado(valor);
 		return valorFormatado;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 	public Integer getExercicio() {
@@ -181,13 +193,5 @@ public abstract class MatrizSaldoContabeis {
 
 	public void setValor(Double valor) {
 		this.valor = valor;
-	}
-
-	public Date getDataHoraAlteracao() {
-		return dataHoraAlteracao;
-	}
-
-	public void setDataHoraAlteracao(Date dataHoraAlteracao) {
-		this.dataHoraAlteracao = dataHoraAlteracao;
 	}
 }

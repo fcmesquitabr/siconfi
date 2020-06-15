@@ -1,15 +1,11 @@
 package br.gov.ce.sefaz.siconfi.entity;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import br.gov.ce.sefaz.siconfi.util.Utils;
@@ -20,8 +16,8 @@ public class Ente {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "SEQ_ENTE",columnDefinition = "serial")
-	private Integer id;
+	@Column(name = "SEQ_ENTE")
+	private Long id;
 
 	@Column(name = "COD_IBGE")
 	private String cod_ibge;
@@ -53,18 +49,14 @@ public class Ente {
 	@Transient
 	private String cnpj;
 	
-	@Column(name = "DAT_ALTERACAO")
-	@Temporal(value = TemporalType.TIMESTAMP)
-	private Date dataHoraAlteracao;
-
 	public Ente() {
 		super();
 	}
 	
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	public String getCod_ibge() {
@@ -131,12 +123,6 @@ public class Ente {
 		if(!Utils.isStringVazia(cnpj)) {
 			setNumCnpj(Long.valueOf(cnpj));
 		}
-	}
-	public Date getDataHoraAlteracao() {
-		return dataHoraAlteracao;
-	}
-	public void setDataHoraAlteracao(Date dataHoraAlteracao) {
-		this.dataHoraAlteracao = dataHoraAlteracao;
 	}
 	@Override
 	public String toString() {

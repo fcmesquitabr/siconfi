@@ -1,15 +1,11 @@
 package br.gov.ce.sefaz.siconfi.entity;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 @Table(schema = "TAB_SICONFI", name = "ANEXO_RELATORIO")
 @Entity
@@ -28,11 +24,7 @@ public class AnexoRelatorio {
 	
 	@Column(name = "TXT_ANEXO")
 	private String anexo;
-	
-	@Column(name = "DAT_ALTERACAO")
-	@Temporal(value = TemporalType.TIMESTAMP)
-	private Date dataHoraAlteracao;
-	
+		
 	public Integer getId() {
 		return id;
 	}
@@ -61,13 +53,5 @@ public class AnexoRelatorio {
 	@Override
 	public String toString() {
 		return "AnexoRelatorio [esfera=" + esfera + ", demonstrativo=" + demonstrativo + ", anexo=" + anexo + "]";
-	}
-
-	public Date getDataHoraAlteracao() {
-		return dataHoraAlteracao;
-	}
-
-	public void setDataHoraAlteracao(Date dataHoraAlteracao) {
-		this.dataHoraAlteracao = dataHoraAlteracao;
 	}
 }

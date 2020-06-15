@@ -2,17 +2,12 @@ package br.gov.ce.sefaz.siconfi.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Table(schema = "TAB_SICONFI", name = "MATRIZ_SAL_CONT_ORCAMENT")
 @Entity
 public class MatrizSaldoContabeisOrcamentaria extends MatrizSaldoContabeis {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "SEQ_MATRIZ_ORCAMENTARIA")
 	protected Integer id;
 
@@ -33,6 +28,9 @@ public class MatrizSaldoContabeisOrcamentaria extends MatrizSaldoContabeis {
 	
 	@Column(name = "DSC_NATUREZA_RECEITA")
     private String natureza_receita;
+
+	@Column(name = "VLR_SALDO_ORCAMENTARIO")
+	protected Double valor;
 
 	@Override
 	public String toString() {

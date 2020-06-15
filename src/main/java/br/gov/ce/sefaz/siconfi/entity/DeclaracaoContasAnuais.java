@@ -1,15 +1,11 @@
 package br.gov.ce.sefaz.siconfi.entity;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import br.gov.ce.sefaz.siconfi.util.Utils;
@@ -56,13 +52,8 @@ public class DeclaracaoContasAnuais {
 	@Column(name = "QTD_POPULACAO")
 	private Long populacao;
 	
-	@Column(name = "DAT_ALTERACAO")
-	@Temporal(value = TemporalType.TIMESTAMP)
-	private Date dataHoraAlteracao;
-
 	@Transient
 	private String valorFormatado;
-
 	
 	public Integer getId() {
 		return id;
@@ -143,13 +134,7 @@ public class DeclaracaoContasAnuais {
 	public void setPopulacao(Long populacao) {
 		this.populacao = populacao;
 	}
-	
-	public Date getDataHoraAlteracao() {
-		return dataHoraAlteracao;
-	}
-	public void setDataHoraAlteracao(Date dataHoraAlteracao) {
-		this.dataHoraAlteracao = dataHoraAlteracao;
-	}
+
 	@Override
 	public String toString() {
 		return "DeclaracaoContasAnuais [id=" + id + ", exercicio=" + exercicio + ", instituicao=" + instituicao
