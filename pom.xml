@@ -61,6 +61,18 @@
 			<artifactId>opencsv</artifactId>
 			<version>5.2</version>
 		</dependency>
+		
+		<!-- Driver do Sybase. Quando criado esse projeto, essa dependência não existia no repositório maven. Então,
+		precisa ser adicionada manualmente no repositório com o comando abaixo:
+		mvn install:install-file -Dfile=path\to\jar\jconn4.jar -DgroupId=jconn4 -DartifactId=jconn4 -Dversion=1.0 -Dpackaging=jar -DgeneratePom=true -DlocalRepositoryPath=path\to\repository
+		 -->
+		<dependency>
+			<groupId>jconn4</groupId>
+			<artifactId>jconn4</artifactId>
+			<version>1.0</version>
+			<type>jar</type>			
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -92,7 +104,6 @@
 				</configuration>
 			</plugin>
 
-			<!-- Set a compiler level -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -103,7 +114,7 @@
 				</configuration>
 			</plugin>
 
-			<!-- Make this jar executable -->
+			<!-- Tornar o jar executável -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -116,7 +127,7 @@
 					</archive>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
