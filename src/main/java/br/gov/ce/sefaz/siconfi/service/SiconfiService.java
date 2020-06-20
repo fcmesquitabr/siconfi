@@ -107,7 +107,7 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	}
 	
 	protected void consultarNaApiEGerarSaidaDados(O opcoes, Integer exercicio) {	
-		List<T> listaEntidades = consultarNaApi(new APIQueryParamUtil());;
+		List<T> listaEntidades = consultarNaApi(new APIQueryParamUtil());
 		gerarSaidaDados(opcoes, listaEntidades);			
 	}
 	

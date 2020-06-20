@@ -34,6 +34,10 @@ public class LeitorParametrosPrograma {
 	public static final String OPCAO_CLASSES_CONTA_CONTABIL = "classesConta";	
 	public static final String OPCAO_TIPOS_VALOR_MATRIZ = "tiposValorMatriz";	
 	public static final String OPCAO_CAMINHO_ARQUIVO = "caminhoArquivo";
+	public static final String OPCAO_CAPITAL = "capital";
+	public static final String OPCAO_UF = "uf";
+	public static final String OPCAO_POPULACAO_MINIMA = "populacaoMinima";
+	public static final String OPCAO_POPULACAO_MAXIMA = "populacaoMaxima";
 	
 	private static Relatorio relatorioSelecionado;
 	private static OpcaoSalvamentoDados opcaoSalvamentoSelecionada;
@@ -42,8 +46,12 @@ public class LeitorParametrosPrograma {
 	private static List<Integer> opcaoExerciciosSelecionados;
 	private static List<Integer> opcaoPeriodosSelecionados;
 	private static List<String> opcaoCodigosIbgeSelecionados;
+	private static List<String> opcaoCodigosUFSelecionados;
 	private static List<String> opcaoAnexosSelecionados;
 	private static List<Poder> opcaoPoderesSelecionados;
+	private static Integer opcaoCapitalSelecionada;
+	private static Long opcaoPopulacaoMinimaSelecionada;
+	private static Long opcaoPopulacaoMaximaSelecionada;
 
 	private static TipoMatrizSaldoContabeis opcaoTipoMatrizSelecionado;
 	private static List<TipoValorMatrizSaldoContabeis> opcaoTiposValorMatrizSelecionado;
@@ -63,6 +71,10 @@ public class LeitorParametrosPrograma {
 		lerArgumentoOpcaoTipoMatriz();
 		lerArgumentoOpcaoTiposValorMatriz();
 		lerArgumentoOpcaoClassesContaContabil();
+		lerArgumentoOpcaoCapital();
+		lerArgumentoOpcaoUF();
+		lerArgumentoOpcaoPopulacaoMinima();
+		lerArgumentoOpcaoPopulacaoMaxima();
 	}
 	
 	private static void lerArgumentoOpcaoRelatorio() {
@@ -201,8 +213,9 @@ public class LeitorParametrosPrograma {
 	}
 
 	private static void lerArgumentoOpcaoCodigosIBGE() {
-		String opcao = System.getProperty(OPCAO_CODIGOS_IBGE);
 		try {
+			String opcao = System.getProperty(OPCAO_CODIGOS_IBGE);
+
 			if (!Utils.isStringVazia(opcao)) {
 				String[] codigosIbge = opcao.split(",");
 				opcaoCodigosIbgeSelecionados = new ArrayList<String>();
@@ -319,6 +332,68 @@ public class LeitorParametrosPrograma {
 		}
 	}
 
+	private static void lerArgumentoOpcaoCapital() {
+		try {
+			String opcao = System.getProperty(OPCAO_CAPITAL);
+			if(!Utils.isStringVazia(opcao)) {
+				opcaoCapitalSelecionada = Integer.valueOf(opcao);				
+			}
+		} catch(Exception e) {
+			logger.error("Erro ao ler parâmetro Capital");
+			logger.error(e);
+			throw new IllegalArgumentException("Opção de Capital inválida");				
+		}
+	}
+
+	private static void lerArgumentoOpcaoUF() {
+		try {
+			String opcao = System.getProperty(OPCAO_UF);
+			if (!Utils.isStringVazia(opcao)) {
+				String[] codigosUF = opcao.split(",");
+				opcaoCodigosUFSelecionados= new ArrayList<String>();
+				for (String codigo: codigosUF) {
+					if(!codigo.trim().isEmpty()) {
+						opcaoCodigosUFSelecionados.add(codigo.trim());						
+					}
+				}
+				if (Utils.isEmptyCollection(opcaoCodigosUFSelecionados)) {
+					throw new IllegalArgumentException("Opção de Códigos UF inválida");
+				}			
+			} 
+		} catch(Exception e) {
+			logger.error("Erro ao ler parâmetro UF ");
+			logger.error(e);
+			throw new IllegalArgumentException("Opção de UF inválida");				
+		}
+	}
+
+	private static void lerArgumentoOpcaoPopulacaoMinima() {
+		try {
+			String opcao = System.getProperty(OPCAO_POPULACAO_MINIMA);
+			if(!Utils.isStringVazia(opcao)) {
+				opcaoPopulacaoMinimaSelecionada = Long.valueOf(opcao);
+				
+			}
+		} catch(Exception e) {
+			logger.error("Erro ao ler parâmetro Capital");
+			logger.error(e);
+			throw new IllegalArgumentException("Opção de Capital inválida");				
+		}
+	}
+	
+	private static void lerArgumentoOpcaoPopulacaoMaxima() {
+		try {			
+			String opcao = System.getProperty(OPCAO_POPULACAO_MAXIMA);
+			if(!Utils.isStringVazia(opcao)) {
+				opcaoPopulacaoMaximaSelecionada = Long.valueOf(opcao);				
+			}
+		} catch(Exception e) {
+			logger.error("Erro ao ler parâmetro Capital");
+			logger.error(e);
+			throw new IllegalArgumentException("Opção de Capital inválida");				
+		}
+	}
+
 	public static Relatorio getRelatorioSelecionado() {
 		return relatorioSelecionado;
 	}
@@ -365,5 +440,21 @@ public class LeitorParametrosPrograma {
 
 	public static List<Integer> getOpcaoClassesContasSelecionadas() {
 		return opcaoClassesContasSelecionadas;
-	}	
+	}
+
+	public static List<String> getOpcaoCodigosUFSelecionados() {
+		return opcaoCodigosUFSelecionados;
+	}
+
+	public static Integer getOpcaoCapitalSelecionada() {
+		return opcaoCapitalSelecionada;
+	}
+
+	public static Long getOpcaoPopulacaoMinimaSelecionada() {
+		return opcaoPopulacaoMinimaSelecionada;
+	}
+
+	public static Long getOpcaoPopulacaoMaximaSelecionada() {
+		return opcaoPopulacaoMaximaSelecionada;
+	}
 }

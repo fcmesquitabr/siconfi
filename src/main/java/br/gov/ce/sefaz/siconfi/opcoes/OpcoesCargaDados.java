@@ -18,10 +18,18 @@ public class OpcoesCargaDados {
 	private Esfera esfera;
 	
 	private List<String> codigosIBGE;
-	
+
+	private List<String> codigosUF;
+
 	private OpcaoSalvamentoDados opcaoSalvamento;
 
 	private String nomeArquivo;
+
+	private Integer capital;
+	
+	private Long populacaoMinima;
+
+	private Long populacaoMaxima;
 
 	public OpcoesCargaDados() {
 		super();
@@ -79,7 +87,11 @@ public class OpcoesCargaDados {
 	public boolean isExisteCodigosIbge() {
 		return !Utils.isEmptyCollection(getCodigosIBGE());
 	}
-	
+
+	public boolean isListaCodigosUfVazia() {
+		return Utils.isEmptyCollection(getCodigosUF());
+	}
+
 	public List<Integer> getExercicios() {
 		return exercicios;
 	}
@@ -112,6 +124,14 @@ public class OpcoesCargaDados {
 		this.codigosIBGE = codigosIBGE;
 	}
 
+	public List<String> getCodigosUF() {
+		return codigosUF;
+	}
+
+	public void setCodigosUF(List<String> codigosUF) {
+		this.codigosUF = codigosUF;
+	}
+
 	public OpcaoSalvamentoDados getOpcaoSalvamento() {
 		return opcaoSalvamento;
 	}
@@ -128,14 +148,43 @@ public class OpcoesCargaDados {
 		this.nomeArquivo = nomeArquivo;
 	}
 
+	public Integer getCapital() {
+		return capital;
+	}
+
+	public void setCapital(Integer capital) {
+		this.capital = capital;
+	}
+
+	public Long getPopulacaoMinima() {
+		return populacaoMinima;
+	}
+
+	public void setPopulacaoMinima(Long populacaoMinima) {
+		this.populacaoMinima = populacaoMinima;
+	}
+
+	public Long getPopulacaoMaxima() {
+		return populacaoMaxima;
+	}
+
+	public void setPopulacaoMaxima(Long populacaoMaxima) {
+		this.populacaoMaxima = populacaoMaxima;
+	}
+
+
 	public static class Builder<T extends Builder<T>> {
 
 		private List<Integer> exercicios;
 		private List<Integer> periodos;
 		private Esfera esfera;
 		private List<String> codigosIBGE;
+		private List<String> codigosUF;
 		private OpcaoSalvamentoDados opcaoSalvamento;
 		private String nomeArquivo;
+		private Integer capital;
+		private Long populacaoMinima;
+		private Long populacaoMaxima;
 		
 		@SuppressWarnings("unchecked")
 		public T exercicios (List<Integer> exercicios) {
@@ -162,6 +211,12 @@ public class OpcoesCargaDados {
 		}
 
 		@SuppressWarnings("unchecked")
+		public T codigosUF (List<String> codigosUF) {
+			this.codigosUF = codigosUF;
+			return (T) this;
+		}
+
+		@SuppressWarnings("unchecked")
 		public T opcaoSalvamentoDados (OpcaoSalvamentoDados opcaoSalvamento) {
 			this.opcaoSalvamento = opcaoSalvamento;
 			return (T) this;
@@ -172,7 +227,25 @@ public class OpcoesCargaDados {
 			this.nomeArquivo = nomeArquivo;
 			return (T) this;
 		}
-		
+
+		@SuppressWarnings("unchecked")
+		public T capital (Integer capital) {
+			this.capital = capital;
+			return (T) this;
+		}
+
+		@SuppressWarnings("unchecked")
+		public T populacaoMinima (Long populacaoMinima) {
+			this.populacaoMinima = populacaoMinima;
+			return (T) this;
+		}
+
+		@SuppressWarnings("unchecked")
+		public T populacaoMaxima (Long populacaoMaxima) {
+			this.populacaoMaxima= populacaoMaxima;
+			return (T) this;
+		}
+
 		public OpcoesCargaDados build() {
 			return new OpcoesCargaDados(this);
 		}
@@ -180,11 +253,15 @@ public class OpcoesCargaDados {
 	
 	protected OpcoesCargaDados (Builder<?> builder) {
 		this.codigosIBGE = builder.codigosIBGE;
+		this.codigosUF = builder.codigosUF;
 		this.esfera = builder.esfera;
 		this.exercicios = builder.exercicios;
 		this.periodos = builder.periodos;
 		this.nomeArquivo = builder.nomeArquivo;
 		this.opcaoSalvamento = builder.opcaoSalvamento;
+		this.capital = builder.capital;
+		this.populacaoMinima = builder.populacaoMinima;
+		this.populacaoMaxima = builder.populacaoMaxima;
 	}
 
 }

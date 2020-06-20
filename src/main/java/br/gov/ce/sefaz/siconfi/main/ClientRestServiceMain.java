@@ -86,6 +86,12 @@ public class ClientRestServiceMain {
 		OpcoesCargaDadosEnte opcoes = new OpcoesCargaDadosEnte.Builder()
 				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
 				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
+				.esfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada())
+				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
+				.codigosUF(LeitorParametrosPrograma.getOpcaoCodigosUFSelecionados())
+				.capital(LeitorParametrosPrograma.getOpcaoCapitalSelecionada())
+				.populacaoMinima(LeitorParametrosPrograma.getOpcaoPopulacaoMinimaSelecionada())
+				.populacaoMaxima(LeitorParametrosPrograma.getOpcaoPopulacaoMaximaSelecionada())
 				.build();
 
 		EnteService enteService = new EnteService();
@@ -110,6 +116,10 @@ public class ClientRestServiceMain {
 				.esfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada())
 				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
 				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
+				.codigosUF(LeitorParametrosPrograma.getOpcaoCodigosUFSelecionados())
+				.capital(LeitorParametrosPrograma.getOpcaoCapitalSelecionada())
+				.populacaoMinima(LeitorParametrosPrograma.getOpcaoPopulacaoMinimaSelecionada())
+				.populacaoMaxima(LeitorParametrosPrograma.getOpcaoPopulacaoMaximaSelecionada())
 				.build();
 		
 		ExtratoEntregaService extratoEntregaService = new ExtratoEntregaService();
@@ -124,7 +134,11 @@ public class ClientRestServiceMain {
 				.esfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada())
 				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
 				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
+				.codigosUF(LeitorParametrosPrograma.getOpcaoCodigosUFSelecionados())
 				.listaAnexos(LeitorParametrosPrograma.getOpcaoAnexosSelecionados())				
+				.capital(LeitorParametrosPrograma.getOpcaoCapitalSelecionada())
+				.populacaoMinima(LeitorParametrosPrograma.getOpcaoPopulacaoMinimaSelecionada())
+				.populacaoMaxima(LeitorParametrosPrograma.getOpcaoPopulacaoMaximaSelecionada())
 				.build();
 		
 		DCAService dcaService = new DCAService();
@@ -141,7 +155,11 @@ public class ClientRestServiceMain {
 				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
 				.periodos(LeitorParametrosPrograma.getOpcaoPeriodosSelecionados())
 				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
+				.codigosUF(LeitorParametrosPrograma.getOpcaoCodigosUFSelecionados())
 				.listaAnexos(LeitorParametrosPrograma.getOpcaoAnexosSelecionados())
+				.capital(LeitorParametrosPrograma.getOpcaoCapitalSelecionada())
+				.populacaoMinima(LeitorParametrosPrograma.getOpcaoPopulacaoMinimaSelecionada())
+				.populacaoMaxima(LeitorParametrosPrograma.getOpcaoPopulacaoMaximaSelecionada())				
 				.build();		
 		
 		RGFService rgfService = new RGFService();
@@ -157,7 +175,11 @@ public class ClientRestServiceMain {
 				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
 				.periodos(LeitorParametrosPrograma.getOpcaoPeriodosSelecionados())
 				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
+				.codigosUF(LeitorParametrosPrograma.getOpcaoCodigosUFSelecionados())
 				.listaAnexos(LeitorParametrosPrograma.getOpcaoAnexosSelecionados())
+				.capital(LeitorParametrosPrograma.getOpcaoCapitalSelecionada())
+				.populacaoMinima(LeitorParametrosPrograma.getOpcaoPopulacaoMinimaSelecionada())
+				.populacaoMaxima(LeitorParametrosPrograma.getOpcaoPopulacaoMaximaSelecionada())				
 				.build();		
 		
 		RREOService rreoService = new RREOService();
@@ -186,9 +208,13 @@ public class ClientRestServiceMain {
 				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
 				.periodos(LeitorParametrosPrograma.getOpcaoPeriodosSelecionados())
 				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
+				.codigosUF(LeitorParametrosPrograma.getOpcaoCodigosUFSelecionados())
 				.tipoMatrizSaldoContabeis(LeitorParametrosPrograma.getOpcaoTipoMatrizSelecionado())
 				.listaClasseConta(LeitorParametrosPrograma.getOpcaoClassesContasSelecionadas())
 				.listaTipoValor(LeitorParametrosPrograma.getOpcaoTiposValorMatrizSelecionado())
+				.capital(LeitorParametrosPrograma.getOpcaoCapitalSelecionada())
+				.populacaoMinima(LeitorParametrosPrograma.getOpcaoPopulacaoMinimaSelecionada())
+				.populacaoMaxima(LeitorParametrosPrograma.getOpcaoPopulacaoMaximaSelecionada())				
 				.build();
 		return opcoes;
 	}
@@ -212,6 +238,14 @@ public class ClientRestServiceMain {
 				+ "ED - Estados e Distrito Federal, M - Municípios. Exemplo: -Desfera=E");
 		System.out.println("Opção -Dentes (Opcional)");
 		System.out.println("\t Valores possíveis: lista de códigos ibge dos entes (Pode ser obtido com a opção -Drelatorio=entes) separados por vírgula. Exemplo (Piauí, Ceará): -Dentes=22,23");
+		System.out.println("Opção -Dcapital (Opcional)");
+		System.out.println("\t Valores possíveis: 0 para municípios que não são capitais, e 1 para capitais. Exemplo: -Dcapital=1");
+		System.out.println("Opção -Duf (Opcional)");
+		System.out.println("\t Valores possíveis: Lista de siglas de UFs, pode ser utilizado para filtrar municípios. Exemplo: -Duf=CE,PI");
+		System.out.println("Opção -DpopulacaoMinima (Opcional)");
+		System.out.println("\t Valores possíveis: consultar munícipios que possuem no mínimo a população indicada. Exemplo (para municípios com mais (inclusive) de 500.000 habitantes): -DpopulacaoMinima=500000");		
+		System.out.println("Opção -DpopulacaoMaxima (Opcional)");
+		System.out.println("\t Valores possíveis: consultar munícipios que possuem no máximo a população indicada. Exemplo (para municípios com menos (inclusive) de 500.000 habitantes): -DpopulacaoMaxima=500000");		
 		System.out.println("Opção -Dpoder (Opcional. Válido para apenas RGF. Caso não especificado, serão consultados todos os poderes)");
 		System.out.println("\t Valores possíveis: lista de poderes separados por vírgula. Valores E - Executivo, L - Legislativo, "
 				+ "J - Juciário, M - Ministério Público, D - Defensoria Pública. Exemplo (Executivo, Judiciário): -Dpoder=E,J");
