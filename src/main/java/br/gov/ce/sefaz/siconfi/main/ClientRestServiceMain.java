@@ -115,6 +115,7 @@ public class ClientRestServiceMain {
 				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
 				.esfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada())
 				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
+				.periodos(LeitorParametrosPrograma.getOpcaoPeriodosSelecionados())
 				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
 				.codigosUF(LeitorParametrosPrograma.getOpcaoCodigosUFSelecionados())
 				.capital(LeitorParametrosPrograma.getOpcaoCapitalSelecionada())
@@ -139,6 +140,7 @@ public class ClientRestServiceMain {
 				.capital(LeitorParametrosPrograma.getOpcaoCapitalSelecionada())
 				.populacaoMinima(LeitorParametrosPrograma.getOpcaoPopulacaoMinimaSelecionada())
 				.populacaoMaxima(LeitorParametrosPrograma.getOpcaoPopulacaoMaximaSelecionada())
+				.considerarExtratoEntrega(true)
 				.build();
 		
 		DCAService dcaService = new DCAService();

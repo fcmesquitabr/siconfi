@@ -34,10 +34,60 @@ public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<Ente> consultarEntesNaBase(List<String> listaEsfera){
-		logger.debug("Consultando a base com parâmetro: " + listaEsfera);
-		Query query = getEntityManager().createQuery("SELECT e FROM Ente e WHERE e.esfera IN (:listaEsfera) ORDER BY e.ente");
-		query.setParameter("listaEsfera", listaEsfera);
+	public List<Ente> consultarEntesNaBase(OpcoesCargaDados opcoes){		
+		logger.debug("Consultando a base com parâmetro: " + opcoes);
+		
+		StringBuilder queryBuilder = new StringBuilder("SELECT e FROM Ente e WHERE e.esfera IN (:listaEsfera) ");
+		if(opcoes.isExisteCodigosIbge()) {
+			queryBuilder.append(" AND e.cod_ibge IN (:codigosIbge) ");
+		}
+
+		if(!opcoes.isListaCodigosUfVazia()) {
+			queryBuilder.append(" AND e.uf IN (:codigosUf) ");
+		}
+
+		if(opcoes.getCapital() != null) {
+			queryBuilder.append(" AND e.capital = :capital ");
+		}
+
+		if(opcoes.getPopulacaoMinima() != null) {
+			queryBuilder.append(" AND e.populacao >= :populacaoMinima ");
+		}
+
+		if(opcoes.getPopulacaoMaxima() != null) {
+			queryBuilder.append(" AND e.populacao <= :populacaoMaxima ");
+		}
+		
+		Query query = getEntityManager().createQuery(queryBuilder.toString());
+		
+		if(opcoes.getEsfera() == null || opcoes.getEsfera().equals(Esfera.ESTADOS_E_DISTRITO_FEDERAL)) {
+			query.setParameter("listaEsfera",
+					Arrays.asList(Esfera.ESTADO.getCodigo(), Esfera.DISTRITO_FEDERAL.getCodigo()));
+		} else {
+			query.setParameter("listaEsfera",
+					Arrays.asList(opcoes.getEsfera().getCodigo()));
+		}
+		
+		if(opcoes.isExisteCodigosIbge()) {
+			query.setParameter("codigosIbge", opcoes.getCodigosIBGE());
+		}
+
+		if(!opcoes.isListaCodigosUfVazia()) {
+			query.setParameter("codigosUf", opcoes.getCodigosUF());
+		}
+
+		if(opcoes.getCapital() != null) {
+			query.setParameter("capital", opcoes.getCapital());
+		}
+
+		if(opcoes.getPopulacaoMinima() != null) {
+			query.setParameter("populacaoMinima", opcoes.getPopulacaoMinima());
+		}
+
+		if(opcoes.getPopulacaoMaxima() != null) {
+			query.setParameter("populacaoMaxima", opcoes.getPopulacaoMaxima());
+		}
+
 		return query.getResultList();		 
 	}
 
@@ -149,24 +199,11 @@ public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 	}
 	
 	private List<String> obterListaCodigoIbgePelaEsferaNaBase(OpcoesCargaDados opcoes) {
-		
-		List<Ente> listaEntes = null;
-	
-		if(opcoes.getEsfera() == null || opcoes.getEsfera().equals(Esfera.ESTADOS_E_DISTRITO_FEDERAL)) {
-			listaEntes = consultarEntesNaBase(Arrays.asList(Esfera.ESTADO.getCodigo(),Esfera.DISTRITO_FEDERAL.getCodigo()));				
-		} else {
-			listaEntes = consultarEntesNaBase(Arrays.asList(opcoes.getEsfera().getCodigo()));
-		}
-		
-		return obterListaCodigoIbge(listaEntes);
+		return obterListaCodigoIbge(consultarEntesNaBase(opcoes));
 	}
 
 	private List<String> obterListaCodigoIbge (List<Ente> listaEntes){
 		List<String> listaCodigoIbge = listaEntes.parallelStream().map(Ente::getCod_ibge).collect(Collectors.toList());
-		/*
-		for(Ente ente: listaEntes) {
-			listaCodigoIbge.add(ente.getCod_ibge());
-		}*/
 		return listaCodigoIbge;
 	}
 

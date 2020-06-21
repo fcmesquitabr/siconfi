@@ -135,7 +135,7 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 			getLogger().error(e);
 		}
 	}
-	
+		
 	protected void salvarNoBancoDeDados(O opcoes, List<T> listaEntidades) {
 		if(Utils.isEmptyCollection(listaEntidades)) return;
 	

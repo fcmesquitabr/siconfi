@@ -1,6 +1,7 @@
 package br.gov.ce.sefaz.siconfi.opcoes;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import br.gov.ce.sefaz.siconfi.enums.Esfera;
@@ -10,6 +11,10 @@ import br.gov.ce.sefaz.siconfi.util.Constantes;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class OpcoesCargaDados {
+	
+	private boolean considerarExtratoEntrega = false;
+	
+	private Date dataMinimaEntrega;
 	
 	private List<Integer> exercicios;
 	
@@ -172,9 +177,26 @@ public class OpcoesCargaDados {
 		this.populacaoMaxima = populacaoMaxima;
 	}
 
+	public boolean isConsiderarExtratoEntrega() {
+		return considerarExtratoEntrega;
+	}
+
+	public void setConsiderarExtratoEntrega(boolean considerarExtratoEntrega) {
+		this.considerarExtratoEntrega = considerarExtratoEntrega;
+	}
+
+	public Date getDataMinimaEntrega() {
+		return dataMinimaEntrega;
+	}
+
+	public void setDataMinimaEntrega(Date dataMinimaEntrega) {
+		this.dataMinimaEntrega = dataMinimaEntrega;
+	}
 
 	public static class Builder<T extends Builder<T>> {
 
+		private boolean considerarExtratoEntrega;
+		private Date dataMinimaEntrega;
 		private List<Integer> exercicios;
 		private List<Integer> periodos;
 		private Esfera esfera;
@@ -246,6 +268,18 @@ public class OpcoesCargaDados {
 			return (T) this;
 		}
 
+		@SuppressWarnings("unchecked")
+		public T considerarExtratoEntrega (boolean considerarExtratoEntrega) {
+			this.considerarExtratoEntrega= considerarExtratoEntrega;
+			return (T) this;
+		}
+
+		@SuppressWarnings("unchecked")
+		public T dataMinimaEntrega (Date dataMinimaEntrega) {
+			this.dataMinimaEntrega = dataMinimaEntrega;
+			return (T) this;
+		}
+
 		public OpcoesCargaDados build() {
 			return new OpcoesCargaDados(this);
 		}
@@ -262,6 +296,7 @@ public class OpcoesCargaDados {
 		this.capital = builder.capital;
 		this.populacaoMinima = builder.populacaoMinima;
 		this.populacaoMaxima = builder.populacaoMaxima;
+		this.considerarExtratoEntrega = builder.considerarExtratoEntrega;
+		this.dataMinimaEntrega = builder.dataMinimaEntrega;
 	}
-
 }

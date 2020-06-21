@@ -12,6 +12,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.DeclaracaoContasAnuais;
+import br.gov.ce.sefaz.siconfi.entity.ExtratoEntrega;
+import br.gov.ce.sefaz.siconfi.enums.Entregavel;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosDCA;
 import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
 import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
@@ -33,6 +35,8 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 	private static final String API_PATH_DCA = "dca";
 
 	private EnteService enteService;
+
+	private ExtratoEntregaService extratoEntregaService;
 
 	public DCAService() {
 		super();
@@ -69,11 +73,22 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 	@Override
 	protected void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosDCA opcoesCargaDados,
 			Integer exercicio) {
-		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(opcoesCargaDados);
 		
-		for (String codigoIbge : listaCodigoIbge) {
-			consultarNaApiEGerarSaidaDados(opcoesCargaDados, exercicio, codigoIbge);
-		}
+		if (opcoesCargaDados.isConsiderarExtratoEntrega()) {
+
+			List<ExtratoEntrega> listaExtrato = getExtratoEntregaService().consultarNaBase(opcoesCargaDados, exercicio, Entregavel.DCA);
+			for(ExtratoEntrega extrato: listaExtrato) {
+				consultarNaApiEGerarSaidaDados(opcoesCargaDados, exercicio, extrato.getCod_ibge());
+			}
+			
+		} else {
+			
+			List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(opcoesCargaDados);
+			for (String codigoIbge : listaCodigoIbge) {
+				consultarNaApiEGerarSaidaDados(opcoesCargaDados, exercicio, codigoIbge);
+			}	
+			
+		}		
 	}
 
 	private void consultarNaApiEGerarSaidaDados (OpcoesCargaDadosDCA opcoes,
@@ -117,6 +132,13 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 		return enteService;
 	}
 	
+	private ExtratoEntregaService getExtratoEntregaService() {
+		if(extratoEntregaService == null) {
+			extratoEntregaService = new ExtratoEntregaService();
+		}
+		return extratoEntregaService;
+	}
+
 	@Override
 	protected String getEntityName() {
 		return DeclaracaoContasAnuais.class.getSimpleName();

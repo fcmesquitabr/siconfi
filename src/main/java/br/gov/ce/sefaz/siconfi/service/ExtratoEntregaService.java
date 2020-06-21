@@ -2,6 +2,8 @@ package br.gov.ce.sefaz.siconfi.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Query;
@@ -12,6 +14,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.ExtratoEntrega;
+import br.gov.ce.sefaz.siconfi.enums.Entregavel;
+import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDados;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosExtratoEntrega;
 import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
 import br.gov.ce.sefaz.siconfi.util.Constantes;
@@ -54,7 +58,51 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 		int i = query.executeUpdate();
 		logger.info("Linhas excluídas:" + i);
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	public List<ExtratoEntrega> consultarNaBase (OpcoesCargaDados opcoes, Integer exercicio, Entregavel entregavel) {
+		logger.info("Consultando extrato entregas no banco de dados...");
+		
+		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaBase(opcoes);		
+		
+		StringBuilder queryBuilder = new StringBuilder("SELECT ee FROM ExtratoEntrega ee WHERE ee.status_relatorio='HO' AND ee.exercicio = :exercicio ");
+		queryBuilder.append(" AND ee.data_status >= :dataMinima ");
+		queryBuilder.append(" AND ee.entregavel = :entregavel");
+		if(!Utils.isEmptyCollection(listaCodigoIbge)) {
+			queryBuilder.append(" AND ee.cod_ibge IN (:codigosIbge) ");
+		}
+
+		if(!opcoes.isListaPeriodosVazia()) {
+			queryBuilder.append(" AND ee.periodo IN (:periodos) ");
+		}
+		
+		Query query = getEntityManager().createQuery(queryBuilder.toString());
+		query.setParameter("exercicio", exercicio);
+		query.setParameter("entregavel", entregavel.getDescricao());
+		query.setParameter("dataMinima", getDataMinimaEntrega(opcoes));
+
+		if(!Utils.isEmptyCollection(listaCodigoIbge)) {
+			query.setParameter("codigosIbge", listaCodigoIbge);
+		}
+
+		if(!opcoes.isListaPeriodosVazia()) {
+			query.setParameter("periodos", opcoes.getPeriodos());
+		}
+
+		List<ExtratoEntrega> listaExtratoEntrega = query.getResultList();
+		logger.info("Tamanho da lista de extrato entrega:" + listaExtratoEntrega.size());		
+		return listaExtratoEntrega;
+	}
+
+	private Date getDataMinimaEntrega(OpcoesCargaDados opcoes) {
+		if(opcoes.getDataMinimaEntrega() != null) {
+			return opcoes.getDataMinimaEntrega();
+		}
+		
+		Calendar dataMinimaEntrega = Calendar.getInstance();
+		dataMinimaEntrega.add(Calendar.MONTH, -1);
+		return dataMinimaEntrega.getTime();
+	}
 	protected void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosExtratoEntrega opcoes, Integer exercicio){
 		
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(opcoes);
