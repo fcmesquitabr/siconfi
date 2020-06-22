@@ -3,222 +3,23 @@ package br.gov.ce.sefaz.siconfi.main;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosAnexoRelatorio;
-import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosDCA;
-import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosEnte;
-import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosExtratoEntrega;
-import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosMSC;
-import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosRGF;
-import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosRREO;
-import br.gov.ce.sefaz.siconfi.service.AnexoRelatorioService;
-import br.gov.ce.sefaz.siconfi.service.DCAService;
-import br.gov.ce.sefaz.siconfi.service.EnteService;
-import br.gov.ce.sefaz.siconfi.service.ExtratoEntregaService;
-import br.gov.ce.sefaz.siconfi.service.MSCControleService;
-import br.gov.ce.sefaz.siconfi.service.MSCOrcamentariaService;
-import br.gov.ce.sefaz.siconfi.service.MSCPatrimonialService;
-import br.gov.ce.sefaz.siconfi.service.RGFService;
-import br.gov.ce.sefaz.siconfi.service.RREOService;
 import br.gov.ce.sefaz.siconfi.util.Constantes;
-import br.gov.ce.sefaz.siconfi.util.LeitorParametrosPrograma;
 
 public class ClientRestServiceMain {
 
 	private static final Logger logger = LogManager.getLogger(ClientRestServiceMain.class);
 	
 	public static void main(String[] args) {
-
 		try {
-			LeitorParametrosPrograma.lerArgumentos();
+			BuscadorDadosSiconfiAPI buscadorDadosApi = new BuscadorDadosSiconfiAPI();
+			buscadorDadosApi.buscarDados();
 		} catch(IllegalArgumentException iae) {
 			logger.error(iae.getMessage());
 			exibirMensagemAjuda();
-			return;
 		}
-		
-		switch (LeitorParametrosPrograma.getRelatorioSelecionado()) {
-		case anexo_relatorio:
-			logger.info("Carregando dados dos anexos de relatorios...");
-			carregarAnexosRelatorios();
-			break;
-		case ente:
-			logger.info("Carregando dados dos Entes da Federação...");
-			carregarEntes();
-			break;
-		case extrato_entrega:
-			logger.info("Carregando dados dos Extratos de Entregas dos Relatórios...");
-			carregarExtratosEntregas();
-			break;
-		case rreo:
-			logger.info("Carregando dados de Relatórios RREO...");
-			carregarDadosRREO();
-			break;
-		case rgf:
-			logger.info("Carregando dados de Relatórios RGF...");			
-			carregarDadosRGF();
-			break;
-		case dca:
-			logger.info("Carregando dados do relatório DCA...");
-			carregarDadosDCA();
-			break;
-		case msc_patrimonial:
-			logger.info("Carregando dados do relatório MSC Patrimonial...");
-			carregarDadosMSCPatrimonial();
-			break;
-		case msc_orcamentaria:
-			logger.info("Carregando dados do relatório MSC Orcamentaria...");
-			carregarDadosMSCOrcamentaria();
-			break;
-		case msc_controle:
-			logger.info("Carregando dados do relatório MSC Controle...");
-			carregarDadosMSCControle();
-			break;
-		default:
-			exibirMensagemAjuda();
-			break;
-		}	
+
 		logger.info("Fim.");
-		System.exit(0);
-	}
-
-	private static void carregarEntes() {
-
-		OpcoesCargaDadosEnte opcoes = new OpcoesCargaDadosEnte.Builder()
-				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
-				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
-				.esfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada())
-				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
-				.codigosUF(LeitorParametrosPrograma.getOpcaoCodigosUFSelecionados())
-				.capital(LeitorParametrosPrograma.getOpcaoCapitalSelecionada())
-				.populacaoMinima(LeitorParametrosPrograma.getOpcaoPopulacaoMinimaSelecionada())
-				.populacaoMaxima(LeitorParametrosPrograma.getOpcaoPopulacaoMaximaSelecionada())
-				.build();
-
-		EnteService enteService = new EnteService();
-		enteService.carregarDados(opcoes);
-	}
-
-	private static void carregarAnexosRelatorios() {
-		
-		OpcoesCargaDadosAnexoRelatorio opcoes = new OpcoesCargaDadosAnexoRelatorio.Builder()
-				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
-				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
-				.build();
-		AnexoRelatorioService anexoRelatorioService = new AnexoRelatorioService();		
-		anexoRelatorioService.carregarDados(opcoes);
-	}
-
-	private static void carregarExtratosEntregas() {
-		
-		OpcoesCargaDadosExtratoEntrega opcoes = new OpcoesCargaDadosExtratoEntrega.Builder()
-				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
-				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
-				.esfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada())
-				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
-				.periodos(LeitorParametrosPrograma.getOpcaoPeriodosSelecionados())
-				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
-				.codigosUF(LeitorParametrosPrograma.getOpcaoCodigosUFSelecionados())
-				.capital(LeitorParametrosPrograma.getOpcaoCapitalSelecionada())
-				.populacaoMinima(LeitorParametrosPrograma.getOpcaoPopulacaoMinimaSelecionada())
-				.populacaoMaxima(LeitorParametrosPrograma.getOpcaoPopulacaoMaximaSelecionada())
-				.build();
-		
-		ExtratoEntregaService extratoEntregaService = new ExtratoEntregaService();
-		extratoEntregaService.carregarDados(opcoes);
-	}
-
-	private static void carregarDadosDCA() {
-		
-		OpcoesCargaDadosDCA opcoes = new OpcoesCargaDadosDCA.Builder()
-				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
-				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
-				.esfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada())
-				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
-				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
-				.codigosUF(LeitorParametrosPrograma.getOpcaoCodigosUFSelecionados())
-				.listaAnexos(LeitorParametrosPrograma.getOpcaoAnexosSelecionados())				
-				.capital(LeitorParametrosPrograma.getOpcaoCapitalSelecionada())
-				.populacaoMinima(LeitorParametrosPrograma.getOpcaoPopulacaoMinimaSelecionada())
-				.populacaoMaxima(LeitorParametrosPrograma.getOpcaoPopulacaoMaximaSelecionada())
-				.considerarExtratoEntrega(true)
-				.build();
-		
-		DCAService dcaService = new DCAService();
-		dcaService.carregarDados(opcoes);		
-	}
-
-	private static void carregarDadosRGF() {
-		
-		OpcoesCargaDadosRGF opcoes = new OpcoesCargaDadosRGF.Builder()
-				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
-				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
-				.esfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada())
-				.listaPoderes(LeitorParametrosPrograma.getOpcaoPoderesSelecionados())
-				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
-				.periodos(LeitorParametrosPrograma.getOpcaoPeriodosSelecionados())
-				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
-				.codigosUF(LeitorParametrosPrograma.getOpcaoCodigosUFSelecionados())
-				.listaAnexos(LeitorParametrosPrograma.getOpcaoAnexosSelecionados())
-				.capital(LeitorParametrosPrograma.getOpcaoCapitalSelecionada())
-				.populacaoMinima(LeitorParametrosPrograma.getOpcaoPopulacaoMinimaSelecionada())
-				.populacaoMaxima(LeitorParametrosPrograma.getOpcaoPopulacaoMaximaSelecionada())				
-				.build();		
-		
-		RGFService rgfService = new RGFService();
-		rgfService.carregarDados(opcoes);		
-	}
-	
-	private static void carregarDadosRREO() {
-		
-		OpcoesCargaDadosRREO opcoes = new OpcoesCargaDadosRREO.Builder()
-				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
-				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
-				.esfera(LeitorParametrosPrograma.getOpcaoEsferaSelecionada())
-				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
-				.periodos(LeitorParametrosPrograma.getOpcaoPeriodosSelecionados())
-				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
-				.codigosUF(LeitorParametrosPrograma.getOpcaoCodigosUFSelecionados())
-				.listaAnexos(LeitorParametrosPrograma.getOpcaoAnexosSelecionados())
-				.capital(LeitorParametrosPrograma.getOpcaoCapitalSelecionada())
-				.populacaoMinima(LeitorParametrosPrograma.getOpcaoPopulacaoMinimaSelecionada())
-				.populacaoMaxima(LeitorParametrosPrograma.getOpcaoPopulacaoMaximaSelecionada())				
-				.build();		
-		
-		RREOService rreoService = new RREOService();
-		rreoService.carregarDados(opcoes);		
-	}
-	
-	private static void carregarDadosMSCPatrimonial() {		
-		MSCPatrimonialService mscService = new MSCPatrimonialService();
-		mscService.carregarDados(getOpcoesCargaDadosMSC());		
-	}
-
-	private static void carregarDadosMSCOrcamentaria() {
-		MSCOrcamentariaService mscService = new MSCOrcamentariaService();
-		mscService.carregarDados(getOpcoesCargaDadosMSC());		
-	}
-
-	private static void carregarDadosMSCControle() {
-		MSCControleService mscService = new MSCControleService();
-		mscService.carregarDados(getOpcoesCargaDadosMSC());		
-	}
-
-	private static OpcoesCargaDadosMSC getOpcoesCargaDadosMSC() {
-		OpcoesCargaDadosMSC opcoes = new OpcoesCargaDadosMSC.Builder()
-				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
-				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
-				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
-				.periodos(LeitorParametrosPrograma.getOpcaoPeriodosSelecionados())
-				.codigosIbge(LeitorParametrosPrograma.getOpcaoCodigosIbgeSelecionados())
-				.codigosUF(LeitorParametrosPrograma.getOpcaoCodigosUFSelecionados())
-				.tipoMatrizSaldoContabeis(LeitorParametrosPrograma.getOpcaoTipoMatrizSelecionado())
-				.listaClasseConta(LeitorParametrosPrograma.getOpcaoClassesContasSelecionadas())
-				.listaTipoValor(LeitorParametrosPrograma.getOpcaoTiposValorMatrizSelecionado())
-				.capital(LeitorParametrosPrograma.getOpcaoCapitalSelecionada())
-				.populacaoMinima(LeitorParametrosPrograma.getOpcaoPopulacaoMinimaSelecionada())
-				.populacaoMaxima(LeitorParametrosPrograma.getOpcaoPopulacaoMaximaSelecionada())				
-				.build();
-		return opcoes;
+		//System.exit(0);
 	}
 
 	private static void exibirMensagemAjuda() {
@@ -276,5 +77,5 @@ public class ClientRestServiceMain {
 				"\t\t\t  Anexo I-F, Anexo I-G, Anexo I-HI, DCA-Anexo I-AB, DCA-Anexo I-C, DCA-Anexo I-D,\n " + 
 				"\t\t\t DCA-Anexo I-E, DCA-Anexo I-F, DCA-Anexo I-G, DCA-Anexo I-HI");
 		System.out.println("\t\tPor exmplo: -Danexos=\"RGF-Anexo 01, RGF-Anexo 02\"");
-	}
+	} 
 }

@@ -61,6 +61,20 @@
 			<artifactId>opencsv</artifactId>
 			<version>5.2</version>
 		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.13</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+		    <groupId>org.mockito</groupId>
+		    <artifactId>mockito-core</artifactId>
+		    <version>2.23.4</version>
+		    <scope>test</scope>
+		</dependency>
 		
 		<!-- Driver do Sybase. Quando criado esse projeto, essa dependência não existia no repositório maven. Então,
 		precisa ser adicionada manualmente no repositório com o comando abaixo:

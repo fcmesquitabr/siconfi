@@ -15,6 +15,8 @@ public class Utils {
 		DecimalFormat df = new DecimalFormat("##,###,###,###,###.##",dfs);
 		df.setGroupingUsed(true);
 		df.setDecimalSeparatorAlwaysShown(true);
+		df.setMinimumFractionDigits(2);
+		df.setMaximumFractionDigits(2);
 		return df.format(valor);
 
 	}

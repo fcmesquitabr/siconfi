@@ -134,7 +134,7 @@ public class LeitorParametrosPrograma {
 		}
 	}
 
-	private static void lerArgumentoOpcaoPoder() {
+	private static void lerArgumentoOpcaoPoder() throws IllegalArgumentException{
 		try {
 			String opcao = System.getProperty(OPCAO_PODER);
 			if (Utils.isStringVazia(opcao)) {
@@ -156,7 +156,7 @@ public class LeitorParametrosPrograma {
 		} catch (Exception e) {
 			logger.error("Erro ao ler parâmetro Poderes");
 			logger.error(e);
-			throw new IllegalArgumentException("Opção de Poderes inválida");
+			throw new IllegalArgumentException("Opção de Poder inválida");
 		}
 	}
 

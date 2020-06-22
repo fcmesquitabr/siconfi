@@ -1,5 +1,6 @@
 package br.gov.ce.sefaz.siconfi.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,8 @@ import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.client.ClientConfig;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDados;
@@ -61,7 +64,12 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	protected abstract void excluir(O opcoes);
 
 	public void carregarDados(O opcoes) {
-		escreverCabecalhoArquivoCsv(opcoes);			
+		try {
+			escreverCabecalhoArquivoCsv(opcoes);
+		} catch (IOException e) {
+			getLogger().error("Erro ao escrever o cabeçalho do arquivo");
+			e.printStackTrace();
+		}			
 		consultarNaApiEGerarSaidaDados(opcoes);
 		fecharContextoPersistencia();
 	}
@@ -76,7 +84,7 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 		return !opcoes.isNomeArquivoVazio() ? opcoes.getNomeArquivo() : getNomePadraoArquivoCSV();
 	}
 
-	protected void escreverCabecalhoArquivoCsv(OpcoesCargaDados opcoes) { 
+	protected void escreverCabecalhoArquivoCsv(OpcoesCargaDados opcoes) throws IOException { 
 		if(OpcaoSalvamentoDados.ARQUIVO.equals(opcoes.getOpcaoSalvamento())) {
 			getLogger().info("Escrevendo o cabeçalho no arquivo CSV...");
 			CsvUtil<T> csvUtil = new CsvUtil<T>(getEntityClass());
@@ -85,15 +93,19 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	}
 
 	protected void salvarArquivoCsv(List<T> listaObjetos, String nomeArquivo) {
-		if(!Utils.isEmptyCollection(listaObjetos)) {
-			
+		if(Utils.isEmptyCollection(listaObjetos)) {
+			getLogger().info("Lista de registro fazia. Nada a salvar no arquivo CSV...");
+			return;
+		}
+
+		try {
 			getLogger().info("Salvando " + listaObjetos.size() + " registro(s) no arquivo CSV...");
 			CsvUtil<T> csvUtil = new CsvUtil<T>(getEntityClass());
 			csvUtil.writeToFile(listaObjetos, getColunasArquivoCSV(), nomeArquivo);
-			
-		} else {
-			getLogger().info("Lista de registro fazia. Nada a salvar no arquivo CSV...");
-		}
+		} catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException | IOException e) {
+			getLogger().error("Erro ao salvar conteúdo no arquivo");
+			getLogger().error(e);
+		}			
 	}
 
 	protected void consultarNaApiEGerarSaidaDados(O opcoes){
