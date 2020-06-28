@@ -152,7 +152,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 		return opcoesParcial;
 	}
 
-	@Override
+//	@Override
 	protected List<RelatorioGestaoFiscal> lerEntidades(Response response) {
 		SiconfiResponse<RelatorioGestaoFiscal> rgfResponse = response
 				.readEntity(new GenericType<SiconfiResponse<RelatorioGestaoFiscal>>() {

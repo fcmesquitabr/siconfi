@@ -117,7 +117,7 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 		return opcoesParcial;
 	}
 
-	@Override
+//	@Override
 	protected List<DeclaracaoContasAnuais> lerEntidades(Response response) {
 		SiconfiResponse<DeclaracaoContasAnuais> dcaResponse = response
 				.readEntity(new GenericType<SiconfiResponse<DeclaracaoContasAnuais>>() {

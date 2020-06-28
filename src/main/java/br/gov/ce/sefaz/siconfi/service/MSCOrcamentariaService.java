@@ -60,7 +60,7 @@ public class MSCOrcamentariaService extends MSCService<MatrizSaldoContabeisOrcam
 		return logger;
 	}
 
-	@Override
+//	@Override
 	protected List<MatrizSaldoContabeisOrcamentaria> lerEntidades(Response response) {
 		SiconfiResponse<MatrizSaldoContabeisOrcamentaria> mscResponse = response
 				.readEntity(new GenericType<SiconfiResponse<MatrizSaldoContabeisOrcamentaria>>() {

@@ -158,7 +158,7 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 		return enteService;
 	}
 	
-	@Override
+//	@Override
 	protected List<ExtratoEntrega> lerEntidades(Response response){
 		SiconfiResponse<ExtratoEntrega> extratoEntregaResponse = response
 				.readEntity(new GenericType<SiconfiResponse<ExtratoEntrega>>() {

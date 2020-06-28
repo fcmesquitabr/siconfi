@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<dataset>
+
+	<ente seq_ente="16842" num_capital="0" cod_ibge="53" txt_ente="Distrito Federal" txt_esfera="D" num_exercicio="2020" num_cnpj="394601000126" qtd_populacao="3015268" dsc_regiao="CO" cod_uf="BR" />
+	<ente seq_ente="16818" num_capital="0" cod_ibge="12" txt_ente="Acre" txt_esfera="E" num_exercicio="2020" num_cnpj="63606479000124" qtd_populacao="881935" dsc_regiao="NO" cod_uf="BR" />
+	<ente seq_ente="16829" num_capital="0" cod_ibge="27" txt_ente="Alagoas" txt_esfera="E" num_exercicio="2020" num_cnpj="12200176000176" qtd_populacao="3337357" dsc_regiao="NE" cod_uf="BR" />
+	<ente seq_ente="16822" num_capital="0" cod_ibge="16" txt_ente="Amapá" txt_esfera="E" num_exercicio="2020" num_cnpj="394577000125" qtd_populacao="845731" dsc_regiao="NO" cod_uf="BR" />
+	<ente seq_ente="16819" num_capital="0" cod_ibge="13" txt_ente="Amazonas" txt_esfera="E" num_exercicio="2020" num_cnpj="4312369000190" qtd_populacao="4144597" dsc_regiao="NO" cod_uf="BR" />
+	<ente seq_ente="16831" num_capital="0" cod_ibge="29" txt_ente="Bahia" txt_esfera="E" num_exercicio="2020" num_cnpj="13937032000160" qtd_populacao="14873064" dsc_regiao="NE" cod_uf="BR" />
+	<ente seq_ente="16825" num_capital="0" cod_ibge="23" txt_ente="Ceará" txt_esfera="E" num_exercicio="2020" num_cnpj="7954480000179" qtd_populacao="9132078" dsc_regiao="NE" cod_uf="BR" />
+	<ente seq_ente="16833" num_capital="0" cod_ibge="32" txt_ente="Espírito Santo" txt_esfera="E" num_exercicio="2020" num_cnpj="27080530000143" qtd_populacao="4018650" dsc_regiao="SE" cod_uf="BR" />
+	<ente seq_ente="16841" num_capital="0" cod_ibge="52" txt_ente="Goiás" txt_esfera="E" num_exercicio="2020" num_cnpj="1409580000138" qtd_populacao="7018354" dsc_regiao="CO" cod_uf="BR" />
+	<ente seq_ente="16823" num_capital="0" cod_ibge="21" txt_ente="Maranhão" txt_esfera="E" num_exercicio="2020" num_cnpj="6354468000160" qtd_populacao="7075181" dsc_regiao="NE" cod_uf="BR" />
+	<ente seq_ente="16840" num_capital="0" cod_ibge="51" txt_ente="Mato Grosso" txt_esfera="E" num_exercicio="2020" num_cnpj="3507415000144" qtd_populacao="3484466" dsc_regiao="CO" cod_uf="BR" />
+	<ente seq_ente="16839" num_capital="0" cod_ibge="50" txt_ente="Mato Grosso do Sul" txt_esfera="E" num_exercicio="2020" num_cnpj="15412257000128" qtd_populacao="2778986" dsc_regiao="CO" cod_uf="BR" />
+	<ente seq_ente="16832" num_capital="0" cod_ibge="31" txt_ente="Minas Gerais" txt_esfera="E" num_exercicio="2020" num_cnpj="18715615000160" qtd_populacao="21168791" dsc_regiao="SE" cod_uf="BR" />
+	<ente seq_ente="16821" num_capital="0" cod_ibge="15" txt_ente="Pará" txt_esfera="E" num_exercicio="2020" num_cnpj="5054861000176" qtd_populacao="8602865" dsc_regiao="NO" cod_uf="BR" />
+	<ente seq_ente="16827" num_capital="0" cod_ibge="25" txt_ente="Paraíba" txt_esfera="E" num_exercicio="2020" num_cnpj="8761124000100" qtd_populacao="4018127" dsc_regiao="NE" cod_uf="BR" />
+	<ente seq_ente="16836" num_capital="0" cod_ibge="41" txt_ente="Paraná" txt_esfera="E" num_exercicio="2020" num_cnpj="76416940000128" qtd_populacao="11433957" dsc_regiao="SU" cod_uf="BR" />
+	<ente seq_ente="16828" num_capital="0" cod_ibge="26" txt_ente="Pernambuco" txt_esfera="E" num_exercicio="2020" num_cnpj="10571982000125" qtd_populacao="9557071" dsc_regiao="NE" cod_uf="BR" />
+	<ente seq_ente="16824" num_capital="0" cod_ibge="22" txt_ente="Piauí" txt_esfera="E" num_exercicio="2020" num_cnpj="6553481000149" qtd_populacao="3273227" dsc_regiao="NE" cod_uf="BR" />
+	<ente seq_ente="16834" num_capital="0" cod_ibge="33" txt_ente="Rio de Janeiro" txt_esfera="E" num_exercicio="2020" num_cnpj="42498600000171" qtd_populacao="17264943" dsc_regiao="SE" cod_uf="BR" />
+	<ente seq_ente="16826" num_capital="0" cod_ibge="24" txt_ente="Rio Grande do Norte" txt_esfera="E" num_exercicio="2020" num_cnpj="8241739000105" qtd_populacao="3506853" dsc_regiao="NE" cod_uf="BR" />
+	<ente seq_ente="16838" num_capital="0" cod_ibge="43" txt_ente="Rio Grande do Sul" txt_esfera="E" num_exercicio="2020" num_cnpj="87934675000196" qtd_populacao="11377239" dsc_regiao="SU" cod_uf="BR" />
+	<ente seq_ente="16817" num_capital="0" cod_ibge="11" txt_ente="Rondônia" txt_esfera="E" num_exercicio="2020" num_cnpj="394585000171" qtd_populacao="1777225" dsc_regiao="NO" cod_uf="BR" />
+	<ente seq_ente="16820" num_capital="0" cod_ibge="14" txt_ente="Roraima" txt_esfera="E" num_exercicio="2020" num_cnpj="84012012000126" qtd_populacao="605761" dsc_regiao="NO" cod_uf="BR" />
+	<ente seq_ente="16837" num_capital="0" cod_ibge="42" txt_ente="Santa Catarina" txt_esfera="E" num_exercicio="2020" num_cnpj="82951229000176" qtd_populacao="7164788" dsc_regiao="SU" cod_uf="BR" />
+	<ente seq_ente="16835" num_capital="0" cod_ibge="35" txt_ente="São Paulo" txt_esfera="E" num_exercicio="2020" num_cnpj="46379400000150" qtd_populacao="45919049" dsc_regiao="SE" cod_uf="BR" />
+	<ente seq_ente="16830" num_capital="0" cod_ibge="28" txt_ente="Sergipe" txt_esfera="E" num_exercicio="2020" num_cnpj="13128798000101" qtd_populacao="2298696" dsc_regiao="NE" cod_uf="BR" />
+	<ente seq_ente="16843" num_capital="0" cod_ibge="17" txt_ente="Tocantins" txt_esfera="E" num_exercicio="2020" num_cnpj="1786029000103" qtd_populacao="1572866" dsc_regiao="CO" cod_uf="BR" />
+	<ente seq_ente="12261" num_capital="0" cod_ibge="2301000" txt_ente="Aquiraz" txt_esfera="M" num_exercicio="2020" num_cnpj="7911696000157" qtd_populacao="80271" dsc_regiao="NE" cod_uf="CE" />
+	<ente seq_ente="12293" num_capital="0" cod_ibge="2303709" txt_ente="Caucaia" txt_esfera="M" num_exercicio="2020" num_cnpj="7616162000106" qtd_populacao="361400" dsc_regiao="NE" cod_uf="CE" />
+	<ente seq_ente="12300" num_capital="0" cod_ibge="2304202" txt_ente="Crato" txt_esfera="M" num_exercicio="2020" num_cnpj="7587975000107" qtd_populacao="132123" dsc_regiao="NE" cod_uf="CE" />
+	<ente seq_ente="12308" num_capital="1" cod_ibge="2304400" txt_ente="Fortaleza" txt_esfera="M" num_exercicio="2020" num_cnpj="7954605000160" qtd_populacao="2669342" dsc_regiao="NE" cod_uf="CE" />
+	<ente seq_ente="12326" num_capital="0" cod_ibge="2305506" txt_ente="Iguatu" txt_esfera="M" num_exercicio="2020" num_cnpj="7810468000190" qtd_populacao="102498" dsc_regiao="NE" cod_uf="CE" />
+	<ente seq_ente="12337" num_capital="0" cod_ibge="2306405" txt_ente="Itapipoca" txt_esfera="M" num_exercicio="2020" num_cnpj="7623077000167" qtd_populacao="129358" dsc_regiao="NE" cod_uf="CE" />
+	<ente seq_ente="12348" num_capital="0" cod_ibge="2307304" txt_ente="Juazeiro do Norte" txt_esfera="M" num_exercicio="2020" num_cnpj="7974082000114" qtd_populacao="274207" dsc_regiao="NE" cod_uf="CE" />
+	<ente seq_ente="12353" num_capital="0" cod_ibge="2307650" txt_ente="Maracanaú" txt_esfera="M" num_exercicio="2020" num_cnpj="7605850000162" qtd_populacao="227886" dsc_regiao="NE" cod_uf="CE" />
+	<ente seq_ente="12354" num_capital="0" cod_ibge="2307700" txt_ente="Maranguape" txt_esfera="M" num_exercicio="2020" num_cnpj="7963051000168" qtd_populacao="128978" dsc_regiao="NE" cod_uf="CE" />
+	<ente seq_ente="12377" num_capital="0" cod_ibge="2309706" txt_ente="Pacatuba" txt_esfera="M" num_exercicio="2020" num_cnpj="7963861000114" qtd_populacao="83432" dsc_regiao="NE" cod_uf="CE" />
+	<ente seq_ente="12398" num_capital="0" cod_ibge="2311306" txt_ente="Quixadá" txt_esfera="M" num_exercicio="2020" num_cnpj="23444748000189" qtd_populacao="87728" dsc_regiao="NE" cod_uf="CE" />
+	<ente seq_ente="12400" num_capital="0" cod_ibge="2311405" txt_ente="Quixeramobim" txt_esfera="M" num_exercicio="2020" num_cnpj="7744303000168" qtd_populacao="81082" dsc_regiao="NE" cod_uf="CE" />
+	<ente seq_ente="12416" num_capital="0" cod_ibge="2312908" txt_ente="Sobral" txt_esfera="M" num_exercicio="2020" num_cnpj="7598634000137" qtd_populacao="208935" dsc_regiao="NE" cod_uf="CE" />
+	<ente seq_ente="12176" num_capital="0" cod_ibge="2207702" txt_ente="Parnaíba" txt_esfera="M" num_exercicio="2020" num_cnpj="6554430000131" qtd_populacao="153078" dsc_regiao="NE" cod_uf="PI" />
+	<ente seq_ente="12241" num_capital="1" cod_ibge="2211001" txt_ente="Teresina" txt_esfera="M" num_exercicio="2020" num_cnpj="6554869000164" qtd_populacao="864845" dsc_regiao="NE" cod_uf="PI" />
+
+</dataset>

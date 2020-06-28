@@ -129,7 +129,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		return opcoesParcial;
 	}
 
-	@Override
+//	@Override
 	protected List<RelatorioResumidoExecucaoOrcamentaria> lerEntidades(Response response) {
 		SiconfiResponse<RelatorioResumidoExecucaoOrcamentaria> rreoResponse = response
 				.readEntity(new GenericType<SiconfiResponse<RelatorioResumidoExecucaoOrcamentaria>>() {

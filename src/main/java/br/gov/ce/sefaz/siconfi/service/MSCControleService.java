@@ -57,7 +57,7 @@ public class MSCControleService extends MSCService<MatrizSaldoContabeisControle>
 		return logger;
 	}
 
-	@Override
+//	@Override
 	protected List<MatrizSaldoContabeisControle> lerEntidades(Response response) {
 		SiconfiResponse<MatrizSaldoContabeisControle> mscResponse = response
 				.readEntity(new GenericType<SiconfiResponse<MatrizSaldoContabeisControle>>() {

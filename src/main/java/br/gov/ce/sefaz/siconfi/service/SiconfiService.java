@@ -7,16 +7,9 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.Logger;
-import org.glassfish.jersey.client.ClientConfig;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
@@ -24,27 +17,26 @@ import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDados;
 import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
 import br.gov.ce.sefaz.siconfi.util.Constantes;
+import br.gov.ce.sefaz.siconfi.util.ConsultaApiUtil;
 import br.gov.ce.sefaz.siconfi.util.CsvUtil;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
-
-	protected Client client;
-	 
-	protected WebTarget webTarget;
- 
+		
 	public static final String URL_SERVICE = "http://apidatalake.tesouro.gov.br/ords/siconfi/tt/";
 
 	public static final String API_RESPONSE_TYPE = "application/json;charset=UTF-8";
+	
+	protected CsvUtil<T> csvUtil;
+
+	protected ConsultaApiUtil<T> consultaApiUtil = new ConsultaApiUtil<T>(URL_SERVICE, getApiPath(), API_RESPONSE_TYPE);
 
 	private EntityManagerFactory emf;
 	
 	private EntityManager em;
 	
 	public SiconfiService(){
-		ClientConfig clientConfig = new ClientConfig();
-		clientConfig.register(JacksonJsonProvider.class);
-		this.client = ClientBuilder.newClient(clientConfig);
+		csvUtil = new CsvUtil<T>(getEntityClass());
 	}
 	
 	protected abstract String getNomePadraoArquivoCSV();
@@ -57,11 +49,13 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 
 	protected abstract Logger getLogger();
 	
-	protected abstract List<T> lerEntidades(Response response);	
-
 	protected abstract String getApiPath();
 	
 	protected abstract void excluir(O opcoes);
+
+	protected ConsultaApiUtil<T> getConsultaApiUtil(){
+		return consultaApiUtil;
+	}
 
 	public void carregarDados(O opcoes) {
 		try {
@@ -87,7 +81,6 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	protected void escreverCabecalhoArquivoCsv(OpcoesCargaDados opcoes) throws IOException { 
 		if(OpcaoSalvamentoDados.ARQUIVO.equals(opcoes.getOpcaoSalvamento())) {
 			getLogger().info("Escrevendo o cabeçalho no arquivo CSV...");
-			CsvUtil<T> csvUtil = new CsvUtil<T>(getEntityClass());
 			csvUtil.writeHeader(getColunasArquivoCSV(), definirNomeArquivoCSV(opcoes));
 		}
 	}
@@ -100,7 +93,6 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 
 		try {
 			getLogger().info("Salvando " + listaObjetos.size() + " registro(s) no arquivo CSV...");
-			CsvUtil<T> csvUtil = new CsvUtil<T>(getEntityClass());
 			csvUtil.writeToFile(listaObjetos, getColunasArquivoCSV(), nomeArquivo);
 		} catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException | IOException e) {
 			getLogger().error("Erro ao salvar conteúdo no arquivo");
@@ -149,7 +141,10 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	}
 		
 	protected void salvarNoBancoDeDados(O opcoes, List<T> listaEntidades) {
-		if(Utils.isEmptyCollection(listaEntidades)) return;
+		if(Utils.isEmptyCollection(listaEntidades)) {
+			getLogger().info("Sem dados para persistir");
+			return;
+		}
 	
 		getEntityManager().getTransaction().begin();		
 		excluir(opcoes);
@@ -158,23 +153,31 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 		commitTransaction();
 	}
 
-	public void excluirTodos() {
+	public int excluirTodos() {
 		getLogger().info("Excluindo dados do banco de dados...");
+		boolean transacaoAtiva = getEntityManager().getTransaction().isActive();
+		if(!transacaoAtiva) {
+			getEntityManager().getTransaction().begin();
+		}
 		int i = getEntityManager().createQuery("DELETE FROM " + getEntityName()).executeUpdate();
+		if(!transacaoAtiva) {
+			getEntityManager().getTransaction().commit();
+		}
 		getLogger().info("Linhas excluídas:" + i);
+		return i;
 	}
 
-	protected EntityManager getEntityManager () {
-		if(em == null && getEntityManagerFactory()!=null) {
-			getLogger().debug("Criando EntityManager");
+	public EntityManager getEntityManager () {
+		if((em == null || !em.isOpen())&& getEntityManagerFactory()!=null) {
+			getLogger().info("Criando EntityManager " + em);
 			em = getEntityManagerFactory().createEntityManager();
 		}
 		return em;
 	}
 	
 	private EntityManagerFactory getEntityManagerFactory() {
-		if(this.emf == null) {
-			getLogger().debug("Criando EntityManagerFactory");
+		if(this.emf == null || !this.emf.isOpen()) {
+			getLogger().info("Criando EntityManagerFactory " + emf);
 			this.emf = Persistence.createEntityManagerFactory("siconfiUnit");
 		}
 		return emf;
@@ -182,9 +185,11 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	
 	protected void fecharContextoPersistencia() {
 		if (em != null) {
+			getLogger().info("Fechando o EntityManager");
 			em.close();
 		}
 		if (emf != null) {
+			getLogger().info("Fechando o EntityManagerFactory");
 			emf.close();
 		}
 	}
@@ -215,10 +220,7 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 		List<T> listaEntidades = null;		
 		try {
 
-			long ini = System.currentTimeMillis();			
-			Response response = obterResponseAPI(apiQueryParamUtil);				
-			listaEntidades = lerEntidades(response);
-			mensagemTempoConsultaAPI(ini);	
+			listaEntidades = getConsultaApiUtil().lerEntidades(apiQueryParamUtil, getEntityClass());
 			
 		} catch (Exception e) {
 			mensagemLogErroConsultaNaAPI(apiQueryParamUtil);
@@ -233,35 +235,13 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	private void mensagemLogErroConsultaNaAPI(APIQueryParamUtil apiQueryParamUtil) {
 		StringBuilder mensagemLog = new StringBuilder("Erro de consulta na API para os parâmetros:");
 		apiQueryParamUtil.getMapQueryParam().forEach((chave, valor) -> mensagemLog.append(chave + ": " + valor.toString() + ", "));
-		getLogger().info(mensagemLog.toString());
+		getLogger().error(mensagemLog.toString());
 	}
-
-	private Response obterResponseAPI(APIQueryParamUtil apiQueryParamUtil) {
-		
-		
-		this.webTarget = this.client.target(URL_SERVICE).path(getApiPath());
-		apiQueryParamUtil.getMapQueryParam().forEach((chave, valor) -> inserirAPIQueryParam(chave, valor));
-		Invocation.Builder invocationBuilder =  this.webTarget.request(API_RESPONSE_TYPE); 	
-
-		getLogger().info("Fazendo get na API: " + webTarget.getUri().toString());			
-		Response response = invocationBuilder.get();
-		
-		return response;		
-	}
-
-	private void mensagemTempoConsultaAPI(long ini) {
-		long fim = System.currentTimeMillis();			
-		getLogger().debug("Tempo para consultar na API:" + (fim -ini));
-	} 
 	
 	private void mensagemLogTamanhoDaLista(APIQueryParamUtil apiQueryParamUtil, List<T> listaEntidades) {
 		StringBuilder mensagemLog = new StringBuilder("Tamanho da lista de entidades para os parâmetros ");
 		apiQueryParamUtil.getMapQueryParam().forEach((chave, valor) -> mensagemLog.append(chave + ": " + valor.toString() + ", "));
 		mensagemLog.append(": " + listaEntidades.size());
 		getLogger().debug(mensagemLog.toString());
-	}
-	
-	private void inserirAPIQueryParam(String chave, Object valor) {
-		this.webTarget = this.webTarget.queryParam(chave, valor);
-	}
+	}	
 }

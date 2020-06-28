@@ -30,7 +30,8 @@ public class CsvUtil<T> {
 		return cabecalho;
 	}
 	
-	public int writeToFile(List<T> listaEntidades, String[] columns, String nomeArquivo) throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+	public int writeToFile(List<T> listaEntidades, String[] columns, String nomeArquivo)
+			throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
 
 			if(Utils.isEmptyCollection(listaEntidades)) return 0;
 			

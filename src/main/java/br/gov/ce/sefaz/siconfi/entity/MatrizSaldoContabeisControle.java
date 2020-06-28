@@ -4,7 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
-@Table(schema = "TAB_SICONFI", name = "TAB_SICONFI.MATRIZ_SAL_CONT_CONTROLE")
+@Table(schema = "TAB_SICONFI", name = "MATRIZ_SAL_CONT_CONTROLE")
 @Entity
 public class MatrizSaldoContabeisControle extends MatrizSaldoContabeis {
 

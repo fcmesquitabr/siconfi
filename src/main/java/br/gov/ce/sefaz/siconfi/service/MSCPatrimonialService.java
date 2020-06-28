@@ -44,7 +44,7 @@ public class MSCPatrimonialService extends MSCService<MatrizSaldoContabeisPatrim
 		return NOME_PADRAO_ARQUIVO_CSV;
 	}
 
-	@Override
+//	@Override
 	protected List<MatrizSaldoContabeisPatrimonial> lerEntidades(Response response) {
 		SiconfiResponse<MatrizSaldoContabeisPatrimonial> mscResponse = response
 				.readEntity(new GenericType<SiconfiResponse<MatrizSaldoContabeisPatrimonial>>() {
