@@ -1,12 +1,9 @@
 package br.gov.ce.sefaz.siconfi.service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.Query;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,7 +13,6 @@ import br.gov.ce.sefaz.siconfi.enums.TipoDemonstrativoRREO;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosRREO;
 import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
 import br.gov.ce.sefaz.siconfi.util.Constantes;
-import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamentaria, OpcoesCargaDadosRREO> {
@@ -44,7 +40,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 	}
 
 	@Override
-	protected void excluir(OpcoesCargaDadosRREO filtro) {
+	protected int excluir(OpcoesCargaDadosRREO filtro) {
 		logger.info("Excluindo dados do banco de dados...");
 
 		StringBuilder queryBuilder = new StringBuilder(
@@ -78,6 +74,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 
 		int i = query.executeUpdate();
 		logger.info("Linhas excluídas:" + i);
+		return i;
 	}
 
 	@Override
@@ -127,14 +124,6 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		opcoesParcial.setCodigosIBGE(Arrays.asList(codigoIbge));
 		opcoesParcial.setListaAnexos(Arrays.asList(anexo));
 		return opcoesParcial;
-	}
-
-//	@Override
-	protected List<RelatorioResumidoExecucaoOrcamentaria> lerEntidades(Response response) {
-		SiconfiResponse<RelatorioResumidoExecucaoOrcamentaria> rreoResponse = response
-				.readEntity(new GenericType<SiconfiResponse<RelatorioResumidoExecucaoOrcamentaria>>() {
-				});
-		return rreoResponse != null ? rreoResponse.getItems() : new ArrayList<RelatorioResumidoExecucaoOrcamentaria>();
 	}
 
 	private EnteService getEnteService() {

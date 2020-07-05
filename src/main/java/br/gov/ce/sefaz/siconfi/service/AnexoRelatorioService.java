@@ -21,8 +21,8 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio, Opcoes
 	}
 	
 	@Override
-	protected void excluir(OpcoesCargaDados opcoes) {
-		excluirTodos();
+	protected int excluir(OpcoesCargaDados opcoes) {
+		return excluirTodos();
 	}
 
 	@Override

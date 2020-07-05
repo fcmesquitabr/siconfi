@@ -30,7 +30,7 @@ public class MatrizSaldoContabeisOrcamentaria extends MatrizSaldoContabeis {
     private String natureza_receita;
 
 	@Column(name = "VLR_SALDO_ORCAMENTARIO")
-	protected Double valor;
+	private Double valor;
 
 	@Override
 	public String toString() {
@@ -42,23 +42,6 @@ public class MatrizSaldoContabeisOrcamentaria extends MatrizSaldoContabeis {
 				+ ano_inscricao + ", natureza_receita=" + natureza_receita + ", ano_fonte_recursos="
 				+ ano_fonte_recursos + ", fonte_recursos=" + fonte_recursos + ", data_referencia=" + data_referencia
 				+ ", entrada_msc=" + entrada_msc + ", tipo_valor=" + tipo_valor + ", valor=" + valor + "]";
-	}
-
-	public Integer getId() {
-		return id;
-	}
-
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	public String getPoder_orgao() {
-		return poder_orgao;
-	}
-
-	public void setPoder_orgao(String poder_orgao) {
-		this.poder_orgao = poder_orgao;
 	}
 
 	public String getFuncao() {
@@ -109,19 +92,11 @@ public class MatrizSaldoContabeisOrcamentaria extends MatrizSaldoContabeis {
 		this.natureza_receita = natureza_receita;
 	}
 
-	public Integer getAno_fonte_recursos() {
-		return ano_fonte_recursos;
+	public Double getValor() {
+		return valor;
 	}
 
-	public void setAno_fonte_recursos(Integer ano_fonte_recursos) {
-		this.ano_fonte_recursos = ano_fonte_recursos;
-	}
-
-	public String getFonte_recursos() {
-		return fonte_recursos;
-	}
-
-	public void setFonte_recursos(String fonte_recursos) {
-		this.fonte_recursos = fonte_recursos;
+	public void setValor(Double valor) {
+		this.valor = valor;
 	}
 }

@@ -97,9 +97,8 @@ public class AnexoRelatorioServiceTest {
 
 	@Test
 	public void testeCarregarDadosArquivoSemNome() {
-		OpcoesCargaDadosAnexoRelatorio opcoes = new OpcoesCargaDadosAnexoRelatorio.Builder()
-				.opcaoSalvamentoDados(OpcaoSalvamentoDados.ARQUIVO)
-				.build();
+		OpcoesCargaDadosAnexoRelatorio opcoes = new OpcoesCargaDadosAnexoRelatorio();
+		opcoes.setOpcaoSalvamento(OpcaoSalvamentoDados.ARQUIVO);
 		AnexoRelatorio anexoRelatorio = obterAnexoRelatorio();
 		when(consultaApiUtil.lerEntidades(any(), eq(AnexoRelatorio.class))).thenReturn(Arrays.asList(anexoRelatorio));
 		anexoRelatorioService.carregarDados(opcoes);

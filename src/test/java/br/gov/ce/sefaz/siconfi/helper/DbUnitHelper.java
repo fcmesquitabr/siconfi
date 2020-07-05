@@ -40,6 +40,7 @@ public class DbUnitHelper {
 			
 			DatabaseConfig config = conexaoDBUnit.getConfig();
 			config.setProperty(DatabaseConfig.PROPERTY_DATATYPE_FACTORY, new H2DataTypeFactory());
+			config.setProperty(DatabaseConfig.FEATURE_ALLOW_EMPTY_FIELDS, true);
 		} catch (Exception e) {
 			throw new RuntimeException("Erro inicializando DBUnit", e);
 		}

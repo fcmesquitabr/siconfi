@@ -27,7 +27,7 @@ public class MatrizSaldoContabeisControle extends MatrizSaldoContabeis {
     private Integer ano_inscricao;
 
 	@Column(name = "VLR_SALDO_CONTROLE")
-	protected Double valor;
+	private Double valor;
 
 	@Override
 	public String toString() {
@@ -39,30 +39,6 @@ public class MatrizSaldoContabeisControle extends MatrizSaldoContabeis {
 				+ ", educacao_saude=" + educacao_saude + ", natureza_despesa=" + natureza_despesa + ", ano_inscricao="
 				+ ano_inscricao + ", data_referencia=" + data_referencia + ", entrada_msc=" + entrada_msc
 				+ ", tipo_valor=" + tipo_valor + ", valor=" + valor + "]";
-	}
-
-	public String getPoder_orgao() {
-		return poder_orgao;
-	}
-
-	public void setPoder_orgao(String poder_orgao) {
-		this.poder_orgao = poder_orgao;
-	}
-
-	public Integer getAno_fonte_recursos() {
-		return ano_fonte_recursos;
-	}
-
-	public void setAno_fonte_recursos(Integer ano_fonte_recursos) {
-		this.ano_fonte_recursos = ano_fonte_recursos;
-	}
-
-	public String getFonte_recursos() {
-		return fonte_recursos;
-	}
-
-	public void setFonte_recursos(String fonte_recursos) {
-		this.fonte_recursos = fonte_recursos;
 	}
 
 	public String getFuncao() {
@@ -103,5 +79,13 @@ public class MatrizSaldoContabeisControle extends MatrizSaldoContabeis {
 
 	public void setAno_inscricao(Integer ano_inscricao) {
 		this.ano_inscricao = ano_inscricao;
+	}
+
+	public Double getValor() {
+		return valor;
+	}
+
+	public void setValor(Double valor) {
+		this.valor = valor;
 	}
 }

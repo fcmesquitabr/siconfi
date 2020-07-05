@@ -32,7 +32,7 @@ import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.enums.Esfera;
 import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.helper.DbUnitHelper;
-import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosAnexoRelatorio;
+import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosEnte;
 import br.gov.ce.sefaz.siconfi.service.EnteService;
 import br.gov.ce.sefaz.siconfi.util.ConsultaApiUtil;
 import br.gov.ce.sefaz.siconfi.util.CsvUtil;
@@ -77,9 +77,8 @@ public class EnteServiceTest {
 
 	@Test
 	public void testeCarregarDadosArquivoSemNome() {
-		OpcoesCargaDadosAnexoRelatorio opcoes = new OpcoesCargaDadosAnexoRelatorio.Builder()
-				.opcaoSalvamentoDados(OpcaoSalvamentoDados.ARQUIVO)
-				.build();
+		OpcoesCargaDadosEnte opcoes = new OpcoesCargaDadosEnte();
+		opcoes.setOpcaoSalvamento(OpcaoSalvamentoDados.ARQUIVO);
 		Ente ente = obterEnte();
 		when(consultaApiUtil.lerEntidades(any(), eq(Ente.class))).thenReturn(Arrays.asList(ente));
 		enteService.carregarDados(opcoes);
@@ -95,7 +94,7 @@ public class EnteServiceTest {
 
 	@Test
 	public void testeCarregarDadosArquivoComNome() {
-		OpcoesCargaDadosAnexoRelatorio opcoes = new OpcoesCargaDadosAnexoRelatorio.Builder()
+		OpcoesCargaDadosEnte opcoes = new OpcoesCargaDadosEnte.Builder()
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.ARQUIVO)
 				.nomeArquivo("nome_do_arquivo.csv")
 				.build();
@@ -114,7 +113,7 @@ public class EnteServiceTest {
 
 	@Test
 	public void testeCarregarDadosNaBase() {
-		OpcoesCargaDadosAnexoRelatorio opcoes = new OpcoesCargaDadosAnexoRelatorio.Builder()
+		OpcoesCargaDadosEnte opcoes = new OpcoesCargaDadosEnte.Builder()
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
 				.build();
 		Ente ente = obterEnte();
@@ -127,7 +126,7 @@ public class EnteServiceTest {
 
 	@Test
 	public void testeObterListaEntesNaApiComOpcoesCompletas() {
-		OpcoesCargaDadosAnexoRelatorio opcoes = new OpcoesCargaDadosAnexoRelatorio.Builder()
+		OpcoesCargaDadosEnte opcoes = new OpcoesCargaDadosEnte.Builder()
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
 				.capital(0)
 				.codigosIbge(Arrays.asList("23"))
@@ -145,7 +144,7 @@ public class EnteServiceTest {
 
 	@Test
 	public void testeObterListaEntesNaApiFiltroPopulacaoMinima() {
-		OpcoesCargaDadosAnexoRelatorio opcoes = new OpcoesCargaDadosAnexoRelatorio.Builder()
+		OpcoesCargaDadosEnte opcoes = new OpcoesCargaDadosEnte.Builder()
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
 				.populacaoMinima(100000l)
 				.build();
@@ -162,7 +161,7 @@ public class EnteServiceTest {
 
 	@Test
 	public void testeObterListaEntesNaApiFiltroPopulacaoMaxima() {
-		OpcoesCargaDadosAnexoRelatorio opcoes = new OpcoesCargaDadosAnexoRelatorio.Builder()
+		OpcoesCargaDadosEnte opcoes = new OpcoesCargaDadosEnte.Builder()
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
 				.populacaoMaxima(200000l)
 				.build();
@@ -179,7 +178,7 @@ public class EnteServiceTest {
 
 	@Test
 	public void testeObterListaCodigosIbgeNaAPISemCodigoIbge() {
-		OpcoesCargaDadosAnexoRelatorio opcoes = new OpcoesCargaDadosAnexoRelatorio.Builder()
+		OpcoesCargaDadosEnte opcoes = new OpcoesCargaDadosEnte.Builder()
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
 				.esfera(Esfera.ESTADOS_E_DISTRITO_FEDERAL)
 				.build();
@@ -192,7 +191,7 @@ public class EnteServiceTest {
 
 	@Test
 	public void testeObterListaCodigosIbgeNaAPIComCodigoIbge() {
-		OpcoesCargaDadosAnexoRelatorio opcoes = new OpcoesCargaDadosAnexoRelatorio.Builder()
+		OpcoesCargaDadosEnte opcoes = new OpcoesCargaDadosEnte.Builder()
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
 				.codigosIbge(Arrays.asList("23"))
 				.build();
@@ -204,7 +203,7 @@ public class EnteServiceTest {
 	
 	@Test
 	public void testeObterListaEntesNaBaseSemCodigoIbge() {
-		OpcoesCargaDadosAnexoRelatorio opcoes = new OpcoesCargaDadosAnexoRelatorio.Builder()
+		OpcoesCargaDadosEnte opcoes = new OpcoesCargaDadosEnte.Builder()
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
 				.capital(0)
 				.codigosUF(Arrays.asList("BR"))
@@ -219,7 +218,7 @@ public class EnteServiceTest {
 
 	@Test
 	public void testeObterListaCodigoIbgeComCodigoIbge() {
-		OpcoesCargaDadosAnexoRelatorio opcoes = new OpcoesCargaDadosAnexoRelatorio.Builder()
+		OpcoesCargaDadosEnte opcoes = new OpcoesCargaDadosEnte.Builder()
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
 				.codigosIbge(Arrays.asList("23"))
 				.build();
@@ -229,7 +228,7 @@ public class EnteServiceTest {
 
 	@Test
 	public void testeObterListaEnteComCodigoIbge() {
-		OpcoesCargaDadosAnexoRelatorio opcoes = new OpcoesCargaDadosAnexoRelatorio.Builder()
+		OpcoesCargaDadosEnte opcoes = new OpcoesCargaDadosEnte.Builder()
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
 				.codigosIbge(Arrays.asList("21","22","23","24"))
 				.build();
@@ -240,7 +239,7 @@ public class EnteServiceTest {
 
 	@Test
 	public void testeObterListaEntesNaBaseCapital() {
-		OpcoesCargaDadosAnexoRelatorio opcoes = new OpcoesCargaDadosAnexoRelatorio.Builder()
+		OpcoesCargaDadosEnte opcoes = new OpcoesCargaDadosEnte.Builder()
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
 				.capital(1)
 				.codigosUF(Arrays.asList("CE","PI"))

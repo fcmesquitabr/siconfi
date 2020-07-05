@@ -1,14 +1,10 @@
 package br.gov.ce.sefaz.siconfi.service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.Query;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.DeclaracaoContasAnuais;
@@ -16,12 +12,12 @@ import br.gov.ce.sefaz.siconfi.entity.ExtratoEntrega;
 import br.gov.ce.sefaz.siconfi.enums.Entregavel;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosDCA;
 import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
-import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
+import br.gov.ce.sefaz.siconfi.util.LoggerUtil;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCargaDadosDCA>{
 
-	private static final Logger logger = LogManager.getLogger(DCAService.class);
+	private static Logger logger = null;
 
 	public static final List<String> ANEXOS_DCA = Arrays.asList("Anexo I-AB", "Anexo I-C", "Anexo I-D", "Anexo I-E", 
 			"Anexo I-F", "Anexo I-G", "Anexo I-HI", "DCA-Anexo I-AB", "DCA-Anexo I-C", "DCA-Anexo I-D", 
@@ -43,8 +39,8 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 	}
 	
 	@Override
-	protected void excluir(OpcoesCargaDadosDCA filtro) {
-		logger.info("Excluindo dados do banco de dados...");
+	protected int excluir(OpcoesCargaDadosDCA filtro) {
+		getLogger().info("Excluindo dados do banco de dados...");
 		
 		StringBuilder queryBuilder = new StringBuilder("DELETE FROM DeclaracaoContasAnuais dca WHERE dca.exercicio IN (:exercicios) ");
 
@@ -67,7 +63,8 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 		}
 
 		int i = query.executeUpdate();
-		logger.info("Linhas excluídas:" + i);
+		getLogger().info("Linhas excluídas:" + i);
+		return i;
 	}
 
 	@Override
@@ -117,14 +114,6 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 		return opcoesParcial;
 	}
 
-//	@Override
-	protected List<DeclaracaoContasAnuais> lerEntidades(Response response) {
-		SiconfiResponse<DeclaracaoContasAnuais> dcaResponse = response
-				.readEntity(new GenericType<SiconfiResponse<DeclaracaoContasAnuais>>() {
-				});
-		return dcaResponse != null ? dcaResponse.getItems() : new ArrayList<DeclaracaoContasAnuais>();
-	}
-
 	private EnteService getEnteService() {
 		if(enteService == null) {
 			enteService = new EnteService();
@@ -160,12 +149,16 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 	}
 	
 	@Override
-	protected Logger getLogger() {
-		return logger;
-	}
-
-	@Override
 	protected String getApiPath() {
 		return API_PATH_DCA;
 	}
+	
+	@Override
+	protected Logger getLogger() {
+		if(logger == null) {
+			logger = LoggerUtil.createLogger(DCAService.class);
+		}
+		return logger;
+	}
+
 }

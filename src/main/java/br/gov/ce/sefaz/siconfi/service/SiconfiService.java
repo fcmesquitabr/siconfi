@@ -51,7 +51,7 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	
 	protected abstract String getApiPath();
 	
-	protected abstract void excluir(O opcoes);
+	protected abstract int excluir(O opcoes);
 
 	protected ConsultaApiUtil<T> getConsultaApiUtil(){
 		return consultaApiUtil;

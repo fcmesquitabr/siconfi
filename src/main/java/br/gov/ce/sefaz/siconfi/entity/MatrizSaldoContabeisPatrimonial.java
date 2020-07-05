@@ -18,7 +18,7 @@ public class MatrizSaldoContabeisPatrimonial extends MatrizSaldoContabeis {
     private Integer divida_consolidada;
 
 	@Column(name = "VLR_SALDO_PATRIMONIAL")
-	protected Double valor;
+	private Double valor;
 
 	@Override
 	public String toString() {
@@ -43,22 +43,19 @@ public class MatrizSaldoContabeisPatrimonial extends MatrizSaldoContabeis {
 	public void setFinanceiro_permanente(Integer financeiro_permanente) {
 		this.financeiro_permanente = financeiro_permanente;
 	}
-	public Integer getAno_fonte_recursos() {
-		return ano_fonte_recursos;
-	}
-	public void setAno_fonte_recursos(Integer ano_fonte_recursos) {
-		this.ano_fonte_recursos = ano_fonte_recursos;
-	}
-	public String getFonte_recursos() {
-		return fonte_recursos;
-	}
-	public void setFonte_recursos(String fonte_recursos) {
-		this.fonte_recursos = fonte_recursos;
-	}
+
 	public Integer getDivida_consolidada() {
 		return divida_consolidada;
 	}
 	public void setDivida_consolidada(Integer divida_consolidada) {
 		this.divida_consolidada = divida_consolidada;
+	}
+
+	public Double getValor() {
+		return valor;
+	}
+
+	public void setValor(Double valor) {
+		this.valor = valor;
 	}
 }

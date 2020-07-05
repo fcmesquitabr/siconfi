@@ -98,14 +98,6 @@ public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 		gerarSaidaDados(opcoes, listaEntes);
 	}
 
-//	@Override
-//	protected List<Ente> lerEntidades(Response response) {
-//		SiconfiResponse<Ente> enteResponse = response
-//				.readEntity(new GenericType<SiconfiResponse<Ente>>() {
-//				});
-//		return enteResponse != null ? enteResponse.getItems() : new ArrayList<Ente>();
-//	}
-
 	public List<String> obterListaCodigosIbgeNaBase(OpcoesCargaDados opcoes) {
 		List<String> listaCodigoIbge = null;
 		
@@ -204,8 +196,8 @@ public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 	}
 
 	@Override
-	protected void excluir(OpcoesCargaDados opcoes) {
-		excluirTodos();
+	protected int excluir(OpcoesCargaDados opcoes) {
+		return excluirTodos();
 	}
 
 	@Override
