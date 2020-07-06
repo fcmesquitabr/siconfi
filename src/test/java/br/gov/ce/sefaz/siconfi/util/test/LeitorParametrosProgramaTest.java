@@ -16,6 +16,8 @@ import br.gov.ce.sefaz.siconfi.enums.Esfera;
 import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.enums.Poder;
 import br.gov.ce.sefaz.siconfi.enums.Relatorio;
+import br.gov.ce.sefaz.siconfi.enums.TipoMatrizSaldoContabeis;
+import br.gov.ce.sefaz.siconfi.enums.TipoValorMatrizSaldoContabeis;
 import br.gov.ce.sefaz.siconfi.util.Constantes;
 import br.gov.ce.sefaz.siconfi.util.LeitorParametrosPrograma;
 
@@ -33,9 +35,17 @@ public class LeitorParametrosProgramaTest {
 		System.setProperty(LeitorParametrosPrograma.OPCAO_RELATORIO, Relatorio.dca.name());
 		System.setProperty(LeitorParametrosPrograma.OPCAO_SALVAMENTO, OpcaoSalvamentoDados.CONSOLE.name());
 		System.setProperty(LeitorParametrosPrograma.OPCAO_ESFERA, Esfera.MUNICIPIO.getCodigo());
+		System.setProperty(LeitorParametrosPrograma.OPCAO_CODIGOS_IBGE, "23");		
 		System.setProperty(LeitorParametrosPrograma.OPCAO_PODER, Poder.EXECUTIVO.getCodigo());
 		System.setProperty(LeitorParametrosPrograma.OPCAO_EXERCICIOS, "2020");
 		System.setProperty(LeitorParametrosPrograma.OPCAO_PERIODOS, "1");
+		System.setProperty(LeitorParametrosPrograma.OPCAO_CAPITAL, "1");
+		System.setProperty(LeitorParametrosPrograma.OPCAO_UF, "23");
+		System.setProperty(LeitorParametrosPrograma.OPCAO_ANEXOS, "Anexo 1");
+		System.setProperty(LeitorParametrosPrograma.OPCAO_TIPO_MATRIZ, TipoMatrizSaldoContabeis.MSCC.getCodigo());
+		System.setProperty(LeitorParametrosPrograma.OPCAO_TIPOS_VALOR_MATRIZ, TipoValorMatrizSaldoContabeis.period_change.name());
+		System.setProperty(LeitorParametrosPrograma.OPCAO_POPULACAO_MINIMA, "100000");
+		System.setProperty(LeitorParametrosPrograma.OPCAO_POPULACAO_MAXIMA, "500000");
 	}
 
 	@Test
@@ -131,7 +141,6 @@ public class LeitorParametrosProgramaTest {
 
 	@Test
 	public void testeLerOpcaoPoderInvalida() {
-		definirValoresValidosArgumentos();
 		System.setProperty(LeitorParametrosPrograma.OPCAO_PODER, " Y , Z ");
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> LeitorParametrosPrograma.lerArgumentos());
 		assertEquals("Opção de Poder inválida", exception.getMessage());		
@@ -215,6 +224,120 @@ public class LeitorParametrosProgramaTest {
 		System.setProperty(LeitorParametrosPrograma.OPCAO_CODIGOS_IBGE, "  ,  ");
 		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> LeitorParametrosPrograma.lerArgumentos());
 		assertEquals("Opção de Códigos IBGE inválida", exception.getMessage());		
+	}
+
+	@Test
+	public void testeLerOpcaoAnexosValida() {
+		System.setProperty(LeitorParametrosPrograma.OPCAO_ANEXOS, " Anexo 1 , Anexo 2 ");
+		LeitorParametrosPrograma.lerArgumentos();
+		assertArrayEquals(LeitorParametrosPrograma.getOpcaoAnexosSelecionados().toArray(), new String[] {"Anexo 1","Anexo 2"} );	
+	}
+
+	@Test
+	public void testeLerOpcaoAnexosStringsVazias() {
+		System.setProperty(LeitorParametrosPrograma.OPCAO_ANEXOS, "  ,  ");
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> LeitorParametrosPrograma.lerArgumentos());
+		assertEquals("Opção de Anexos inválida", exception.getMessage());		
+	}
+
+	@Test
+	public void testeLerOpcaoTipoMatrizValida() {
+		System.setProperty(LeitorParametrosPrograma.OPCAO_TIPO_MATRIZ, TipoMatrizSaldoContabeis.MSCC.getCodigo());
+		LeitorParametrosPrograma.lerArgumentos();
+		assertEquals(TipoMatrizSaldoContabeis.MSCC,LeitorParametrosPrograma.getOpcaoTipoMatrizSelecionado());	
+	}
+
+	@Test
+	public void testeLerOpcaoTipoMatrizInvalida() {
+		System.setProperty(LeitorParametrosPrograma.OPCAO_TIPO_MATRIZ, " ABCD ");
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> LeitorParametrosPrograma.lerArgumentos());
+		assertEquals("Opção de Tipo Matriz inválida", exception.getMessage());		
+	}
+
+	@Test
+	public void testeLerOpcaoTipoValorMatrizValida() {
+		System.setProperty(LeitorParametrosPrograma.OPCAO_TIPOS_VALOR_MATRIZ, "period_change, ending_balance");
+		LeitorParametrosPrograma.lerArgumentos();
+		assertArrayEquals(
+				new TipoValorMatrizSaldoContabeis[] { TipoValorMatrizSaldoContabeis.period_change,
+						TipoValorMatrizSaldoContabeis.ending_balance },
+				LeitorParametrosPrograma.getOpcaoTiposValorMatrizSelecionado().toArray());
+	}
+
+	@Test
+	public void testeLerOpcaoTipoValorMatrizInvalida() {
+		System.setProperty(LeitorParametrosPrograma.OPCAO_TIPOS_VALOR_MATRIZ, " ABCD ");
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> LeitorParametrosPrograma.lerArgumentos());
+		assertEquals("Opção de Tipo de Valor Matriz inválida", exception.getMessage());		
+	}
+
+	@Test
+	public void testeLerOpcaoPopulacaoMinimaInvalida() {
+		System.setProperty(LeitorParametrosPrograma.OPCAO_POPULACAO_MINIMA, "A");
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> LeitorParametrosPrograma.lerArgumentos());
+		assertEquals("Opção de População Mínima inválida", exception.getMessage());		
+
+		System.setProperty(LeitorParametrosPrograma.OPCAO_POPULACAO_MINIMA, "12.5");
+		exception = assertThrows(IllegalArgumentException.class, () -> LeitorParametrosPrograma.lerArgumentos());
+		assertEquals("Opção de População Mínima inválida", exception.getMessage());		
+
+	}
+
+	@Test
+	public void testeLerOpcaoPopulacaoMinimaValida() {
+		System.setProperty(LeitorParametrosPrograma.OPCAO_POPULACAO_MINIMA, "200000");
+		LeitorParametrosPrograma.lerArgumentos();
+		assertEquals(200000, LeitorParametrosPrograma.getOpcaoPopulacaoMinimaSelecionada().intValue() );
+	}
+
+	@Test
+	public void testeLerOpcaoPopulacaoMaximaInvalida() {
+		System.setProperty(LeitorParametrosPrograma.OPCAO_POPULACAO_MAXIMA, "A");
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> LeitorParametrosPrograma.lerArgumentos());
+		assertEquals("Opção de População Máxima inválida", exception.getMessage());		
+
+		System.setProperty(LeitorParametrosPrograma.OPCAO_POPULACAO_MAXIMA, "12.5");
+		exception = assertThrows(IllegalArgumentException.class, () -> LeitorParametrosPrograma.lerArgumentos());
+		assertEquals("Opção de População Máxima inválida", exception.getMessage());		
+	}
+
+	@Test
+	public void testeLerOpcaoPopulacaoMaximaValida() {
+		System.setProperty(LeitorParametrosPrograma.OPCAO_POPULACAO_MAXIMA, "500000");
+		LeitorParametrosPrograma.lerArgumentos();
+		assertEquals(500000, LeitorParametrosPrograma.getOpcaoPopulacaoMaximaSelecionada().intValue() );
+	}
+
+	@Test
+	public void testeLerOpcaoCapitalInvalida() {
+		System.setProperty(LeitorParametrosPrograma.OPCAO_CAPITAL, "A");
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> LeitorParametrosPrograma.lerArgumentos());
+		assertEquals("Opção de Capital inválida", exception.getMessage());		
+
+		System.setProperty(LeitorParametrosPrograma.OPCAO_CAPITAL, "12.5");
+		exception = assertThrows(IllegalArgumentException.class, () -> LeitorParametrosPrograma.lerArgumentos());
+		assertEquals("Opção de Capital inválida", exception.getMessage());		
+	}
+
+	@Test
+	public void testeLerOpcaoCapitalValida() {
+		System.setProperty(LeitorParametrosPrograma.OPCAO_CAPITAL, "1");
+		LeitorParametrosPrograma.lerArgumentos();
+		assertEquals(1, LeitorParametrosPrograma.getOpcaoCapitalSelecionada().intValue() );
+	}
+
+	@Test
+	public void testeLerOpcaoUFsValida() {
+		System.setProperty(LeitorParametrosPrograma.OPCAO_UF, " CE , PI ");
+		LeitorParametrosPrograma.lerArgumentos();
+		assertArrayEquals(LeitorParametrosPrograma.getOpcaoCodigosUFSelecionados().toArray(), new String[] {"CE","PI"} );
+	}
+
+	@Test
+	public void testeLerOpcaoUFsStringsVazias() {
+		System.setProperty(LeitorParametrosPrograma.OPCAO_UF, "  ,  ");
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> LeitorParametrosPrograma.lerArgumentos());
+		assertEquals("Opção de UF inválida", exception.getMessage());		
 	}
 
 }

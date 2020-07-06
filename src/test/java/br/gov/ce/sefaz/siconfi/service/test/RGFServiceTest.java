@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
@@ -130,6 +131,30 @@ public class RGFServiceTest {
 		} catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Test
+	@PrepareForTest({LoggerUtil.class})
+	public void testeCarregarDadosNaBase() {
+		Logger logger = mockLogger();
+		OpcoesCargaDadosRGF opcoes = new OpcoesCargaDadosRGF.Builder()
+				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
+				.exercicios(Arrays.asList(2020))
+				.periodos(Arrays.asList(1))
+				.build();
+		iniciarDbUnit();
+
+		when(enteService.obterListaCodigosIbgeNaAPI(any())).thenReturn(Arrays.asList("23"));
+		when(consultaApiUtil.lerEntidades(any(), eq(RelatorioGestaoFiscal.class))).thenReturn(Arrays.asList(obterRelatorioGestaoFiscal()));
+
+		rgfService.carregarDados(opcoes);
+		
+		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
+		verify(consultaApiUtil, times(RGFService.ANEXOS_RGF.size() * Poder.values().length)).lerEntidades(any(), eq(RelatorioGestaoFiscal.class));
+		
+		verify(logger, times(RGFService.ANEXOS_RGF.size() * Poder.values().length)).info("Excluindo dados do banco de dados...");
+		verify(logger, times(2)).info("Linhas excluídas:10");	//10 linhas para o anexo 01 e 10 linhas para o anexo 02
+		verify(logger, times( RGFService.ANEXOS_RGF.size() * Poder.values().length - 2 )).info("Linhas excluídas:0");
 	}
 
 	private RelatorioGestaoFiscal obterRelatorioGestaoFiscal() {

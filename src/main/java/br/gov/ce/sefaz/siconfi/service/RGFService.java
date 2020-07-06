@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.persistence.Query;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.RelatorioGestaoFiscal;
@@ -15,11 +14,12 @@ import br.gov.ce.sefaz.siconfi.enums.TipoDemonstrativoRGF;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosRGF;
 import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
 import br.gov.ce.sefaz.siconfi.util.Constantes;
+import br.gov.ce.sefaz.siconfi.util.LoggerUtil;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCargaDadosRGF> {
 
-	private static final Logger logger = LogManager.getLogger(RGFService.class);
+	private static Logger logger = null;
 
 	public static final List<String> ANEXOS_RGF = Arrays.asList("RGF-Anexo 01", "RGF-Anexo 02", "RGF-Anexo 03",
 			"RGF-Anexo 04", "RGF-Anexo 05", "RGF-Anexo 06");
@@ -40,7 +40,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 
 	@Override
 	protected int excluir(OpcoesCargaDadosRGF filtro) {
-		logger.info("Excluindo dados do banco de dados...");
+		getLogger().info("Excluindo dados do banco de dados...");
 
 		StringBuilder queryBuilder = new StringBuilder(
 				"DELETE FROM RelatorioGestaoFiscal rgf WHERE rgf.exercicio IN (:exercicios) ");
@@ -79,7 +79,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 		}
 
 		int i = query.executeUpdate();
-		logger.info("Linhas excluídas:" + i);
+		getLogger().info("Linhas excluídas:" + i);
 		return i;
 	}
 
@@ -178,6 +178,9 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 
 	@Override
 	protected Logger getLogger() {
+		if(logger == null) {
+			logger = LoggerUtil.createLogger(RGFService.class);
+		}
 		return logger;
 	}
 

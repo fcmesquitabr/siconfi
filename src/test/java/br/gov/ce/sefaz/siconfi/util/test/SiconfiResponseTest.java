@@ -1,10 +1,14 @@
 package br.gov.ce.sefaz.siconfi.util.test;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -60,6 +64,15 @@ public class SiconfiResponseTest {
 	public void testeGetSetOffset() {
 		siconfiResponse.setOffset(100);
 		assertEquals(Integer.valueOf(100), siconfiResponse.getOffset());
+		
+		siconfiResponse.setOffset(null);
+		assertNull(siconfiResponse.getOffset());
+	}
+
+	@Test 
+	public void testeGetSetItems() {
+		siconfiResponse.setItems(Arrays.asList(1,2,3));
+		assertArrayEquals(new Integer[] {1,2,3}, siconfiResponse.getItems().toArray());
 		
 		siconfiResponse.setOffset(null);
 		assertNull(siconfiResponse.getOffset());

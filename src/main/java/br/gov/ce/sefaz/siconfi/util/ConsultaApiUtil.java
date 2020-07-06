@@ -60,10 +60,6 @@ public class ConsultaApiUtil<T> {
 		});
 
 		SiconfiResponse<T> siconfiResponse = response.readEntity(genericType);
-
-//		SiconfiResponse<T> siconfiResponse = response
-//				.readEntity(new GenericType<SiconfiResponse<T>>() {
-//				});
 		return siconfiResponse != null ? siconfiResponse.getItems() : new ArrayList<T>();
 	}
 

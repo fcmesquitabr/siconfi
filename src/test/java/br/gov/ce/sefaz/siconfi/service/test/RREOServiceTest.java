@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
@@ -86,8 +87,8 @@ public class RREOServiceTest {
 
 	public void iniciarDbUnit() {
 		dbUnitHelper = new DbUnitHelper(rreoService.getEntityManager(), "DbUnitXml");
-		dbUnitHelper.execute(DatabaseOperation.DELETE_ALL, "RelatorioResumidoExecucaoOcamentaria.xml");
-		dbUnitHelper.execute(DatabaseOperation.INSERT, "RelatorioResumidoExecucaoOcamentaria.xml");
+		dbUnitHelper.execute(DatabaseOperation.DELETE_ALL, "RelatorioResumidoExecucaoOrcamentaria.xml");
+		dbUnitHelper.execute(DatabaseOperation.INSERT, "RelatorioResumidoExecucaoOrcamentaria.xml");
 	}
 
 	@Test
@@ -141,6 +142,30 @@ public class RREOServiceTest {
 		}
 	}
 
+	@Test
+	@PrepareForTest({LoggerUtil.class})
+	public void testeCarregarDadosNaBase() {
+		Logger logger = mockLogger();
+		OpcoesCargaDadosRREO opcoes = new OpcoesCargaDadosRREO.Builder()
+				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
+				.exercicios(Arrays.asList(2020))
+				.periodos(Arrays.asList(1))
+				.build();
+		iniciarDbUnit();
+
+		when(enteService.obterListaCodigosIbgeNaAPI(any())).thenReturn(Arrays.asList("23"));
+		when(consultaApiUtil.lerEntidades(any(), eq(RelatorioResumidoExecucaoOrcamentaria.class))).thenReturn(Arrays.asList(obterRelatorioResumidoExecucaoOrcamentaria()));
+
+		rreoService.carregarDados(opcoes);
+		
+		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
+		verify(consultaApiUtil, times(RREOService.ANEXOS_RREO.size())).lerEntidades(any(), eq(RelatorioResumidoExecucaoOrcamentaria.class));
+		
+		verify(logger, times(RREOService.ANEXOS_RREO.size())).info("Excluindo dados do banco de dados...");
+		verify(logger, times(2)).info("Linhas excluídas:10");	//10 linhas para o anexo 01 e 10 linhas para o anexo 02	
+		verify(logger, times(RREOService.ANEXOS_RREO.size() - 2)).info("Linhas excluídas:0");		
+	}
+
 	private RelatorioResumidoExecucaoOrcamentaria obterRelatorioResumidoExecucaoOrcamentaria() {
 		RelatorioResumidoExecucaoOrcamentaria rreo = new RelatorioResumidoExecucaoOrcamentaria();
 		rreo.setAnexo("RREO-Anexo 01");
@@ -159,5 +184,4 @@ public class RREOServiceTest {
 		when(LoggerUtil.createLogger(any())).thenReturn(logger);
 		return logger;
 	}
-
 }

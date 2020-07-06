@@ -3,7 +3,6 @@ package br.gov.ce.sefaz.siconfi.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -242,8 +241,14 @@ public class LeitorParametrosPrograma {
 			String opcao = System.getProperty(OPCAO_ANEXOS);
 			if (!Utils.isStringVazia(opcao)) {
 				String[] anexos = opcao.split(",");
-				opcaoAnexosSelecionados = Arrays.asList(anexos);
-				opcaoAnexosSelecionados = opcaoAnexosSelecionados.stream().map(String::trim).collect(Collectors.toList());
+				
+				opcaoAnexosSelecionados = new ArrayList<String>();
+				for (String anexo: anexos) {
+					if(!anexo.trim().isEmpty()) {
+						opcaoAnexosSelecionados.add(anexo.trim());						
+					}
+				}
+
 				if(Utils.isEmptyCollection(opcaoAnexosSelecionados)) {
 					throw new IllegalArgumentException("Opção de Anexos inválida");
 				}
@@ -273,7 +278,7 @@ public class LeitorParametrosPrograma {
 		} catch(Exception e) {
 			logger.error("Erro ao ler parâmetro Tipo Matriz");
 			logger.error(e);
-			throw new IllegalArgumentException("Opção de Anexos inválida");			
+			throw new IllegalArgumentException("Opção de Tipo Matriz inválida");			
 		}
 	}
 
@@ -375,9 +380,9 @@ public class LeitorParametrosPrograma {
 				
 			}
 		} catch(Exception e) {
-			logger.error("Erro ao ler parâmetro Capital");
+			logger.error("Erro ao ler parâmetro População Mínima");
 			logger.error(e);
-			throw new IllegalArgumentException("Opção de Capital inválida");				
+			throw new IllegalArgumentException("Opção de População Mínima inválida");				
 		}
 	}
 	
@@ -388,9 +393,9 @@ public class LeitorParametrosPrograma {
 				opcaoPopulacaoMaximaSelecionada = Long.valueOf(opcao);				
 			}
 		} catch(Exception e) {
-			logger.error("Erro ao ler parâmetro Capital");
+			logger.error("Erro ao ler parâmetro População Máxima");
 			logger.error(e);
-			throw new IllegalArgumentException("Opção de Capital inválida");				
+			throw new IllegalArgumentException("Opção de População Máxima inválida");				
 		}
 	}
 
