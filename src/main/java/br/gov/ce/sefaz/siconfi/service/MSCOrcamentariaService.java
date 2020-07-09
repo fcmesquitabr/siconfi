@@ -1,21 +1,16 @@
 package br.gov.ce.sefaz.siconfi.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
-
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.MatrizSaldoContabeisOrcamentaria;
 import br.gov.ce.sefaz.siconfi.util.Constantes;
-import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
+import br.gov.ce.sefaz.siconfi.util.LoggerUtil;
 
 public class MSCOrcamentariaService extends MSCService<MatrizSaldoContabeisOrcamentaria> {
 
-	private static final Logger logger = LogManager.getLogger(MSCOrcamentariaService.class);
+	private static Logger logger = null;
 
 	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "mes_referencia", "cod_ibge", "poder_orgao", "tipo_matriz",
 			"classe_conta", "natureza_conta", "conta_contabil", "funcao", "subfuncao", "educacao_saude", 
@@ -57,15 +52,10 @@ public class MSCOrcamentariaService extends MSCService<MatrizSaldoContabeisOrcam
 	
 	@Override
 	protected Logger getLogger() {
+		if(logger == null) {
+			logger = LoggerUtil.createLogger(MSCOrcamentariaService.class);
+		}
 		return logger;
-	}
-
-//	@Override
-	protected List<MatrizSaldoContabeisOrcamentaria> lerEntidades(Response response) {
-		SiconfiResponse<MatrizSaldoContabeisOrcamentaria> mscResponse = response
-				.readEntity(new GenericType<SiconfiResponse<MatrizSaldoContabeisOrcamentaria>>() {
-				});
-		return mscResponse != null ? mscResponse.getItems() : new ArrayList<MatrizSaldoContabeisOrcamentaria>();
 	}
 
 	@Override
