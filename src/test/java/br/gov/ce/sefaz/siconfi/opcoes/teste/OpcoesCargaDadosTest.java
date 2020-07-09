@@ -4,6 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -97,7 +98,34 @@ public class OpcoesCargaDadosTest {
 		opcoesCargaDados.setCodigosUF(new ArrayList<String>());
 		assertTrue(opcoesCargaDados.isListaCodigosUfVazia());
 	}
-	
+
+	@Test
+	public void testeGetSetEsfera() {
+		opcoesCargaDados.setEsfera(Esfera.ESTADOS_E_DISTRITO_FEDERAL);
+		assertEquals(Esfera.ESTADOS_E_DISTRITO_FEDERAL, opcoesCargaDados.getEsfera());
+
+		opcoesCargaDados.setEsfera(null);
+		assertNull(opcoesCargaDados.getEsfera());
+	}
+
+	@Test
+	public void testeGetSetCapital() {
+		opcoesCargaDados.setCapital(1);
+		assertEquals(Integer.valueOf(1), opcoesCargaDados.getCapital());
+		
+		opcoesCargaDados.setCapital(null);
+		assertNull(opcoesCargaDados.getCapital());
+	}
+
+	@Test
+	public void testeGetSetConsiderarExtratoEntrega() {
+		opcoesCargaDados.setConsiderarExtratoEntrega(true);
+		assertTrue(opcoesCargaDados.isConsiderarExtratoEntrega());
+
+		opcoesCargaDados.setConsiderarExtratoEntrega(false);
+		assertFalse(opcoesCargaDados.isConsiderarExtratoEntrega());
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void testeBuilder() {

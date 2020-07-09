@@ -163,6 +163,12 @@ public class RGFServiceTest {
 		rgf.setCo_poder(Poder.EXECUTIVO.getCodigo());
 		rgf.setCod_ibge("23");
 		rgf.setExercicio(2019);
+		rgf.setCod_conta("101");
+		rgf.setConta("conta");
+		rgf.setPopulacao(1000000l);
+		rgf.setInstituicao("Governo");
+		rgf.setRotulo("padrão");
+		rgf.setValor(123.4);
 		rgf.setPeriodicidade(Periodicidade.QUADRIMESTRAL.getCodigo());
 		rgf.setPeriodo(1);
 		rgf.setUf("CE");

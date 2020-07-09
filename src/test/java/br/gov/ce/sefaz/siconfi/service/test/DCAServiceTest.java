@@ -188,6 +188,14 @@ public class DCAServiceTest {
 		dca.setAnexo("anexo");
 		dca.setExercicio(2019);
 		dca.setCod_ibge("23");
+		dca.setCod_conta("100");
+		dca.setColuna("coluna");
+		dca.setConta("conta");
+		dca.setInstituicao("Governo");
+		dca.setRotulo("rotulo");
+		dca.setUf("CE");
+		dca.setPopulacao(1000000l);
+		dca.setValor(200.0);
 		return dca;
 	}
 	

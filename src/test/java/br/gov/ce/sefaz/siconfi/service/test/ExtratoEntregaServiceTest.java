@@ -230,6 +230,11 @@ public class ExtratoEntregaServiceTest {
 		extrato.setPeriodicidade(Periodicidade.BIMESTRAL.getCodigo());
 		extrato.setInstituicao("Governo");
 		extrato.setId(1);
+		extrato.setData_status(Calendar.getInstance().getTime());
+		extrato.setEntregavel("RREO");
+		extrato.setForma_envio("P");
+		extrato.setTipo_relatorio("CSV");
+		extrato.setStatus_relatorio("HO");
 		return extrato;
 	}
 }
