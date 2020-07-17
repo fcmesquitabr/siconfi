@@ -24,7 +24,7 @@ public abstract class MSCService<T extends MatrizSaldoContabeis> extends Siconfi
 	protected abstract List<Integer> getClassContas();
 	
 	@Override
-	protected void excluir(OpcoesCargaDadosMSC filtro) {
+	protected int excluir(OpcoesCargaDadosMSC filtro) {
 		getLogger().info("Excluindo dados do banco de dados...");
 		
 		StringBuilder queryBuilder = new StringBuilder("DELETE FROM " + getEntityName() + " msc WHERE msc.exercicio IN (:exercicios) ");
@@ -67,6 +67,7 @@ public abstract class MSCService<T extends MatrizSaldoContabeis> extends Siconfi
 
 		int i = query.executeUpdate();
 		getLogger().info("Linhas excluídas:" + i);
+		return i;
 	}
 
 	protected void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosMSC opcoes, Integer exercicio) {

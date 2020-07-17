@@ -1,14 +1,10 @@
 package br.gov.ce.sefaz.siconfi.service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.Query;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.RelatorioResumidoExecucaoOrcamentaria;
@@ -16,12 +12,12 @@ import br.gov.ce.sefaz.siconfi.enums.TipoDemonstrativoRREO;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosRREO;
 import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
 import br.gov.ce.sefaz.siconfi.util.Constantes;
-import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
+import br.gov.ce.sefaz.siconfi.util.LoggerUtil;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamentaria, OpcoesCargaDadosRREO> {
 
-	private static final Logger logger = LogManager.getLogger(RREOService.class);
+	private static Logger logger = null;
 
 	public static final List<String> ANEXOS_RREO = Arrays.asList("RREO-Anexo 01", "RREO-Anexo 02", "RREO-Anexo 03",
 			"RREO-Anexo 04", "RREO-Anexo 04 - RGPS", "RREO-Anexo 04 - RPPS", "RREO-Anexo 04.0 - RGPS",
@@ -44,8 +40,8 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 	}
 
 	@Override
-	protected void excluir(OpcoesCargaDadosRREO filtro) {
-		logger.info("Excluindo dados do banco de dados...");
+	protected int excluir(OpcoesCargaDadosRREO filtro) {
+		getLogger().info("Excluindo dados do banco de dados...");
 
 		StringBuilder queryBuilder = new StringBuilder(
 				"DELETE FROM RelatorioResumidoExecucaoOrcamentaria rreo WHERE rreo.exercicio IN (:exercicios) ");
@@ -77,7 +73,8 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		}
 
 		int i = query.executeUpdate();
-		logger.info("Linhas excluídas:" + i);
+		getLogger().info("Linhas excluídas:" + i);
+		return i;
 	}
 
 	@Override
@@ -129,14 +126,6 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		return opcoesParcial;
 	}
 
-	@Override
-	protected List<RelatorioResumidoExecucaoOrcamentaria> lerEntidades(Response response) {
-		SiconfiResponse<RelatorioResumidoExecucaoOrcamentaria> rreoResponse = response
-				.readEntity(new GenericType<SiconfiResponse<RelatorioResumidoExecucaoOrcamentaria>>() {
-				});
-		return rreoResponse != null ? rreoResponse.getItems() : new ArrayList<RelatorioResumidoExecucaoOrcamentaria>();
-	}
-
 	private EnteService getEnteService() {
 		if(enteService == null) {
 			enteService = new EnteService();
@@ -166,6 +155,9 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 
 	@Override
 	protected Logger getLogger() {
+		if(logger == null) {
+			logger = LoggerUtil.createLogger(RREOService.class);
+		}
 		return logger;
 	}
 

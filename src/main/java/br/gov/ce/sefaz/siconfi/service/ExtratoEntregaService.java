@@ -7,10 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Query;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.ExtratoEntrega;
@@ -19,12 +16,12 @@ import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDados;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosExtratoEntrega;
 import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
 import br.gov.ce.sefaz.siconfi.util.Constantes;
-import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
+import br.gov.ce.sefaz.siconfi.util.LoggerUtil;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, OpcoesCargaDadosExtratoEntrega>{
 
-	private static final Logger logger = LogManager.getLogger(ExtratoEntregaService.class);
+	private static Logger logger = null;
 
 	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "cod_ibge", "populacao", "instituicao",
 			"entregavel", "periodo", "periodicidade", "status_relatorio", "data_status", "forma_envio", "tipo_relatorio" };
@@ -39,8 +36,9 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 		super();
 	}
 	
-	protected void excluir(OpcoesCargaDadosExtratoEntrega opcoes) {
-		logger.info("Excluindo dados do banco de dados...");
+	@Override
+	protected int excluir(OpcoesCargaDadosExtratoEntrega opcoes) {
+		getLogger().info("Excluindo dados do banco de dados...");
 		
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(opcoes);
 
@@ -56,12 +54,13 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 		}
 
 		int i = query.executeUpdate();
-		logger.info("Linhas excluídas:" + i);
+		getLogger().info("Linhas excluídas:" + i);
+		return i;
 	}
 
 	@SuppressWarnings("unchecked")
 	public List<ExtratoEntrega> consultarNaBase (OpcoesCargaDados opcoes, Integer exercicio, Entregavel entregavel) {
-		logger.info("Consultando extrato entregas no banco de dados...");
+		getLogger().info("Consultando extrato entregas no banco de dados...");
 		
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaBase(opcoes);		
 		
@@ -90,7 +89,7 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 		}
 
 		List<ExtratoEntrega> listaExtratoEntrega = query.getResultList();
-		logger.info("Tamanho da lista de extrato entrega:" + listaExtratoEntrega.size());		
+		getLogger().info("Tamanho da lista de extrato entrega:" + listaExtratoEntrega.size());		
 		return listaExtratoEntrega;
 	}
 
@@ -159,14 +158,6 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 	}
 	
 	@Override
-	protected List<ExtratoEntrega> lerEntidades(Response response){
-		SiconfiResponse<ExtratoEntrega> extratoEntregaResponse = response
-				.readEntity(new GenericType<SiconfiResponse<ExtratoEntrega>>() {
-				});
-		return extratoEntregaResponse != null ? extratoEntregaResponse.getItems() : new ArrayList<ExtratoEntrega>();
-	}
-	
-	@Override
 	protected String getEntityName() {
 		return ExtratoEntrega.class.getSimpleName();
 	}
@@ -187,12 +178,15 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 	}	
 	
 	@Override
-	protected Logger getLogger() {
-		return logger;
-	}
-
-	@Override
 	protected String getApiPath() {
 		return API_PATH_EXTRATO_ENTREGA;
+	}
+	
+	@Override
+	protected Logger getLogger() {
+		if(logger == null) {
+			logger = LoggerUtil.createLogger(ExtratoEntregaService.class);
+		}
+		return logger;
 	}
 }

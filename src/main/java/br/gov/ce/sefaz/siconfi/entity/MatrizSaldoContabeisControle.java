@@ -2,12 +2,17 @@ package br.gov.ce.sefaz.siconfi.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Table(schema = "TAB_SICONFI", name = "TAB_SICONFI.MATRIZ_SAL_CONT_CONTROLE")
+@Table(schema = "TAB_SICONFI", name = "MATRIZ_SAL_CONT_CONTROLE")
 @Entity
 public class MatrizSaldoContabeisControle extends MatrizSaldoContabeis {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "SEQ_MATRIZ_CONTROLE")
 	private Integer id;
 
@@ -27,7 +32,7 @@ public class MatrizSaldoContabeisControle extends MatrizSaldoContabeis {
     private Integer ano_inscricao;
 
 	@Column(name = "VLR_SALDO_CONTROLE")
-	protected Double valor;
+	private Double valor;
 
 	@Override
 	public String toString() {
@@ -41,28 +46,12 @@ public class MatrizSaldoContabeisControle extends MatrizSaldoContabeis {
 				+ ", tipo_valor=" + tipo_valor + ", valor=" + valor + "]";
 	}
 
-	public String getPoder_orgao() {
-		return poder_orgao;
+	public Integer getId() {
+		return id;
 	}
 
-	public void setPoder_orgao(String poder_orgao) {
-		this.poder_orgao = poder_orgao;
-	}
-
-	public Integer getAno_fonte_recursos() {
-		return ano_fonte_recursos;
-	}
-
-	public void setAno_fonte_recursos(Integer ano_fonte_recursos) {
-		this.ano_fonte_recursos = ano_fonte_recursos;
-	}
-
-	public String getFonte_recursos() {
-		return fonte_recursos;
-	}
-
-	public void setFonte_recursos(String fonte_recursos) {
-		this.fonte_recursos = fonte_recursos;
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 	public String getFuncao() {
@@ -103,5 +92,13 @@ public class MatrizSaldoContabeisControle extends MatrizSaldoContabeis {
 
 	public void setAno_inscricao(Integer ano_inscricao) {
 		this.ano_inscricao = ano_inscricao;
+	}
+
+	public Double getValor() {
+		return valor;
+	}
+
+	public void setValor(Double valor) {
+		this.valor = valor;
 	}
 }

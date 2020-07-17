@@ -1,8 +1,10 @@
 package br.gov.ce.sefaz.siconfi.util.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -166,4 +168,20 @@ public class APIQueryParamUtilTest {
 		apiQueryParamUtil.addParamTipoValorMatriz("period_change");
 		assertEquals("period_change", apiQueryParamUtil.getMapQueryParam().get(APIQueryParamUtil.API_QUERY_PARAM_ID_TV));
 	}
+	
+	@Test
+	public void testeEqualsMesmoObjeto() {
+		assertTrue(apiQueryParamUtil.equals(apiQueryParamUtil));
+	}
+
+	@Test
+	public void testeEqualsNull() {
+		assertFalse(apiQueryParamUtil.equals(null));
+	}
+
+	@Test
+	public void testeEqualsOutraClasse() {
+		assertFalse(apiQueryParamUtil.equals(new Integer(0)));
+	}
+
 }

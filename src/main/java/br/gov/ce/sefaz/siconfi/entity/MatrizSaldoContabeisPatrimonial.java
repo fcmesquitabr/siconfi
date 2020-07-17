@@ -2,12 +2,17 @@ package br.gov.ce.sefaz.siconfi.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Table(schema = "TAB_SICONFI", name = "MATRIZ_SAL_CONT_PATRIMON")
 @Entity
 public class MatrizSaldoContabeisPatrimonial extends MatrizSaldoContabeis {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "SEQ_MATRIZ_PATRIMONIAL")
 	private Integer id;
 
@@ -18,8 +23,8 @@ public class MatrizSaldoContabeisPatrimonial extends MatrizSaldoContabeis {
     private Integer divida_consolidada;
 
 	@Column(name = "VLR_SALDO_PATRIMONIAL")
-	protected Double valor;
-
+	private Double valor;
+	
 	@Override
 	public String toString() {
 		return "MatrizSaldoContabeisPatrimonial [id=" + id + ", exercicio=" + exercicio + ", mes_referencia="
@@ -30,35 +35,34 @@ public class MatrizSaldoContabeisPatrimonial extends MatrizSaldoContabeis {
 				+ ", divida_consolidada=" + divida_consolidada + ", data_referencia=" + data_referencia
 				+ ", entrada_msc=" + entrada_msc + ", tipo_valor=" + tipo_valor + ", valor=" + valor + "]";
 	}
-	
-	public String getPoder_orgao() {
-		return poder_orgao;
+
+	public Integer getId() {
+		return id;
 	}
-	public void setPoder_orgao(String poder_orgao) {
-		this.poder_orgao = poder_orgao;
+
+	public void setId(Integer id) {
+		this.id = id;
 	}
+
 	public Integer getFinanceiro_permanente() {
 		return financeiro_permanente;
 	}
 	public void setFinanceiro_permanente(Integer financeiro_permanente) {
 		this.financeiro_permanente = financeiro_permanente;
 	}
-	public Integer getAno_fonte_recursos() {
-		return ano_fonte_recursos;
-	}
-	public void setAno_fonte_recursos(Integer ano_fonte_recursos) {
-		this.ano_fonte_recursos = ano_fonte_recursos;
-	}
-	public String getFonte_recursos() {
-		return fonte_recursos;
-	}
-	public void setFonte_recursos(String fonte_recursos) {
-		this.fonte_recursos = fonte_recursos;
-	}
+
 	public Integer getDivida_consolidada() {
 		return divida_consolidada;
 	}
 	public void setDivida_consolidada(Integer divida_consolidada) {
 		this.divida_consolidada = divida_consolidada;
+	}
+
+	public Double getValor() {
+		return valor;
+	}
+
+	public void setValor(Double valor) {
+		this.valor = valor;
 	}
 }

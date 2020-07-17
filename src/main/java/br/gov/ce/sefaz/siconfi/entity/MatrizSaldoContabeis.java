@@ -3,9 +3,6 @@ package br.gov.ce.sefaz.siconfi.entity;
 import java.util.Date;
 
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
@@ -19,10 +16,11 @@ import br.gov.ce.sefaz.siconfi.util.Utils;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class MatrizSaldoContabeis {
 
-
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	protected Integer id;
+//	@Id
+//	@GeneratedValue(strategy = GenerationType.IDENTITY)
+////	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "msc_sequence")
+////	@SequenceGenerator(name = "msc_sequence", sequenceName = "msc_sequence_id")
+//	protected Integer id;
 
 	@Column(name = "NUM_EXERCICIO")
 	protected Integer exercicio;
@@ -64,24 +62,23 @@ public abstract class MatrizSaldoContabeis {
 	@Column(name = "TIP_VALOR")
 	protected String tipo_valor;
 
-	@Transient
-	protected Double valor;
+	public abstract Double getValor();
 
 	@Transient
 	protected String valorFormatado;
 
 	public String getValorFormatado() {
-		if(valorFormatado == null) valorFormatado = Utils.getValorFormatado(valor);
+		if(valorFormatado == null) valorFormatado = Utils.getValorFormatado(getValor());
 		return valorFormatado;
 	}
 
-	public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
+//	public Integer getId() {
+//		return id;
+//	}
+//
+//	public void setId(Integer id) {
+//		this.id = id;
+//	}
 
 	public Integer getExercicio() {
 		return exercicio;
@@ -185,13 +182,5 @@ public abstract class MatrizSaldoContabeis {
 
 	public void setTipo_valor(String tipo_valor) {
 		this.tipo_valor = tipo_valor;
-	}
-
-	public Double getValor() {
-		return valor;
-	}
-
-	public void setValor(Double valor) {
-		this.valor = valor;
 	}
 }

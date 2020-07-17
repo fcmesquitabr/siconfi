@@ -1,13 +1,10 @@
 package br.gov.ce.sefaz.siconfi.service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.persistence.Query;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,7 +13,6 @@ import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.enums.Esfera;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDados;
 import br.gov.ce.sefaz.siconfi.util.APIQueryParamUtil;
-import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
 
 public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 
@@ -100,14 +96,6 @@ public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 	protected void consultarNaApiEGerarSaidaDados(OpcoesCargaDados opcoes){
 		List<Ente> listaEntes = obterListaEntesNaAPI(opcoes);
 		gerarSaidaDados(opcoes, listaEntes);
-	}
-
-	@Override
-	protected List<Ente> lerEntidades(Response response) {
-		SiconfiResponse<Ente> enteResponse = response
-				.readEntity(new GenericType<SiconfiResponse<Ente>>() {
-				});
-		return enteResponse != null ? enteResponse.getItems() : new ArrayList<Ente>();
 	}
 
 	public List<String> obterListaCodigosIbgeNaBase(OpcoesCargaDados opcoes) {
@@ -208,8 +196,8 @@ public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 	}
 
 	@Override
-	protected void excluir(OpcoesCargaDados opcoes) {
-		excluirTodos();
+	protected int excluir(OpcoesCargaDados opcoes) {
+		return excluirTodos();
 	}
 
 	@Override

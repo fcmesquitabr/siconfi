@@ -1,21 +1,14 @@
 package br.gov.ce.sefaz.siconfi.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
-
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.AnexoRelatorio;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDados;
-import br.gov.ce.sefaz.siconfi.util.SiconfiResponse;
+import br.gov.ce.sefaz.siconfi.util.LoggerUtil;
 
 public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio, OpcoesCargaDados> {
 
-	private static final Logger logger = LogManager.getLogger(AnexoRelatorioService.class);
+	private static Logger logger = null;
 	
 	private static String[] COLUNAS_ARQUIVO_CSV = new String[]{"esfera","demonstrativo","anexo"};
 	
@@ -28,16 +21,8 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio, Opcoes
 	}
 	
 	@Override
-	protected List<AnexoRelatorio> lerEntidades(Response response) {
-		SiconfiResponse<AnexoRelatorio> anexoRelatorioResponse = response
-				.readEntity(new GenericType<SiconfiResponse<AnexoRelatorio>>() {
-				});
-		return anexoRelatorioResponse != null ? anexoRelatorioResponse.getItems() : new ArrayList<AnexoRelatorio>();
-	}
-
-	@Override
-	protected void excluir(OpcoesCargaDados opcoes) {
-		excluirTodos();
+	protected int excluir(OpcoesCargaDados opcoes) {
+		return excluirTodos();
 	}
 
 	@Override
@@ -62,11 +47,14 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio, Opcoes
 
 	@Override
 	protected Logger getLogger() {
+		if(logger == null) {
+			logger = LoggerUtil.createLogger(AnexoRelatorioService.class);
+		}
 		return logger;
 	}
 
 	@Override
 	protected String getApiPath() {
 		return API_PATH_ANEXO_RELATORIO;
-	}	
+	}
 }

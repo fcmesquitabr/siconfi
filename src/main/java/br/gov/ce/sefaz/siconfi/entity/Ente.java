@@ -124,6 +124,32 @@ public class Ente {
 			setNumCnpj(Long.valueOf(cnpj));
 		}
 	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((cod_ibge == null) ? 0 : cod_ibge.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Ente other = (Ente) obj;
+		if (cod_ibge == null) {
+			if (other.cod_ibge != null)
+				return false;
+		} else if (!cod_ibge.equals(other.cod_ibge))
+			return false;
+		return true;
+	}
+
 	@Override
 	public String toString() {
 		return "Ente [cod_ibge=" + cod_ibge + ", ente=" + ente + ", capital=" + capital + ", regiao=" + regiao + ", uf="
