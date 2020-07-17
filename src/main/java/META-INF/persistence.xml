@@ -4,18 +4,20 @@
 	<persistence-unit name="siconfiUnit" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <properties>
-        	<!-- Configurações para o Sybase 
+        	<!-- Configurações para o Sybase -->
             <property name="hibernate.connection.url" value="jdbc:sybase:Tds:172.30.121.84:2639/iqdese"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.SybaseDialect" />
             <property name="hibernate.connection.driver_class" value="com.sybase.jdbc4.jdbc.SybDriver"/>
             <property name="hibernate.connection.username" value="*"/>
             <property name="hibernate.connection.password" value="*"/>
-         	-->
+         	
+         	<!-- 
             <property name="hibernate.connection.url" value="jdbc:postgresql://localhost:5432/siconfi"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.postgresql.Driver"/>
             <property name="hibernate.connection.username" value="postgres"/>
             <property name="hibernate.connection.password" value="postgres"/>
+             -->
             <property name="hibernate.default_catalog" value="tab_siconfi"/> 
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.entity" value="br.gov.ce.sefaz.siconfi.entity" />
