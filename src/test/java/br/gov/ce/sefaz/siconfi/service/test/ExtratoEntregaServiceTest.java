@@ -54,7 +54,7 @@ import br.gov.ce.sefaz.siconfi.util.LoggerUtil;
 public class ExtratoEntregaServiceTest {
 
 	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "cod_ibge", "populacao", "instituicao",
-			"entregavel", "periodo", "periodicidade", "status_relatorio", "data_status", "forma_envio", "tipo_relatorio" };	
+			"entregavel", "periodo", "periodicidade", "status_relatorio", "dataFormatada", "forma_envio", "tipo_relatorio" };	
 	private static final String NOME_PADRAO_ARQUIVO_CSV = "extrato-entrega.csv";
 	
 	private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
@@ -112,6 +112,18 @@ public class ExtratoEntregaServiceTest {
 	}
 
 	@Test
+	public void testeExcluir() {
+		OpcoesCargaDadosExtratoEntrega opcoes = new OpcoesCargaDadosExtratoEntrega.Builder()
+				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
+				.codigosIbge(Arrays.asList("22","23"))
+				.exercicios(Arrays.asList(2019))
+				.build();
+		iniciarDbUnit();
+		when(enteService.obterListaCodigosIbgeNaAPI(opcoes)).thenReturn(Arrays.asList("22","23"));
+		assertEquals(33, extratoEntregaService.excluir(opcoes));
+	}
+
+	@Test
 	@PrepareForTest({LoggerUtil.class})
 	public void testeCarregarDadosBanco() {
 		OpcoesCargaDadosExtratoEntrega opcoes = new OpcoesCargaDadosExtratoEntrega.Builder()
@@ -128,7 +140,7 @@ public class ExtratoEntregaServiceTest {
 		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
 		verify(consultaApiUtil, times(2)).lerEntidades(any(), eq(ExtratoEntrega.class));
 		verify(logger,times(2)).info("Excluindo dados do banco de dados...");
-		verify(logger,times(2)).info("Linhas excluídas:0");
+		verify(logger,times(2)).info("Fazendo commit...");
 	}
 
 	@Test
@@ -173,10 +185,13 @@ public class ExtratoEntregaServiceTest {
 
 	@Test
 	public void testeConsultarNaBaseSemEsferaPeriodoDataMinima() {
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(2019, 1, 1);
 		OpcoesCargaDadosExtratoEntrega opcoes = new OpcoesCargaDadosExtratoEntrega.Builder()
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.CONSOLE)
 				.exercicios(Arrays.asList(2019))
 				.codigosIbge(Arrays.asList("23"))
+				.dataMinimaEntrega(calendar.getTime())
 				.build();
 		iniciarDbUnit();
 		

@@ -203,7 +203,8 @@ public class AnexoRelatorioServiceTest {
 		List<AnexoRelatorio> listaAnexoRelatorio = Arrays.asList(obterAnexoRelatorio());
 		when(consultaApiUtil.lerEntidades(any(), eq(AnexoRelatorio.class))).thenReturn(listaAnexoRelatorio);		
 		anexoRelatorioService.carregarDados(opcoes);
-		verify(logger).info("Persistindo os dados obtidos (" + listaAnexoRelatorio.size() + " registro(s))...");
+		verify(logger).info("Excluindo dados do banco de dados...");
+		verify(logger).info("Fazendo commit...");
 	}
 
 	@Test

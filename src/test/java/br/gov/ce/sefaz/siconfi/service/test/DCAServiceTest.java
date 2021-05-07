@@ -1,5 +1,6 @@
 package br.gov.ce.sefaz.siconfi.service.test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -121,11 +122,11 @@ public class DCAServiceTest {
 
 		dcaService.carregarDados(opcoes);
 		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
-		verify(consultaApiUtil, times(DCAService.ANEXOS_DCA.size()*2)).lerEntidades(any(), eq(DeclaracaoContasAnuais.class));
+		verify(consultaApiUtil, times(2)).lerEntidades(any(), eq(DeclaracaoContasAnuais.class));
 		
 		try {
 			verify(csvUtil).writeHeader(COLUNAS_ARQUIVO_CSV, "relatorio.csv");
-			verify(csvUtil,times(DCAService.ANEXOS_DCA.size()*2)).writeToFile(Arrays.asList(dca), COLUNAS_ARQUIVO_CSV, "relatorio.csv");
+			verify(csvUtil,times(2)).writeToFile(Arrays.asList(dca), COLUNAS_ARQUIVO_CSV, "relatorio.csv");
 		} catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
 			e.printStackTrace();
 		}
@@ -149,6 +150,16 @@ public class DCAServiceTest {
 	}
 
 	@Test
+	public void testeExcluir() {
+		OpcoesCargaDadosDCA opcoes = new OpcoesCargaDadosDCA.Builder()
+				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
+				.exercicios(Arrays.asList(2019))
+				.build();
+		iniciarDbUnit();
+		assertEquals(50, dcaService.excluir(opcoes));		
+	}
+
+	@Test
 	@PrepareForTest({LoggerUtil.class})
 	public void testeCarregarDadosNaBase() {
 		Logger logger = mockLogger();
@@ -163,11 +174,11 @@ public class DCAServiceTest {
 
 		dcaService.carregarDados(opcoes);
 		
-		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
-		verify(consultaApiUtil, times(DCAService.ANEXOS_DCA.size())).lerEntidades(any(), eq(DeclaracaoContasAnuais.class));
-		
-		verify(logger, times(DCAService.ANEXOS_DCA.size())).info("Excluindo dados do banco de dados...");
-		verify(logger).info("Linhas excluídas:50");		
+		verify(enteService, times(2)).obterListaCodigosIbgeNaAPI(opcoes);
+		verify(consultaApiUtil).lerEntidades(any(), eq(DeclaracaoContasAnuais.class));
+	
+		verify(logger).info("Excluindo dados do banco de dados...");		
+		verify(logger).info("Fazendo commit...");
 	}
 
 	public void iniciarDbUnit() {

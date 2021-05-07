@@ -1,5 +1,6 @@
 package br.gov.ce.sefaz.siconfi.service.test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -150,6 +151,20 @@ public class MSCControleTest {
 	}
 
 	@Test
+	public void testeExcluir() {
+		OpcoesCargaDadosMSC opcoes = new OpcoesCargaDadosMSC.Builder()
+				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
+				.exercicios(Arrays.asList(2020))
+				.periodos(Arrays.asList(1))
+				.codigosIbge(Arrays.asList("23"))
+				.build();
+		iniciarDbUnit();
+		when(enteService.obterListaCodigosIbgeNaAPI(any())).thenReturn(Arrays.asList("23"));
+		
+		assertEquals(20, mscService.excluir(opcoes)); //10 linhas para o period_change e 10 linhas para o ending_balance
+	}
+
+	@Test
 	@PrepareForTest({LoggerUtil.class})
 	public void testeCarregarDadosNaBase() {
 		Logger logger = mockLogger();
@@ -169,8 +184,7 @@ public class MSCControleTest {
 		verify(consultaApiUtil, times(Constantes.CLASSES_CONTAS_CONTROLE.size() * TipoValorMatrizSaldoContabeis.values().length)).lerEntidades(any(), eq(MatrizSaldoContabeisControle.class));
 		
 		verify(logger, times(Constantes.CLASSES_CONTAS_CONTROLE.size() * TipoValorMatrizSaldoContabeis.values().length)).info("Excluindo dados do banco de dados...");
-		verify(logger, times(2)).info("Linhas excluídas:10");	//10 linhas para o period_change e 10 linhas para o ending_balance	
-		verify(logger, times(Constantes.CLASSES_CONTAS_CONTROLE.size() * TipoValorMatrizSaldoContabeis.values().length - 2)).info("Linhas excluídas:0");		
+		verify(logger, times(Constantes.CLASSES_CONTAS_CONTROLE.size() * TipoValorMatrizSaldoContabeis.values().length)).info("Fazendo commit...");
 	}
 
 	private MatrizSaldoContabeisControle obterMSCControle() {

@@ -1,5 +1,6 @@
 package br.gov.ce.sefaz.siconfi.service.test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -150,6 +151,19 @@ public class MSCOrcamentariaServiceTest {
 	}
 
 	@Test
+	public void testeExcluir() {
+		OpcoesCargaDadosMSC opcoes = new OpcoesCargaDadosMSC.Builder()
+				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
+				.exercicios(Arrays.asList(2020))
+				.periodos(Arrays.asList(1))
+				.codigosIbge(Arrays.asList("23"))
+				.build();
+		iniciarDbUnit();
+		when(enteService.obterListaCodigosIbgeNaAPI(any())).thenReturn(Arrays.asList("23"));
+		assertEquals(20, mscService.excluir(opcoes)); //10 linhas para o period_change e 10 linhas para o ending_balance
+	}
+
+	@Test
 	@PrepareForTest({LoggerUtil.class})
 	public void testeCarregarDadosNaBase() {
 		Logger logger = mockLogger();
@@ -169,11 +183,7 @@ public class MSCOrcamentariaServiceTest {
 		verify(consultaApiUtil, times(Constantes.CLASSES_CONTAS_ORCAMENTARIAS.size() * TipoValorMatrizSaldoContabeis.values().length)).lerEntidades(any(), eq(MatrizSaldoContabeisOrcamentaria.class));
 		
 		verify(logger, times(Constantes.CLASSES_CONTAS_ORCAMENTARIAS.size() * TipoValorMatrizSaldoContabeis.values().length)).info("Excluindo dados do banco de dados...");
-		verify(logger, times(1)).info("Linhas excluídas:2");	//2 linhas para o period_change e classe 5	
-		verify(logger, times(1)).info("Linhas excluídas:10");	//10 linhas para o ending_balance e classe 5	
-		verify(logger, times(1)).info("Linhas excluídas:8");	//10 linhas para o period_change e classe  6	
-
-		verify(logger, times(3)).info("Linhas excluídas:0"); // Não há linhas para beginning_balance nas classes 5 e 6, e para ending_balance e classe 6		
+		verify(logger, times(Constantes.CLASSES_CONTAS_ORCAMENTARIAS.size() * TipoValorMatrizSaldoContabeis.values().length)).info("Fazendo commit...");
 	}
 
 	private MatrizSaldoContabeisOrcamentaria obterMSCOrcamentaria() {

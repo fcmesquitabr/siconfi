@@ -1,5 +1,6 @@
 package br.gov.ce.sefaz.siconfi.service.test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -12,6 +13,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,6 +32,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
+import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.entity.RelatorioResumidoExecucaoOrcamentaria;
 import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.enums.Periodicidade;
@@ -96,50 +99,75 @@ public class RREOServiceTest {
 		List<String> listaAnexos = Arrays.asList("RREO-Anexo 01", "RREO-Anexo 02", "RREO-Anexo 03");
 		OpcoesCargaDadosRREO opcoes = new OpcoesCargaDadosRREO.Builder()
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.ARQUIVO).listaAnexos(listaAnexos).build();
+		
 		RelatorioResumidoExecucaoOrcamentaria rreo = obterRelatorioResumidoExecucaoOrcamentaria();
-		List<String> listaCodigoIbge = Arrays.asList("21", "22", "23");
-		when(enteService.obterListaCodigosIbgeNaAPI(opcoes)).thenReturn(listaCodigoIbge);
+		List<Ente> listaEntes = obterListaEntes();
+		
+		when(enteService.obterListaEntesNaAPI(opcoes)).thenReturn(listaEntes);
 		when(consultaApiUtil.lerEntidades(any(), eq(RelatorioResumidoExecucaoOrcamentaria.class)))
 				.thenReturn(Arrays.asList(rreo));
 
 		rreoService.carregarDados(opcoes);
-		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
-		verify(consultaApiUtil, times(listaAnexos.size() * listaCodigoIbge.size() * Constantes.BIMESTRES.size()))
+		
+		verify(enteService).obterListaEntesNaAPI(opcoes);
+		verify(consultaApiUtil, times(listaAnexos.size() * listaEntes.size() * Constantes.BIMESTRES.size()))
 				.lerEntidades(any(), eq(RelatorioResumidoExecucaoOrcamentaria.class));
 
 		try {
 			verify(csvUtil).writeHeader(COLUNAS_ARQUIVO_CSV, NOME_PADRAO_ARQUIVO_CSV);
-			verify(csvUtil, times(listaAnexos.size() * listaCodigoIbge.size() * Constantes.BIMESTRES.size()))
+			verify(csvUtil, times(listaAnexos.size() * listaEntes.size() * Constantes.BIMESTRES.size()))
 					.writeToFile(Arrays.asList(rreo), COLUNAS_ARQUIVO_CSV, NOME_PADRAO_ARQUIVO_CSV);
 		} catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
 			e.printStackTrace();
 		}
 	}
 
+	private List<Ente> obterListaEntes(){
+		List<Ente> listaEntes =  new ArrayList<>();
+		listaEntes.add(new Ente("21","E"));
+		listaEntes.add(new Ente("22","E"));
+		listaEntes.add(new Ente("23","E"));		
+		return listaEntes;
+	}
+
 	@Test
 	public void testeCarregarDadosArquivoComNomeSemListaAnexos() {
 		OpcoesCargaDadosRREO opcoes = new OpcoesCargaDadosRREO.Builder()
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.ARQUIVO).nomeArquivo("relatorio.csv").build();
+		
 		RelatorioResumidoExecucaoOrcamentaria rreo = obterRelatorioResumidoExecucaoOrcamentaria();
-		List<String> listaCodigoIbge = Arrays.asList("22", "23");
-		when(enteService.obterListaCodigosIbgeNaAPI(opcoes)).thenReturn(listaCodigoIbge);
+		List<Ente> listaEntes = obterListaEntes();
+		
+		when(enteService.obterListaEntesNaAPI(opcoes)).thenReturn(listaEntes);
 		when(consultaApiUtil.lerEntidades(any(), eq(RelatorioResumidoExecucaoOrcamentaria.class)))
 				.thenReturn(Arrays.asList(rreo));
 
 		rreoService.carregarDados(opcoes);
-		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
+		verify(enteService).obterListaEntesNaAPI(opcoes);
 		verify(consultaApiUtil,
-				times(RREOService.ANEXOS_RREO.size() * listaCodigoIbge.size() * Constantes.BIMESTRES.size()))
+				times(listaEntes.size() * Constantes.BIMESTRES.size()))
 						.lerEntidades(any(), eq(RelatorioResumidoExecucaoOrcamentaria.class));
 
 		try {
 			verify(csvUtil).writeHeader(COLUNAS_ARQUIVO_CSV, "relatorio.csv");
 			verify(csvUtil,
-					times(RREOService.ANEXOS_RREO.size() * listaCodigoIbge.size() * Constantes.BIMESTRES.size()))
+					times(listaEntes.size() * Constantes.BIMESTRES.size()))
 							.writeToFile(Arrays.asList(rreo), COLUNAS_ARQUIVO_CSV, "relatorio.csv");
 		} catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Test
+	public void testeExcluir() {
+		OpcoesCargaDadosRREO opcoes = new OpcoesCargaDadosRREO.Builder()
+				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
+				.exercicios(Arrays.asList(2020))
+				.periodos(Arrays.asList(1))
+				.codigosIbge(Arrays.asList("23"))
+				.build();
+		iniciarDbUnit();
+		assertEquals(40, rreoService.excluir(opcoes)); //10 linhas para o anexo 01 e 10 linhas para o anexo 02
 	}
 
 	@Test
@@ -153,17 +181,16 @@ public class RREOServiceTest {
 				.build();
 		iniciarDbUnit();
 
-		when(enteService.obterListaCodigosIbgeNaAPI(any())).thenReturn(Arrays.asList("23"));
+		when(enteService.obterListaEntesNaAPI(any())).thenReturn(Arrays.asList(new Ente("23","E")));
 		when(consultaApiUtil.lerEntidades(any(), eq(RelatorioResumidoExecucaoOrcamentaria.class))).thenReturn(Arrays.asList(obterRelatorioResumidoExecucaoOrcamentaria()));
 
 		rreoService.carregarDados(opcoes);
 		
+		verify(enteService).obterListaEntesNaAPI(opcoes);
 		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
-		verify(consultaApiUtil, times(RREOService.ANEXOS_RREO.size())).lerEntidades(any(), eq(RelatorioResumidoExecucaoOrcamentaria.class));
+		verify(consultaApiUtil).lerEntidades(any(), eq(RelatorioResumidoExecucaoOrcamentaria.class));
 		
-		verify(logger, times(RREOService.ANEXOS_RREO.size())).info("Excluindo dados do banco de dados...");
-		verify(logger, times(2)).info("Linhas excluídas:10");	//10 linhas para o anexo 01 e 10 linhas para o anexo 02	
-		verify(logger, times(RREOService.ANEXOS_RREO.size() - 2)).info("Linhas excluídas:0");		
+		verify(logger).info("Excluindo dados do banco de dados...");
 	}
 
 	private RelatorioResumidoExecucaoOrcamentaria obterRelatorioResumidoExecucaoOrcamentaria() {

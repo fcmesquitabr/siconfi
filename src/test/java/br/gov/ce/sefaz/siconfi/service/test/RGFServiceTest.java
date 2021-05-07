@@ -1,5 +1,6 @@
 package br.gov.ce.sefaz.siconfi.service.test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -12,6 +13,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,6 +32,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
+import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.entity.RelatorioGestaoFiscal;
 import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.enums.Periodicidade;
@@ -92,22 +95,30 @@ public class RGFServiceTest {
 				.listaAnexos(listaAnexos)
 				.build();
 		RelatorioGestaoFiscal rgf = obterRelatorioGestaoFiscal();
-		List<String> listaCodigoIbge = Arrays.asList("21","22","23");
-		when(enteService.obterListaCodigosIbgeNaAPI(opcoes)).thenReturn(listaCodigoIbge);
+		List<Ente> listaEntes = obterListaEntes();
+		when(enteService.obterListaEntesNaAPI(opcoes)).thenReturn(listaEntes);
 		when(consultaApiUtil.lerEntidades(any(), eq(RelatorioGestaoFiscal.class))).thenReturn(Arrays.asList(rgf));
 
 		rgfService.carregarDados(opcoes);
-		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
-		verify(consultaApiUtil, times(listaAnexos.size()*listaCodigoIbge.size()*Poder.values().length)).lerEntidades(any(), eq(RelatorioGestaoFiscal.class));
+		verify(enteService).obterListaEntesNaAPI(opcoes);
+		verify(consultaApiUtil, times(listaAnexos.size()*listaEntes.size()*Poder.values().length)).lerEntidades(any(), eq(RelatorioGestaoFiscal.class));
 		
 		try {
 			verify(csvUtil).writeHeader(COLUNAS_ARQUIVO_CSV, NOME_PADRAO_ARQUIVO_CSV);
-			verify(csvUtil,times(listaAnexos.size()*listaCodigoIbge.size()*Poder.values().length)).writeToFile(Arrays.asList(rgf), COLUNAS_ARQUIVO_CSV, NOME_PADRAO_ARQUIVO_CSV);
+			verify(csvUtil,times(listaAnexos.size()*listaEntes.size()*Poder.values().length)).writeToFile(Arrays.asList(rgf), COLUNAS_ARQUIVO_CSV, NOME_PADRAO_ARQUIVO_CSV);
 		} catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
 			e.printStackTrace();
 		}
 	}
 
+	private List<Ente> obterListaEntes(){
+		List<Ente> listaEntes =  new ArrayList<>();
+		listaEntes.add(new Ente("21","E"));
+		listaEntes.add(new Ente("22","E"));
+		listaEntes.add(new Ente("23","E"));		
+		return listaEntes;
+	}
+	
 	@Test
 	public void testeCarregarDadosArquivoComNomePoderSemListaAnexos() {
 		List<Poder> listaPoderes = Arrays.asList(Poder.EXECUTIVO, Poder.JUDICIARIO);
@@ -117,20 +128,31 @@ public class RGFServiceTest {
 				.nomeArquivo("relatorio.csv")
 				.build();
 		RelatorioGestaoFiscal rgf = obterRelatorioGestaoFiscal();
-		List<String> listaCodigoIbge = Arrays.asList("22","23");
-		when(enteService.obterListaCodigosIbgeNaAPI(opcoes)).thenReturn(listaCodigoIbge);
+		List<Ente> listaEntes = obterListaEntes();
+		when(enteService.obterListaEntesNaAPI(opcoes)).thenReturn(listaEntes);
 		when(consultaApiUtil.lerEntidades(any(), eq(RelatorioGestaoFiscal.class))).thenReturn(Arrays.asList(rgf));
 
 		rgfService.carregarDados(opcoes);
-		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
-		verify(consultaApiUtil, times(RGFService.ANEXOS_RGF.size()*listaCodigoIbge.size()*listaPoderes.size())).lerEntidades(any(), eq(RelatorioGestaoFiscal.class));
+		verify(enteService).obterListaEntesNaAPI(opcoes);
+		verify(consultaApiUtil, times(listaEntes.size()*listaPoderes.size())).lerEntidades(any(), eq(RelatorioGestaoFiscal.class));
 		
 		try {
 			verify(csvUtil).writeHeader(COLUNAS_ARQUIVO_CSV, "relatorio.csv");
-			verify(csvUtil,times(RGFService.ANEXOS_RGF.size()*listaCodigoIbge.size()*listaPoderes.size())).writeToFile(Arrays.asList(rgf), COLUNAS_ARQUIVO_CSV, "relatorio.csv");
+			verify(csvUtil,times(listaEntes.size()*listaPoderes.size())).writeToFile(Arrays.asList(rgf), COLUNAS_ARQUIVO_CSV, "relatorio.csv");
 		} catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Test
+	public void testeExcluir() {
+		OpcoesCargaDadosRGF opcoes = new OpcoesCargaDadosRGF.Builder()
+				.opcaoSalvamentoDados(OpcaoSalvamentoDados.BANCO)
+				.exercicios(Arrays.asList(2020))
+				.periodos(Arrays.asList(1))
+				.build();
+		iniciarDbUnit();
+		assertEquals(40, rgfService.excluir(opcoes));
 	}
 
 	@Test
@@ -144,17 +166,16 @@ public class RGFServiceTest {
 				.build();
 		iniciarDbUnit();
 
-		when(enteService.obterListaCodigosIbgeNaAPI(any())).thenReturn(Arrays.asList("23"));
+		when(enteService.obterListaEntesNaAPI(any())).thenReturn(Arrays.asList(new Ente("23","E")));
 		when(consultaApiUtil.lerEntidades(any(), eq(RelatorioGestaoFiscal.class))).thenReturn(Arrays.asList(obterRelatorioGestaoFiscal()));
 
 		rgfService.carregarDados(opcoes);
 		
-		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
-		verify(consultaApiUtil, times(RGFService.ANEXOS_RGF.size() * Poder.values().length)).lerEntidades(any(), eq(RelatorioGestaoFiscal.class));
+		verify(enteService).obterListaEntesNaAPI(opcoes);
+		verify(enteService, times(Poder.values().length)).obterListaCodigosIbgeNaAPI(opcoes); //Método chamado 1 vez por Poder para cada exclusão
+		verify(consultaApiUtil, times(Poder.values().length)).lerEntidades(any(), eq(RelatorioGestaoFiscal.class));
 		
-		verify(logger, times(RGFService.ANEXOS_RGF.size() * Poder.values().length)).info("Excluindo dados do banco de dados...");
-		verify(logger, times(2)).info("Linhas excluídas:10");	//10 linhas para o anexo 01 e 10 linhas para o anexo 02
-		verify(logger, times( RGFService.ANEXOS_RGF.size() * Poder.values().length - 2 )).info("Linhas excluídas:0");
+		verify(logger, times(Poder.values().length)).info("Excluindo dados do banco de dados...");
 	}
 
 	private RelatorioGestaoFiscal obterRelatorioGestaoFiscal() {
