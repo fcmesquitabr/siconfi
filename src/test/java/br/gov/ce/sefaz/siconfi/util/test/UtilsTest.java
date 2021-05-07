@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
+import java.util.Locale;
 
 import org.junit.Test;
 
@@ -22,26 +23,34 @@ public class UtilsTest {
 	
 	@Test
 	public void testeValorFormatadoNulo() {
-		String valorFormatado = Utils.getValorFormatado(null);
+		String valorFormatado = Utils.getValorFormatado(null, Locale.US);
+		assertEquals("0.00", valorFormatado);
+		valorFormatado = Utils.getValorFormatado(null);
 		assertEquals("0,00", valorFormatado);
 	}
 
 	@Test
 	public void testeValorFormatadoZero() {
-		String valorFormatado = Utils.getValorFormatado(0.0);
+		String valorFormatado = Utils.getValorFormatado(0.0, Locale.US);
+		assertEquals("0.00", valorFormatado);
+		valorFormatado = Utils.getValorFormatado(0.0);
 		assertEquals("0,00", valorFormatado);
 	}
 
 	@Test
 	public void testeValorFormatadoValorMenorQueMil() {
-		String valorFormatado = Utils.getValorFormatado(123.0);
-		assertEquals("123,00", valorFormatado);		
+		String valorFormatado = Utils.getValorFormatado(123.0, Locale.US);
+		assertEquals("123.00", valorFormatado);		
+		valorFormatado = Utils.getValorFormatado(123.0);
+		assertEquals("123,00", valorFormatado);
 	}
 
 	@Test
 	public void testeValorFormatadoValorMaiorQueMil() {
-		String valorFormatado = Utils.getValorFormatado(123456789.0);
-		assertEquals("123.456.789,00", valorFormatado);
+		String valorFormatado = Utils.getValorFormatado(123456789.0, Locale.US);
+		assertEquals("123456789.00", valorFormatado);
+		valorFormatado = Utils.getValorFormatado(123456789.0);
+		assertEquals("123456789,00", valorFormatado);
 	}
 
 	@Test
