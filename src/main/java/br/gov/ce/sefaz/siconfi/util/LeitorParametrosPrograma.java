@@ -13,9 +13,6 @@ import br.gov.ce.sefaz.siconfi.enums.Poder;
 import br.gov.ce.sefaz.siconfi.enums.Relatorio;
 import br.gov.ce.sefaz.siconfi.enums.TipoMatrizSaldoContabeis;
 import br.gov.ce.sefaz.siconfi.enums.TipoValorMatrizSaldoContabeis;
-import br.gov.ce.sefaz.siconfi.service.DCAService;
-import br.gov.ce.sefaz.siconfi.service.RGFService;
-import br.gov.ce.sefaz.siconfi.service.RREOService;
 
 public class LeitorParametrosPrograma {
 
@@ -84,7 +81,7 @@ public class LeitorParametrosPrograma {
 		}
 		try {
 			relatorioSelecionado = Relatorio.valueOf(opcaoRelatorio.trim());
-			logger.info("Opção de Relatório Selecionado:" + relatorioSelecionado);
+			logger.info("Opção de Relatório Selecionado: {}", relatorioSelecionado);
 		} catch(IllegalArgumentException iae) {
 			throw new IllegalArgumentException("Opção de Relatório inválida");
 		}
@@ -97,10 +94,10 @@ public class LeitorParametrosPrograma {
 			String opcaoSalvamento = System.getProperty(OPCAO_SALVAMENTO);
 
 			opcaoSalvamentoSelecionada = (Utils.isStringVazia(opcaoSalvamento))
-					? opcaoSalvamentoSelecionada = OpcaoSalvamentoDados.ARQUIVO
+					? OpcaoSalvamentoDados.ARQUIVO
 					: OpcaoSalvamentoDados.valueOf(opcaoSalvamento.trim());
 
-			logger.info("Opção de saída de dados selecionada:" + opcaoSalvamentoSelecionada);
+			logger.info("Opção de saída de dados selecionada: {}", opcaoSalvamentoSelecionada);
 		} catch(IllegalArgumentException iae) {
 			throw new IllegalArgumentException("Opção de Saída de dados inválida");
 		}	
@@ -109,7 +106,7 @@ public class LeitorParametrosPrograma {
 
 	private static void lerArgumentoOpcaoCaminhoArquivo() {
 		opcaoCaminhoArquivoSelecionado = System.getProperty(OPCAO_CAMINHO_ARQUIVO);
-		logger.info("Opção de caminho de arquivo selecionado:" + opcaoCaminhoArquivoSelecionado);
+		logger.info("Opção de caminho de arquivo selecionado: {}", opcaoCaminhoArquivoSelecionado);
 	}
 
 	private static void lerArgumentoOpcaoEsfera() {
@@ -124,7 +121,7 @@ public class LeitorParametrosPrograma {
 					throw new IllegalArgumentException("Opção de Esfera inválida");
 				}
 			}
-			logger.info("Opção de Esfera selecionada:" + opcaoEsfera);	
+			logger.info("Opção de Esfera selecionada: {}", opcaoEsfera);	
 			
 		} catch (Exception e) {
 			logger.error("Erro ao ler parâmetro Esfera");
@@ -140,7 +137,7 @@ public class LeitorParametrosPrograma {
 				opcaoPoderesSelecionados = Arrays.asList(Poder.values());
 			} else {
 				String[] poderes = opcao.split(",");
-				opcaoPoderesSelecionados = new ArrayList<Poder>();
+				opcaoPoderesSelecionados = new ArrayList<>();
 				for (String codigoPoder: poderes) {
 					Poder poder = Poder.getPoder(codigoPoder.trim());
 					if(poder!=null) {
@@ -151,7 +148,7 @@ public class LeitorParametrosPrograma {
 					throw new IllegalArgumentException("Opção de Poder inválida");
 				}
 			}
-			logger.info("Opções de Poderes selecionados:" + opcao);			
+			logger.info("Opções de Poderes selecionados: {}", opcao);			
 		} catch (Exception e) {
 			logger.error("Erro ao ler parâmetro Poderes");
 			logger.error(e);
@@ -166,16 +163,9 @@ public class LeitorParametrosPrograma {
 			if (Utils.isStringVazia(opcao)) {
 				opcaoExerciciosSelecionados = Constantes.EXERCICIOS_DISPONIVEIS;
 			} else {
-				String[] exercicios = opcao.split(",");
-				opcaoExerciciosSelecionados = new ArrayList<Integer>();
-				for (String exercicio: exercicios) {
-					opcaoExerciciosSelecionados.add(Integer.valueOf(exercicio.trim()));
-				}
-				if (opcaoExerciciosSelecionados == null || opcaoExerciciosSelecionados.isEmpty()) {
-					throw new IllegalArgumentException("Opção de Exercício inválida");
-				}			
+				opcaoExerciciosSelecionados = getListaOpcoesInteger(opcao.split(","), "Opção de Exercício inválida");
 			}
-			logger.info("Opções de Exercícios selecionados:" + opcao);			
+			logger.info("Opções de Exercícios selecionados: {}", opcao);			
 		} catch (Exception e) {
 			logger.error("Erro ao ler parâmetro exercício");
 			logger.error(e);
@@ -186,24 +176,16 @@ public class LeitorParametrosPrograma {
 	private static void lerArgumentoOpcaoPeriodos() {
 		
 		try {
+			
 			String opcao = System.getProperty(OPCAO_PERIODOS);
 			
 			if (Utils.isStringVazia(opcao)) {
-				opcaoPeriodosSelecionados = (relatorioSelecionado.equals(Relatorio.rreo)) ? Constantes.BIMESTRES
-						: (relatorioSelecionado.equals(Relatorio.rgf)) ? Constantes.QUADRIMESTRES
-								: (relatorioSelecionado.equals(Relatorio.msc_patrimonial)) ? Constantes.MESES : null;
+				opcaoPeriodosSelecionados = getOpcoesPeriodoPadrao();
 			} else {
-				String[] periodos = opcao.split(",");
-				opcaoPeriodosSelecionados = new ArrayList<Integer>();
-				for (String periodo: periodos) {
-					opcaoPeriodosSelecionados.add(Integer.valueOf(periodo.trim()));
-				}
-				if (Utils.isEmptyCollection(opcaoPeriodosSelecionados)) {
-					throw new IllegalArgumentException("Opção de Períodos inválida");
-				}			
+				opcaoPeriodosSelecionados = getListaOpcoesInteger(opcao.split(","), "Opção de Períodos inválida");
 			}
 			
-			logger.info("Opção de Períodos selecionados:" + opcao);			
+			logger.info("Opção de Períodos selecionados: {}", opcao);			
 		} catch (Exception e) {
 			logger.error("Erro ao ler parâmetro período");
 			logger.error(e);
@@ -211,23 +193,37 @@ public class LeitorParametrosPrograma {
 		}
 	}
 
+	private static List<Integer> getOpcoesPeriodoPadrao(){
+		List<Integer> opcoesPeriodoPadraoMSC = relatorioSelecionado.equals(Relatorio.msc_patrimonial)
+				? Constantes.MESES
+				: null;
+		List<Integer> opcoesPeriodoPadraoRGF = relatorioSelecionado.equals(Relatorio.rgf)
+				? Constantes.QUADRIMESTRES
+				: opcoesPeriodoPadraoMSC;
+		return relatorioSelecionado.equals(Relatorio.rreo) ? Constantes.BIMESTRES
+				: opcoesPeriodoPadraoRGF;
+	}
+	
+	private static List<Integer> getListaOpcoesInteger(String[] opcoes, String mensagemErro){
+		List<Integer> listaOpcoes = new ArrayList<>();
+		for (String opcao: opcoes) {
+			listaOpcoes.add(Integer.valueOf(opcao.trim()));
+		}
+		if (Utils.isEmptyCollection(listaOpcoes)) {
+			throw new IllegalArgumentException(mensagemErro);
+		}			
+		return listaOpcoes;		
+	}
+	
 	private static void lerArgumentoOpcaoCodigosIBGE() {
 		try {
 			String opcao = System.getProperty(OPCAO_CODIGOS_IBGE);
 
 			if (!Utils.isStringVazia(opcao)) {
-				String[] codigosIbge = opcao.split(",");
-				opcaoCodigosIbgeSelecionados = new ArrayList<String>();
-				for (String codigo: codigosIbge) {
-					if(!codigo.trim().isEmpty()) {
-						opcaoCodigosIbgeSelecionados.add(codigo.trim());						
-					}
-				}
-				if (Utils.isEmptyCollection(opcaoCodigosIbgeSelecionados)) {
-					throw new IllegalArgumentException("Opção de Códigos IBGE inválida");
-				}			
+				opcaoCodigosIbgeSelecionados = getListaOpcoesString(opcao, "Opção de Códigos IBGE inválida");
 			} 
-			logger.info("Opção de Códigos IBGE selecionados:" + opcao);			
+			
+			logger.info("Opção de Códigos IBGE selecionados: {}", opcao);			
 		} catch (Exception e) {
 			logger.error("Erro ao ler parâmetro Códigos IBGE");
 			logger.error(e);
@@ -235,29 +231,28 @@ public class LeitorParametrosPrograma {
 		}
 	}
 
+	private static List<String> getListaOpcoesString(String opcoes, String mensagemErro){
+		String[] opcoesArray = opcoes.split(",");
+		List<String> listaOpcoes = new ArrayList<>();
+		for (String opcao: opcoesArray) {
+			if(!opcao.trim().isEmpty()) {
+				listaOpcoes.add(opcao.trim());
+			}
+		}
+		if (Utils.isEmptyCollection(listaOpcoes)) {
+			throw new IllegalArgumentException(mensagemErro);
+		}			
+		return listaOpcoes;		
+	}
+
 	private static void lerArgumentoOpcaoAnexos() {
 
 		try {
 			String opcao = System.getProperty(OPCAO_ANEXOS);
-			if (!Utils.isStringVazia(opcao)) {
-				String[] anexos = opcao.split(",");
-				
-				opcaoAnexosSelecionados = new ArrayList<String>();
-				for (String anexo: anexos) {
-					if(!anexo.trim().isEmpty()) {
-						opcaoAnexosSelecionados.add(anexo.trim());						
-					}
-				}
-
-				if(Utils.isEmptyCollection(opcaoAnexosSelecionados)) {
-					throw new IllegalArgumentException("Opção de Anexos inválida");
-				}
-			} else {
-				opcaoAnexosSelecionados = (relatorioSelecionado.equals(Relatorio.rreo)) ? RREOService.ANEXOS_RREO
-						: (relatorioSelecionado.equals(Relatorio.rgf)) ? RGFService.ANEXOS_RGF
-								: (relatorioSelecionado.equals(Relatorio.dca)) ? DCAService.ANEXOS_DCA : null;
+			if (!Utils.isStringVazia(opcao)) {			
+				opcaoAnexosSelecionados = getListaOpcoesString(opcao, "Opção de Anexos inválida");new ArrayList<>();
 			}
-			logger.info("Opção de Anexos selecionados:" + opcao);						
+			logger.info("Opção de Anexos selecionados: {}", opcao);						
 		} catch (Exception e) {
 			logger.error("Erro ao ler parâmetro Anexos");
 			logger.error(e);
@@ -274,7 +269,7 @@ public class LeitorParametrosPrograma {
 			} else {
 				opcaoTipoMatrizSelecionado = TipoMatrizSaldoContabeis.valueOf(opcaoTipoMatriz.trim());			
 			}
-			logger.info("Opção de Tipo de Matriz de Saldo selecionado:" + opcaoTipoMatriz);			
+			logger.info("Opção de Tipo de Matriz de Saldo selecionado: {}", opcaoTipoMatriz);			
 		} catch(Exception e) {
 			logger.error("Erro ao ler parâmetro Tipo Matriz");
 			logger.error(e);
@@ -299,7 +294,7 @@ public class LeitorParametrosPrograma {
 					throw new IllegalArgumentException("Opção de Tipo de Valor Matriz inválida");
 				}
 			}
-			logger.info("Opções de Tipos Valores selecionados:" + opcao);			
+			logger.info("Opções de Tipos Valores selecionados: {}", opcao);			
 		} catch(Exception e) {
 			logger.error("Erro ao ler parâmetro Tipo de Valor de MSC");
 			logger.error(e);
@@ -312,29 +307,29 @@ public class LeitorParametrosPrograma {
 		try {
 			String opcao = System.getProperty(OPCAO_CLASSES_CONTA_CONTABIL);
 			if (Utils.isStringVazia(opcao)) {
-				opcaoClassesContasSelecionadas = getRelatorioSelecionado().equals(Relatorio.msc_patrimonial)
-						? Constantes.CLASSES_CONTAS_PATRIMONIAIS
-						: getRelatorioSelecionado().equals(Relatorio.msc_orcamentaria)
-								? Constantes.CLASSES_CONTAS_ORCAMENTARIAS
-								: getRelatorioSelecionado().equals(Relatorio.msc_controle)
-										? Constantes.CLASSES_CONTAS_CONTROLE
-										: null;
+				opcaoClassesContasSelecionadas = getOpcoesClassesContaContabilPadrao();
 			} else {
-				String[] classesContaContabil = opcao.split(",");
-				opcaoClassesContasSelecionadas = new ArrayList<>();
-				for (String classe: classesContaContabil) {
-					opcaoClassesContasSelecionadas.add(Integer.valueOf(classe.trim()));
-				}
-				if (Utils.isEmptyCollection(opcaoClassesContasSelecionadas)) {
-					throw new IllegalArgumentException("Opção de Classe de Conta Contábil inválida");
-				}
+				opcaoClassesContasSelecionadas = getListaOpcoesInteger(opcao.split(","), "Opção de Classe de Conta Contábil inválida");
 			}
-			logger.info("Opções de Classes de Conta Contábil selecionadas:" + opcao);			
+			logger.info("Opções de Classes de Conta Contábil selecionadas: {}", opcao);			
 		} catch(Exception e) {
 			logger.error("Erro ao ler parâmetro Classes de Conta");
 			logger.error(e);
 			throw new IllegalArgumentException("Opção de Classe de Conta Contábil inválida");				
 		}
+	}
+
+	private static List<Integer> getOpcoesClassesContaContabilPadrao(){
+
+		List<Integer> opcoesPadraoControle = getRelatorioSelecionado().equals(Relatorio.msc_controle)
+				? Constantes.CLASSES_CONTAS_CONTROLE
+				: null;
+		List<Integer> opcoesPadraoOrcamentaria = getRelatorioSelecionado().equals(Relatorio.msc_orcamentaria)
+				? Constantes.CLASSES_CONTAS_ORCAMENTARIAS
+				: opcoesPadraoControle;
+		
+		return getRelatorioSelecionado().equals(Relatorio.msc_patrimonial) ? Constantes.CLASSES_CONTAS_PATRIMONIAIS
+				: opcoesPadraoOrcamentaria;
 	}
 
 	private static void lerArgumentoOpcaoCapital() {
@@ -354,16 +349,7 @@ public class LeitorParametrosPrograma {
 		try {
 			String opcao = System.getProperty(OPCAO_UF);
 			if (!Utils.isStringVazia(opcao)) {
-				String[] codigosUF = opcao.split(",");
-				opcaoCodigosUFSelecionados= new ArrayList<String>();
-				for (String codigo: codigosUF) {
-					if(!codigo.trim().isEmpty()) {
-						opcaoCodigosUFSelecionados.add(codigo.trim());						
-					}
-				}
-				if (Utils.isEmptyCollection(opcaoCodigosUFSelecionados)) {
-					throw new IllegalArgumentException("Opção de Códigos UF inválida");
-				}			
+				opcaoCodigosUFSelecionados= getListaOpcoesString(opcao, "Opção de Códigos UF inválida");
 			} 
 		} catch(Exception e) {
 			logger.error("Erro ao ler parâmetro UF ");
@@ -376,8 +362,7 @@ public class LeitorParametrosPrograma {
 		try {
 			String opcao = System.getProperty(OPCAO_POPULACAO_MINIMA);
 			if(!Utils.isStringVazia(opcao)) {
-				opcaoPopulacaoMinimaSelecionada = Long.valueOf(opcao);
-				
+				opcaoPopulacaoMinimaSelecionada = Long.valueOf(opcao);				
 			}
 		} catch(Exception e) {
 			logger.error("Erro ao ler parâmetro População Mínima");
