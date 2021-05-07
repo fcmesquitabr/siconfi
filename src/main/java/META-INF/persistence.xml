@@ -11,18 +11,29 @@
             <property name="hibernate.connection.username" value="*"/>
             <property name="hibernate.connection.password" value=""/>
          	-->
+         	
+        	<!-- Configurações para o H2 --> 
+            <property name="hibernate.connection.url" value="jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MODE=Oracle;INIT=CREATE SCHEMA IF NOT EXISTS TAB_SICONFI\;SET SCHEMA TAB_SICONFI"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
+            <property name="hibernate.connection.driver_class" value="org.h2.Driver"/>
+            <property name="hibernate.connection.username" value="sa"/>
+            <property name="hibernate.connection.password" value=""/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.show_sql" value="true"/>             	
+
+			<!-- Configurações para o Postgres   
             <property name="hibernate.connection.url" value="jdbc:postgresql://localhost:5432/siconfi"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
             <property name="hibernate.connection.driver_class" value="org.postgresql.Driver"/>
             <property name="hibernate.connection.username" value="postgres"/>
             <property name="hibernate.connection.password" value="postgres"/>
-             -->
             <property name="hibernate.default_catalog" value="tab_siconfi"/> 
-            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.entity" value="br.gov.ce.sefaz.siconfi.entity" />
-            <property name="hibernate.generate_statistics" value="true"/>
+            <property name="hibernate.generate_statistics" value="false"/>
             <property name="hibernate.jdbc.batch_size" value="10"/>
-            <property name="hibernate.hbm2ddl.auto" value="none"/>      
+            <property name="hibernate.hbm2ddl.auto" value="none"/>     
+           -->
         </properties>
 	</persistence-unit>
 </persistence>
