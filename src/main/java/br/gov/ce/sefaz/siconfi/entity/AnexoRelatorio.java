@@ -7,6 +7,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Table(schema = "TAB_SICONFI", name = "ANEXO_RELATORIO")
 @Entity
 public class AnexoRelatorio {

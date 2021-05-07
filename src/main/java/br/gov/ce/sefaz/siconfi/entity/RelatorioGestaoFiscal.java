@@ -8,8 +8,11 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Table(schema = "\"TAB_SICONFI\"", name = "RELATORIO_GES_FISCAL")
 @Entity
 public class RelatorioGestaoFiscal {

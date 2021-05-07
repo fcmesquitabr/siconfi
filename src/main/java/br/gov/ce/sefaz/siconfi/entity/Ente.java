@@ -8,8 +8,12 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import br.gov.ce.sefaz.siconfi.enums.Esfera;
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Table(schema = "TAB_SICONFI", name = "ENTE")
 @Entity
 public class Ente {
@@ -51,6 +55,16 @@ public class Ente {
 	
 	public Ente() {
 		super();
+	}
+		
+	public Ente(String cod_ibge, String esfera) {
+		super();
+		this.cod_ibge = cod_ibge;
+		this.esfera = esfera;
+	}
+
+	public boolean isMunicipio() {
+		return getEsfera() != null && getEsfera().equals(Esfera.MUNICIPIO.getCodigo());
 	}
 	
 	public Long getId() {

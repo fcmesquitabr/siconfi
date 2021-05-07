@@ -8,7 +8,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import br.gov.ce.sefaz.siconfi.util.Utils;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Table(schema = "TAB_SICONFI", name = "EXTRATO_ENTREGA")
 @Entity
 public class ExtratoEntrega {
@@ -50,7 +56,10 @@ public class ExtratoEntrega {
 	
 	@Column(name = "TIP_RELATORIO")
 	private String tipo_relatorio;
-		
+	
+	@Transient
+	private String dataFormatada;
+
 	public Integer getId() {
 		return id;
 	}
@@ -105,12 +114,18 @@ public class ExtratoEntrega {
 	public void setStatus_relatorio(String status_relatorio) {
 		this.status_relatorio = status_relatorio;
 	}
+	
 	public Date getData_status() {
 		return data_status;
 	}
 	public void setData_status(Date data_status) {
 		this.data_status = data_status;
 	}
+	public String getDataFormatada() {
+		if(dataFormatada == null) dataFormatada = Utils.getDataFormatada(data_status);
+		return dataFormatada;
+	}
+
 	public String getForma_envio() {
 		return forma_envio;
 	}
