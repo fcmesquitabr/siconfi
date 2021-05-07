@@ -10,7 +10,7 @@ import br.gov.ce.sefaz.siconfi.util.LoggerUtil;
 
 public class MSCControleService extends MSCService<MatrizSaldoContabeisControle>{
 
-	private static Logger logger = null;
+	private Logger logger = null;
 
 	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "mes_referencia", "cod_ibge", "poder_orgao", "tipo_matriz",
 			"classe_conta", "natureza_conta", "conta_contabil", "funcao", "subfuncao", "educacao_saude", 

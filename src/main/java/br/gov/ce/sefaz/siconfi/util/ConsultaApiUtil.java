@@ -23,14 +23,16 @@ public class ConsultaApiUtil<T> {
 	private static Logger logger = LogManager.getLogger(ConsultaApiUtil.class);
 	
 	private Client client;
-	 
+	
 	private WebTarget webTarget;
-
+	
 	private String url;
 	
 	private String path;
 	
 	private String responseType;
+	
+	private static int MAXIMO_TENTATIVAS_CONSULTA_API = 3;
 		
 	public ConsultaApiUtil(String url, String path, String responseType) {
 		super();
@@ -44,7 +46,11 @@ public class ConsultaApiUtil<T> {
 
 	public List<T> lerEntidades(APIQueryParamUtil apiQueryParamUtil, Class<T> clazz) {
 		Response response = obterResponseAPI(apiQueryParamUtil);
-		GenericType<SiconfiResponse<T>> genericType = new GenericType<SiconfiResponse<T>>(new ParameterizedType() {
+		if(response == null || response.getStatus() != Response.Status.OK.getStatusCode()) {
+			return new ArrayList<>();
+		}
+		
+		GenericType<SiconfiResponse<T>> genericType = new GenericType<>(new ParameterizedType() {
 			
 			  public Type[] getActualTypeArguments() {
 				    return new Type[]{clazz};
@@ -60,28 +66,54 @@ public class ConsultaApiUtil<T> {
 		});
 
 		SiconfiResponse<T> siconfiResponse = response.readEntity(genericType);
-		return siconfiResponse != null ? siconfiResponse.getItems() : new ArrayList<T>();
+		return siconfiResponse != null ? siconfiResponse.getItems() : new ArrayList<>();
 	}
 
 	private Response obterResponseAPI(APIQueryParamUtil apiQueryParamUtil) {
 		
 		long ini = System.currentTimeMillis();			
+		int tentativa = 1;
+		
 		this.webTarget = this.client.target(url).path(path);
-		apiQueryParamUtil.getMapQueryParam().forEach((chave, valor) -> inserirAPIQueryParam(chave, valor));
-		Invocation.Builder invocationBuilder =  this.webTarget.request(responseType); 	
+		apiQueryParamUtil.getMapQueryParam().forEach(this::inserirAPIQueryParam);
+		Invocation.Builder invocationBuilder =  webTarget.request(responseType); 	
 
-		logger.info("Fazendo get na API: " + webTarget.getUri().toString());			
-		Response response = invocationBuilder.get();
-		mensagemTempoConsultaAPI(ini);
-		return response;		
+		Response response = null;
+		while (tentativa <= MAXIMO_TENTATIVAS_CONSULTA_API) {
+			
+			logger.info("Fazendo get na API, tentativa {}: {}",  tentativa, webTarget.getUri());			
+			response = invocationBuilder.get();
+			mensagemTempoConsultaAPI(ini);
+			logger.info("Código HTTP de retorno: {}", response.getStatus());
+			aguardarUmSegundo();			
+			
+			if(response.getStatus() == Response.Status.OK.getStatusCode()) {
+				return response;				
+			}
+			tentativa++;
+		}
+
+		return response;
 	}
 
 	private void inserirAPIQueryParam(String chave, Object valor) {
 		this.webTarget = this.webTarget.queryParam(chave, valor);
 	}
 	
+	/**
+	 * Segundo documentação da API, existe o limite de 1 requisição por segundo
+	 */
+	private void aguardarUmSegundo() {
+		try {
+			Thread.sleep(1100); //Colocando 1,1s por margem de segurança
+		} catch (InterruptedException e) {
+			logger.error(e);
+			Thread.currentThread().interrupt();
+		}
+	}
+
 	private void mensagemTempoConsultaAPI(long ini) {
 		long fim = System.currentTimeMillis();			
-		logger.debug("Tempo para consultar na API:" + (fim -ini));
+		logger.debug("Tempo para consultar na API: {}", (fim -ini));
 	} 
 }

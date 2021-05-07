@@ -51,7 +51,7 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	
 	protected abstract String getApiPath();
 	
-	protected abstract int excluir(O opcoes);
+	public abstract int excluir(O opcoes);
 
 	protected ConsultaApiUtil<T> getConsultaApiUtil(){
 		return consultaApiUtil;
@@ -92,7 +92,7 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 		}
 
 		try {
-			getLogger().info("Salvando " + listaObjetos.size() + " registro(s) no arquivo CSV...");
+			getLogger().info("Salvando {} registro(s) no arquivo CSV...", listaObjetos.size());
 			csvUtil.writeToFile(listaObjetos, getColunasArquivoCSV(), nomeArquivo);
 		} catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException | IOException e) {
 			getLogger().error("Erro ao salvar conteúdo no arquivo");
@@ -129,24 +129,13 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 		}
 	}
 
-	/**
-	 * Segundo documentação da API, existe o limite de 1 requisição por segundo
-	 */
-	protected void aguardarUmSegundo() {
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			getLogger().error(e);
-		}
-	}
-		
 	protected void salvarNoBancoDeDados(O opcoes, List<T> listaEntidades) {
 		if(Utils.isEmptyCollection(listaEntidades)) {
 			getLogger().info("Sem dados para persistir");
 			return;
 		}
 	
-		getEntityManager().getTransaction().begin();		
+		getEntityManager().getTransaction().begin();
 		excluir(opcoes);
 		persistir(listaEntidades);
 		getEntityManager().flush();
@@ -163,13 +152,13 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 		if(!transacaoAtiva) {
 			getEntityManager().getTransaction().commit();
 		}
-		getLogger().info("Linhas excluídas:" + i);
+		getLogger().info("Linhas excluídas: {}", i);
 		return i;
 	}
 
 	public EntityManager getEntityManager () {
-		if((em == null || !em.isOpen())&& getEntityManagerFactory()!=null) {
-			getLogger().info("Criando EntityManager " + em);
+		if((em == null || !em.isOpen()) && getEntityManagerFactory()!=null) {
+			getLogger().info("Criando EntityManager {}", em);
 			em = getEntityManagerFactory().createEntityManager();
 		}
 		return em;
@@ -177,7 +166,7 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	
 	private EntityManagerFactory getEntityManagerFactory() {
 		if(this.emf == null || !this.emf.isOpen()) {
-			getLogger().info("Criando EntityManagerFactory " + emf);
+			getLogger().info("Criando EntityManagerFactory {}", emf);
 			this.emf = Persistence.createEntityManagerFactory("siconfiUnit");
 		}
 		return emf;
@@ -199,7 +188,7 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 		long ini = System.currentTimeMillis();
 		getEntityManager().getTransaction().commit();
 		long fim = System.currentTimeMillis();
-		getLogger().info("Tempo para commit:" + (fim -ini));
+		getLogger().info("Tempo para commit: {}", (fim -ini));
 	}
 
 	protected void persistir(List<T> lista) {
@@ -208,10 +197,10 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 			return;
 		}
 		int i=1;
-		getLogger().info("Persistindo os dados obtidos (" + lista.size() + " registro(s))...");
+		getLogger().info("Persistindo os dados obtidos ({}  registro(s))...", lista.size());
 		for(T entity: lista) {
-			getLogger().debug("Inserindo registro " + (i++) + ":" + entity.toString());
-			entity = getEntityManager().merge(entity);
+			getLogger().debug("Inserindo registro {}: {}", (i++), entity);
+			getEntityManager().merge(entity);
 		}
 	}
 
@@ -221,6 +210,7 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 		try {
 
 			listaEntidades = getConsultaApiUtil().lerEntidades(apiQueryParamUtil, getEntityClass());
+			getLogger().info("Quantidade de registros retornados da API: {}", listaEntidades.size());
 			
 		} catch (Exception e) {
 			mensagemLogErroConsultaNaAPI(apiQueryParamUtil);
@@ -233,15 +223,16 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	}
 
 	private void mensagemLogErroConsultaNaAPI(APIQueryParamUtil apiQueryParamUtil) {
-		StringBuilder mensagemLog = new StringBuilder("Erro de consulta na API para os parâmetros:");
-		apiQueryParamUtil.getMapQueryParam().forEach((chave, valor) -> mensagemLog.append(chave + ": " + valor.toString() + ", "));
-		getLogger().error(mensagemLog.toString());
+		StringBuilder mensagemLogBuilder = new StringBuilder("Erro de consulta na API para os parâmetros: ");
+		apiQueryParamUtil.getMapQueryParam().forEach((chave, valor) -> mensagemLogBuilder.append(chave + ": " + valor.toString() + ", "));
+		String mensagemLog = mensagemLogBuilder.toString();
+		getLogger().error(mensagemLog);
 	}
 	
 	private void mensagemLogTamanhoDaLista(APIQueryParamUtil apiQueryParamUtil, List<T> listaEntidades) {
 		StringBuilder mensagemLog = new StringBuilder("Tamanho da lista de entidades para os parâmetros ");
 		apiQueryParamUtil.getMapQueryParam().forEach((chave, valor) -> mensagemLog.append(chave + ": " + valor.toString() + ", "));
 		mensagemLog.append(": " + listaEntidades.size());
-		getLogger().debug(mensagemLog.toString());
+		getLogger().debug(mensagemLog);
 	}	
 }

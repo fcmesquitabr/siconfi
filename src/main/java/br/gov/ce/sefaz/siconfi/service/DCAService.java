@@ -17,7 +17,7 @@ import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCargaDadosDCA>{
 
-	private static Logger logger = null;
+	private Logger logger = null;
 
 	public static final List<String> ANEXOS_DCA = Arrays.asList("Anexo I-AB", "Anexo I-C", "Anexo I-D", "Anexo I-E", 
 			"Anexo I-F", "Anexo I-G", "Anexo I-HI", "DCA-Anexo I-AB", "DCA-Anexo I-C", "DCA-Anexo I-D", 
@@ -39,9 +39,9 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 	}
 	
 	@Override
-	protected int excluir(OpcoesCargaDadosDCA filtro) {
+	public int excluir(OpcoesCargaDadosDCA filtro) {
 		getLogger().info("Excluindo dados do banco de dados...");
-		
+			
 		StringBuilder queryBuilder = new StringBuilder("DELETE FROM DeclaracaoContasAnuais dca WHERE dca.exercicio IN (:exercicios) ");
 
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(filtro);
@@ -50,6 +50,11 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 		}
 		if(!filtro.isListaAnexosVazia()) {
 			queryBuilder.append(" AND dca.anexo IN (:listaAnexos)");
+		}
+		
+		boolean transacaoAtiva = getEntityManager().getTransaction().isActive(); 
+		if(!transacaoAtiva) {
+			getEntityManager().getTransaction().begin();			
 		}
 		
 		Query query = getEntityManager().createQuery(queryBuilder.toString());
@@ -63,7 +68,11 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 		}
 
 		int i = query.executeUpdate();
-		getLogger().info("Linhas excluídas:" + i);
+		getLogger().info("Linhas excluídas: {}", i);
+		
+		if(!transacaoAtiva) {
+			getEntityManager().getTransaction().commit();			
+		}		
 		return i;
 	}
 
@@ -91,15 +100,21 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 	private void consultarNaApiEGerarSaidaDados (OpcoesCargaDadosDCA opcoes,
 			Integer exercicio, String codigoIbge) {
 
-		List<String> listaAnexos = !opcoes.isListaAnexosVazia() ? opcoes.getListaAnexos()
-				: ANEXOS_DCA;
-
-		for (String anexo : listaAnexos) {
+		if (opcoes.isListaAnexosVazia()) {
+			
 			APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil().addParamAnExercicio(exercicio)
-					.addParamIdEnte(codigoIbge).addParamAnexo(anexo);
-			List<DeclaracaoContasAnuais> listaDcaParcial = consultarNaApi(apiQueryParamUtil);
-			gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, codigoIbge,anexo), listaDcaParcial);
-			aguardarUmSegundo();
+					.addParamIdEnte(codigoIbge);
+			List<DeclaracaoContasAnuais> listaDca = consultarNaApi(apiQueryParamUtil);
+			gerarSaidaDados(opcoes, listaDca);
+
+		} else {
+			
+			for (String anexo : opcoes.getListaAnexos()) {
+				APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil().addParamAnExercicio(exercicio)
+						.addParamIdEnte(codigoIbge).addParamAnexo(anexo);
+				List<DeclaracaoContasAnuais> listaDcaParcial = consultarNaApi(apiQueryParamUtil);
+				gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, codigoIbge, anexo), listaDcaParcial);
+			}
 		}
 	}
 
@@ -110,7 +125,9 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 		opcoesParcial.setNomeArquivo(opcoes.getNomeArquivo());
 		opcoesParcial.setExercicios(Arrays.asList(exercicio));
 		opcoesParcial.setCodigosIBGE(Arrays.asList(codigoIbge));
-		opcoesParcial.setListaAnexos(Arrays.asList(anexo));
+		if(anexo != null) {
+			opcoesParcial.setListaAnexos(Arrays.asList(anexo));			
+		}
 		return opcoesParcial;
 	}
 

@@ -24,7 +24,7 @@ public abstract class MSCService<T extends MatrizSaldoContabeis> extends Siconfi
 	protected abstract List<Integer> getClassContas();
 	
 	@Override
-	protected int excluir(OpcoesCargaDadosMSC filtro) {
+	public int excluir(OpcoesCargaDadosMSC filtro) {
 		getLogger().info("Excluindo dados do banco de dados...");
 		
 		StringBuilder queryBuilder = new StringBuilder("DELETE FROM " + getEntityName() + " msc WHERE msc.exercicio IN (:exercicios) ");
@@ -46,6 +46,11 @@ public abstract class MSCService<T extends MatrizSaldoContabeis> extends Siconfi
 			queryBuilder.append(" AND msc.tipo_valor IN (:listaTipoValor)");
 		}
 		
+		boolean transacaoAtiva = getEntityManager().getTransaction().isActive(); 
+		if(!transacaoAtiva) {
+			getEntityManager().getTransaction().begin();			
+		}
+
 		Query query = getEntityManager().createQuery(queryBuilder.toString());
 		query.setParameter("exercicios", filtro.getExercicios());
 		
@@ -66,10 +71,16 @@ public abstract class MSCService<T extends MatrizSaldoContabeis> extends Siconfi
 		}
 
 		int i = query.executeUpdate();
-		getLogger().info("Linhas excluídas:" + i);
+		getLogger().info("Linhas excluídas: {}", i);
+		
+		if(!transacaoAtiva) {
+			getEntityManager().getTransaction().commit();			
+		}		
+
 		return i;
 	}
 
+	@Override
 	protected void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosMSC opcoes, Integer exercicio) {
 
 		List<Integer> listaMeses = !opcoes.isListaPeriodosVazia() ? opcoes.getPeriodos() : Constantes.MESES;
@@ -120,7 +131,6 @@ public abstract class MSCService<T extends MatrizSaldoContabeis> extends Siconfi
 			List<T> listaMSCParcial = consultarNaApi(apiQueryParamUtil);
 			gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, mes, codigoIbge, classeConta, tipoMatriz, tipoValor),
 					listaMSCParcial);
-			aguardarUmSegundo();
 		}
 	}
 

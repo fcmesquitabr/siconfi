@@ -7,6 +7,7 @@ import javax.persistence.Query;
 
 import org.apache.logging.log4j.Logger;
 
+import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.entity.RelatorioResumidoExecucaoOrcamentaria;
 import br.gov.ce.sefaz.siconfi.enums.TipoDemonstrativoRREO;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosRREO;
@@ -17,8 +18,10 @@ import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamentaria, OpcoesCargaDadosRREO> {
 
-	private static Logger logger = null;
+	private Logger logger = null;
 
+	private static final long POPULACAO_MAXIMA_QUE_PODE_ENVIAR_RREO_SIMPLIFICADO = 50000;
+	
 	public static final List<String> ANEXOS_RREO = Arrays.asList("RREO-Anexo 01", "RREO-Anexo 02", "RREO-Anexo 03",
 			"RREO-Anexo 04", "RREO-Anexo 04 - RGPS", "RREO-Anexo 04 - RPPS", "RREO-Anexo 04.0 - RGPS",
 			"RREO-Anexo 04.1", "RREO-Anexo 04.2", "RREO-Anexo 04.3 - RGPS", "RREO-Anexo 05", "RREO-Anexo 06",
@@ -28,7 +31,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "periodicidade", "periodo", "uf",
 			"cod_ibge", "instituicao", "demonstrativo", "anexo", "cod_conta", "conta", "coluna", "rotulo", "populacao",
 			"valorFormatado" };
-
+	
 	private static final String NOME_PADRAO_ARQUIVO_CSV = "rreo.csv";
 	
 	private static final String API_PATH_RREO = "rreo";
@@ -40,7 +43,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 	}
 
 	@Override
-	protected int excluir(OpcoesCargaDadosRREO filtro) {
+	public int excluir(OpcoesCargaDadosRREO filtro) {
 		getLogger().info("Excluindo dados do banco de dados...");
 
 		StringBuilder queryBuilder = new StringBuilder(
@@ -59,6 +62,11 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 			queryBuilder.append(" AND rreo.anexo IN (:listaAnexos)");
 		}
 
+		boolean transacaoAtiva = getEntityManager().getTransaction().isActive(); 
+		if(!transacaoAtiva) {
+			getEntityManager().getTransaction().begin();			
+		}
+
 		Query query = getEntityManager().createQuery(queryBuilder.toString());
 		query.setParameter("exercicios", filtro.getExercicios());
 
@@ -73,7 +81,12 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		}
 
 		int i = query.executeUpdate();
-		getLogger().info("Linhas excluídas:" + i);
+		getLogger().info("Linhas excluídas: {}", i);
+		
+		if(!transacaoAtiva) {
+			getEntityManager().getTransaction().commit();			
+		}		
+
 		return i;
 	}
 
@@ -89,29 +102,55 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 
 	private void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosRREO opcoes, Integer exercicio, Integer bimestre) {
 
-		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(opcoes);
-
-		for (String codigoIbge : listaCodigoIbge) {
-			consultarNaApiEGerarSaidaDados(opcoes, exercicio, bimestre, codigoIbge);
+		List<Ente> listaEntes = getEnteService().obterListaEntesNaAPI(opcoes);
+		
+		for (Ente ente: listaEntes) {
+			consultarNaApiEGerarSaidaDados(opcoes, exercicio, bimestre, ente);
 		}
 	}
 
 	private void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosRREO opcoes,
-			Integer exercicio, Integer bimestre, String codigoIbge) {
+			Integer exercicio, Integer bimestre, Ente ente) {
 
-		List<String> listaAnexos = !opcoes.isListaAnexosVazia() ? opcoes.getListaAnexos() : ANEXOS_RREO;
+		 		
+		for(TipoDemonstrativoRREO tipoDemonstrativo: getListaTipoDemonstrativoASerConsiderado(ente)) {
+			
+			if (opcoes.isListaAnexosVazia()) {
+				List<RelatorioResumidoExecucaoOrcamentaria> listaRREO = consultarNaApi(
+						getAPIQueryParamUtil(exercicio, bimestre, ente, tipoDemonstrativo, null));
+				gerarSaidaDados(opcoes, listaRREO);
 
-		for (String anexo : listaAnexos) {
-			APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil();
-			apiQueryParamUtil.addParamAnExercicio(exercicio)
-					.addParamPeriodo(bimestre)
-					.addParamIdEnte(codigoIbge)
-					.addParamTipoDemonstrativo(TipoDemonstrativoRREO.RREO.getCodigo())
-					.addParamAnexo(anexo);
-			List<RelatorioResumidoExecucaoOrcamentaria> listaRREOParcial = consultarNaApi(apiQueryParamUtil);
-			gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, bimestre, codigoIbge, anexo), listaRREOParcial);
-			aguardarUmSegundo();
+			} else {
+				for (String anexo : opcoes.getListaAnexos()) {
+					List<RelatorioResumidoExecucaoOrcamentaria> listaRREOParcial = consultarNaApi(
+							getAPIQueryParamUtil(exercicio, bimestre, ente, tipoDemonstrativo, anexo));
+					gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, bimestre, ente.getCod_ibge(), anexo),
+							listaRREOParcial);
+				}
+			}
 		}
+	}
+
+	private List<TipoDemonstrativoRREO> getListaTipoDemonstrativoASerConsiderado(Ente ente) {
+		if(ente.isMunicipio() && ente.getPopulacao().longValue() < POPULACAO_MAXIMA_QUE_PODE_ENVIAR_RREO_SIMPLIFICADO) {
+			return Arrays.asList(TipoDemonstrativoRREO.values());
+		} else {
+			return Arrays.asList(TipoDemonstrativoRREO.RREO);
+		}
+	}
+
+	private APIQueryParamUtil getAPIQueryParamUtil(Integer exercicio, Integer bimestre, Ente ente,
+			TipoDemonstrativoRREO tipoDemonstrativo, String anexo) {
+		APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil();
+		apiQueryParamUtil.addParamAnExercicio(exercicio)
+				.addParamPeriodo(bimestre)
+				.addParamIdEnte(ente.getCod_ibge())
+				.addParamTipoDemonstrativo(tipoDemonstrativo.getCodigo());
+		
+		if (!Utils.isStringVazia(anexo)) {
+			apiQueryParamUtil.addParamAnexo(anexo);
+		}
+		return apiQueryParamUtil;
 	}
 
 	private OpcoesCargaDadosRREO getOpcoesParcial(OpcoesCargaDadosRREO opcoes, Integer exercicio, Integer bimestre,

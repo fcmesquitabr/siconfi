@@ -21,10 +21,10 @@ import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, OpcoesCargaDadosExtratoEntrega>{
 
-	private static Logger logger = null;
+	private Logger logger = null;
 
 	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "cod_ibge", "populacao", "instituicao",
-			"entregavel", "periodo", "periodicidade", "status_relatorio", "data_status", "forma_envio", "tipo_relatorio" };
+			"entregavel", "periodo", "periodicidade", "status_relatorio", "dataFormatada", "forma_envio", "tipo_relatorio" };
 	
 	private static final String NOME_PADRAO_ARQUIVO_CSV = "extrato-entrega.csv";
 	
@@ -37,7 +37,7 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 	}
 	
 	@Override
-	protected int excluir(OpcoesCargaDadosExtratoEntrega opcoes) {
+	public int excluir(OpcoesCargaDadosExtratoEntrega opcoes) {
 		getLogger().info("Excluindo dados do banco de dados...");
 		
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(opcoes);
@@ -47,6 +47,11 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 			queryBuilder.append(" AND ee.cod_ibge IN (:codigosIbge)");
 		}
 		
+		boolean transacaoAtiva = getEntityManager().getTransaction().isActive(); 
+		if(!transacaoAtiva) {
+			getEntityManager().getTransaction().begin();			
+		}
+
 		Query query = getEntityManager().createQuery(queryBuilder.toString());
 		query.setParameter("exercicios", opcoes.getExercicios());
 		if(!Utils.isEmptyCollection(listaCodigoIbge)) {
@@ -54,7 +59,12 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 		}
 
 		int i = query.executeUpdate();
-		getLogger().info("Linhas excluídas:" + i);
+		getLogger().info("Linhas excluídas: {}", i);
+		
+		if(!transacaoAtiva) {
+			getEntityManager().getTransaction().commit();			
+		}		
+
 		return i;
 	}
 
@@ -89,7 +99,7 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 		}
 
 		List<ExtratoEntrega> listaExtratoEntrega = query.getResultList();
-		getLogger().info("Tamanho da lista de extrato entrega:" + listaExtratoEntrega.size());		
+		getLogger().info("Tamanho da lista de extrato entrega: {}", listaExtratoEntrega.size());		
 		return listaExtratoEntrega;
 	}
 
@@ -102,6 +112,8 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 		dataMinimaEntrega.add(Calendar.MONTH, -1);
 		return dataMinimaEntrega.getTime();
 	}
+	
+	@Override
 	protected void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosExtratoEntrega opcoes, Integer exercicio){
 		
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(opcoes);
@@ -111,7 +123,6 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 					.addParamIdEnte(codigoIbge);
 			List<ExtratoEntrega> listaExtratosParcial = consultarNaApi(apiQueryParamUtil);
 			gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, codigoIbge), listaExtratosParcial);
-			aguardarUmSegundo();
 		}
 	}
 
@@ -145,7 +156,6 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 			APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil().addParamAnReferencia(exercicio)
 					.addParamIdEnte(codigoIbge);
 			listaExtratos.addAll(consultarNaApi(apiQueryParamUtil));
-			aguardarUmSegundo();
 		}
 		return listaExtratos;
 	}

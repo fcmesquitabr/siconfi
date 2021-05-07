@@ -7,6 +7,7 @@ import javax.persistence.Query;
 
 import org.apache.logging.log4j.Logger;
 
+import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.entity.RelatorioGestaoFiscal;
 import br.gov.ce.sefaz.siconfi.enums.Periodicidade;
 import br.gov.ce.sefaz.siconfi.enums.Poder;
@@ -19,8 +20,10 @@ import br.gov.ce.sefaz.siconfi.util.Utils;
 
 public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCargaDadosRGF> {
 
-	private static Logger logger = null;
+	private Logger logger = null;
 
+	private static final long POPULACAO_MAXIMA_QUE_PODE_ENVIAR_RREO_SIMPLIFICADO = 50000;
+	
 	public static final List<String> ANEXOS_RGF = Arrays.asList("RGF-Anexo 01", "RGF-Anexo 02", "RGF-Anexo 03",
 			"RGF-Anexo 04", "RGF-Anexo 05", "RGF-Anexo 06");
 
@@ -39,7 +42,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 	}
 
 	@Override
-	protected int excluir(OpcoesCargaDadosRGF filtro) {
+	public int excluir(OpcoesCargaDadosRGF filtro) {
 		getLogger().info("Excluindo dados do banco de dados...");
 
 		StringBuilder queryBuilder = new StringBuilder(
@@ -62,6 +65,11 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 			queryBuilder.append(" AND rgf.anexo IN (:listaAnexos)");
 		}
 
+		boolean transacaoAtiva = getEntityManager().getTransaction().isActive(); 
+		if(!transacaoAtiva) {
+			getEntityManager().getTransaction().begin();			
+		}
+
 		Query query = getEntityManager().createQuery(queryBuilder.toString());
 		query.setParameter("exercicios", filtro.getExercicios());
 
@@ -79,7 +87,12 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 		}
 
 		int i = query.executeUpdate();
-		getLogger().info("Linhas excluídas:" + i);
+		getLogger().info("Linhas excluídas: {}", i);
+		
+		if(!transacaoAtiva) {
+			getEntityManager().getTransaction().commit();			
+		}		
+
 		return i;
 	}
 
@@ -97,43 +110,72 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 	private void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosRGF filtroRGF, Integer exercicio,
 			Integer quadrimestre) {
 
-		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(filtroRGF);
+		List<Ente> listaEntes = getEnteService().obterListaEntesNaAPI(filtroRGF);
 
-		for (String codigoIbge : listaCodigoIbge) {
-			consultarNaApiEGerarSaidaDados(filtroRGF, exercicio, quadrimestre, codigoIbge);
+		for (Ente ente: listaEntes) {
+			consultarNaApiEGerarSaidaDados(filtroRGF, exercicio, quadrimestre, ente);
 		}
 	}
 
 	private void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosRGF filtroRGF, Integer exercicio, Integer quadrimestre,
-			String codigoIbge) {
+			Ente ente) {
 
 		List<Poder> listaPoder = !filtroRGF.isListaPoderesVazia() ? filtroRGF.getListaPoderes()
 				: Arrays.asList(Poder.values());
 
 		for (Poder poder : listaPoder) {
-			consultarNaApiEGerarSaidaDados(filtroRGF, exercicio, quadrimestre, codigoIbge, poder);
+			consultarNaApiEGerarSaidaDados(filtroRGF, exercicio, quadrimestre, ente, poder);
 		}
 	}
 
 	private void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosRGF opcoes, Integer exercicio, Integer quadrimestre,
-			String codigoIbge, Poder poder) {
-
-		List<String> listaAnexos = !opcoes.isListaAnexosVazia() ? opcoes.getListaAnexos() : ANEXOS_RGF;
-
-		for (String anexo : listaAnexos) {
-
-			APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil();
-			apiQueryParamUtil.addParamAnExercicio(exercicio)
-					.addParamIndicadorPeriodiciadade(Periodicidade.QUADRIMESTRAL.getCodigo())
-					.addParamPeriodo(quadrimestre)
-					.addParamIdEnte(codigoIbge)
-					.addParamTipoDemonstrativo(TipoDemonstrativoRGF.RGF.getCodigo())
-					.addParamPoder(poder.getCodigo())
-					.addParamAnexo(anexo);
-			List<RelatorioGestaoFiscal> listaRGFParcial = consultarNaApi(apiQueryParamUtil);
-			gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, quadrimestre, codigoIbge, poder, anexo), listaRGFParcial);
-			aguardarUmSegundo();
+			Ente ente, Poder poder) {
+		
+		for(TipoDemonstrativoRGF tipoDemonstrativo: getListaTipoDemonstrativoASerConsiderado(ente)) {
+			
+			if (opcoes.isListaAnexosVazia()) {
+				
+				List<RelatorioGestaoFiscal> listaRGF = consultarNaApi(
+						getAPIQueryParamUtil(exercicio, tipoDemonstrativo, quadrimestre, ente, poder, null));
+				gerarSaidaDados(opcoes, listaRGF);
+				
+			} else {
+				
+				for (String anexo : opcoes.getListaAnexos()) {					
+					List<RelatorioGestaoFiscal> listaRGFParcial = consultarNaApi(
+							getAPIQueryParamUtil(exercicio, tipoDemonstrativo, quadrimestre, ente, poder, anexo));
+					gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, quadrimestre, ente.getCod_ibge(), poder, anexo),
+							listaRGFParcial);
+				}			
+			}			
 		}
+	}
+
+	private List<TipoDemonstrativoRGF> getListaTipoDemonstrativoASerConsiderado(Ente ente) {
+		if(ente.isMunicipio() && ente.getPopulacao().longValue() < POPULACAO_MAXIMA_QUE_PODE_ENVIAR_RREO_SIMPLIFICADO) {
+			return Arrays.asList(TipoDemonstrativoRGF.values());
+		} else {
+			return Arrays.asList(TipoDemonstrativoRGF.RGF);
+		}
+	}
+
+	private APIQueryParamUtil getAPIQueryParamUtil(Integer exercicio, TipoDemonstrativoRGF tipoDemonstrativo,
+			Integer quadrimestre, Ente ente, Poder poder, String anexo) {
+		APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil();
+		apiQueryParamUtil.addParamAnExercicio(exercicio)
+				.addParamIndicadorPeriodiciadade(tipoDemonstrativo.equals(TipoDemonstrativoRGF.RGF)
+						? Periodicidade.QUADRIMESTRAL.getCodigo()
+						: Periodicidade.SEMESTRAL
+								.getCodigo())
+				.addParamPeriodo(quadrimestre)
+				.addParamIdEnte(ente.getCod_ibge())
+				.addParamTipoDemonstrativo(tipoDemonstrativo.getCodigo())
+				.addParamPoder(poder.getCodigo());
+		
+		if(!Utils.isStringVazia(anexo)) {
+			apiQueryParamUtil.addParamAnexo(anexo);
+		}
+		return apiQueryParamUtil;
 	}
 		
 	private OpcoesCargaDadosRGF getOpcoesParcial(OpcoesCargaDadosRGF opcoes, Integer exercicio, Integer quadrimestre, String codigoIbge,
@@ -145,7 +187,9 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 		opcoesParcial.setPeriodos(Arrays.asList(quadrimestre));
 		opcoesParcial.setCodigosIBGE(Arrays.asList(codigoIbge));
 		opcoesParcial.setListaPoderes(Arrays.asList(poder));
-		opcoesParcial.setListaAnexos(Arrays.asList(anexo));
+		if(anexo != null) {
+			opcoesParcial.setListaAnexos(Arrays.asList(anexo));			
+		}
 		return opcoesParcial;
 	}
 
