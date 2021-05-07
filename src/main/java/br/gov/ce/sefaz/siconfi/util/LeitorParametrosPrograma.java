@@ -163,7 +163,7 @@ public class LeitorParametrosPrograma {
 			if (Utils.isStringVazia(opcao)) {
 				opcaoExerciciosSelecionados = Constantes.EXERCICIOS_DISPONIVEIS;
 			} else {
-				opcaoExerciciosSelecionados = getListaOpcoesInteger(opcao.split(","), "Opção de Exercício inválida");
+				opcaoExerciciosSelecionados = getListaOpcoesInteger(opcao, "Opção de Exercício inválida");
 			}
 			logger.info("Opções de Exercícios selecionados: {}", opcao);			
 		} catch (Exception e) {
@@ -182,7 +182,7 @@ public class LeitorParametrosPrograma {
 			if (Utils.isStringVazia(opcao)) {
 				opcaoPeriodosSelecionados = getOpcoesPeriodoPadrao();
 			} else {
-				opcaoPeriodosSelecionados = getListaOpcoesInteger(opcao.split(","), "Opção de Períodos inválida");
+				opcaoPeriodosSelecionados = getListaOpcoesInteger(opcao, "Opção de Períodos inválida");
 			}
 			
 			logger.info("Opção de Períodos selecionados: {}", opcao);			
@@ -204,9 +204,10 @@ public class LeitorParametrosPrograma {
 				: opcoesPeriodoPadraoRGF;
 	}
 	
-	private static List<Integer> getListaOpcoesInteger(String[] opcoes, String mensagemErro){
+	private static List<Integer> getListaOpcoesInteger(String opcoes, String mensagemErro){
+		String[] opcoesArray = opcoes.split(",");
 		List<Integer> listaOpcoes = new ArrayList<>();
-		for (String opcao: opcoes) {
+		for (String opcao: opcoesArray) {
 			listaOpcoes.add(Integer.valueOf(opcao.trim()));
 		}
 		if (Utils.isEmptyCollection(listaOpcoes)) {
@@ -309,7 +310,7 @@ public class LeitorParametrosPrograma {
 			if (Utils.isStringVazia(opcao)) {
 				opcaoClassesContasSelecionadas = getOpcoesClassesContaContabilPadrao();
 			} else {
-				opcaoClassesContasSelecionadas = getListaOpcoesInteger(opcao.split(","), "Opção de Classe de Conta Contábil inválida");
+				opcaoClassesContasSelecionadas = getListaOpcoesInteger(opcao, "Opção de Classe de Conta Contábil inválida");
 			}
 			logger.info("Opções de Classes de Conta Contábil selecionadas: {}", opcao);			
 		} catch(Exception e) {
