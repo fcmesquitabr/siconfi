@@ -13,8 +13,11 @@ public class OpcoesCargaDadosExtratoEntrega extends OpcoesCargaDados {
 
 	public static class Builder extends OpcoesCargaDados.Builder<Builder> {
 		
-		public Builder() {}
+		public Builder() {
+			super();
+		}
 				
+		@Override
 		public OpcoesCargaDadosExtratoEntrega build() {
 			return new OpcoesCargaDadosExtratoEntrega(this);
 		}

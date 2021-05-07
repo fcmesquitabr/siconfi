@@ -16,12 +16,6 @@ import br.gov.ce.sefaz.siconfi.util.Utils;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class MatrizSaldoContabeis {
 
-//	@Id
-//	@GeneratedValue(strategy = GenerationType.IDENTITY)
-////	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "msc_sequence")
-////	@SequenceGenerator(name = "msc_sequence", sequenceName = "msc_sequence_id")
-//	protected Integer id;
-
 	@Column(name = "NUM_EXERCICIO")
 	protected Integer exercicio;
 	

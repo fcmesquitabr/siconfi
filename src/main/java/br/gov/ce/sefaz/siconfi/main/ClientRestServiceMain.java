@@ -19,7 +19,6 @@ public class ClientRestServiceMain {
 		}
 
 		logger.info("Fim.");
-		//System.exit(0);
 	}
 
 	private static void exibirMensagemAjuda() {

@@ -200,7 +200,7 @@ public class BuscadorDadosSiconfiAPI {
 	}
 
 	private OpcoesCargaDadosMSC getOpcoesCargaDadosMSC() {
-		OpcoesCargaDadosMSC opcoes = new OpcoesCargaDadosMSC.Builder()
+		return  new OpcoesCargaDadosMSC.Builder()
 				.opcaoSalvamentoDados(LeitorParametrosPrograma.getOpcaoSalvamentoSelecionada())
 				.nomeArquivo(LeitorParametrosPrograma.getOpcaoCaminhoArquivoSelecionado())
 				.exercicios(LeitorParametrosPrograma.getOpcaoExerciciosSelecionados())
@@ -215,7 +215,6 @@ public class BuscadorDadosSiconfiAPI {
 				.populacaoMinima(LeitorParametrosPrograma.getOpcaoPopulacaoMinimaSelecionada())
 				.populacaoMaxima(LeitorParametrosPrograma.getOpcaoPopulacaoMaximaSelecionada())				
 				.build();
-		return opcoes;
 	}
 
 	private EnteService getEnteService() {

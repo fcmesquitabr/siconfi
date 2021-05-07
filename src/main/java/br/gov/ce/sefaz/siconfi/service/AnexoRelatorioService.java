@@ -8,7 +8,7 @@ import br.gov.ce.sefaz.siconfi.util.LoggerUtil;
 
 public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio, OpcoesCargaDados> {
 
-	private static Logger logger = null;
+	private Logger logger = null;
 	
 	private static String[] COLUNAS_ARQUIVO_CSV = new String[]{"esfera","demonstrativo","anexo"};
 	
@@ -21,7 +21,7 @@ public class AnexoRelatorioService extends SiconfiService<AnexoRelatorio, Opcoes
 	}
 	
 	@Override
-	protected int excluir(OpcoesCargaDados opcoes) {
+	public int excluir(OpcoesCargaDados opcoes) {
 		return excluirTodos();
 	}
 

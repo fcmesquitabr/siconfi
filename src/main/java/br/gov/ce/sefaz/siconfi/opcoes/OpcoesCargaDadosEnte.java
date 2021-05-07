@@ -13,6 +13,7 @@ public class OpcoesCargaDadosEnte extends OpcoesCargaDados {
 
 	public static class Builder extends OpcoesCargaDados.Builder<Builder> {
 
+		@Override
 		public OpcoesCargaDadosEnte build() {
 			return new OpcoesCargaDadosEnte(this);
 		}

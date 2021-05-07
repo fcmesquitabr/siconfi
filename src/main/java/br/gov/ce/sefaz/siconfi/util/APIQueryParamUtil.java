@@ -29,7 +29,7 @@ public class APIQueryParamUtil {
 
 	public static final String API_QUERY_PARAM_ID_TV = "id_tv"; 
 
-	private Map<String, Object> mapQueryParam = new HashMap<String, Object>();
+	private Map<String, Object> mapQueryParam = new HashMap<>();
 	
 	public APIQueryParamUtil addParamAnExercicio(Integer exercicio) {
 		if(exercicio!=null) {
@@ -121,7 +121,7 @@ public class APIQueryParamUtil {
 
 	public APIQueryParamUtil addParamAnexo(String anexo) {
 		if(!Utils.isStringVazia(anexo)) {
-			mapQueryParam.put(API_QUERY_PARAM_NO_ANEXO, anexo.replaceAll(" ", "%20"));			
+			mapQueryParam.put(API_QUERY_PARAM_NO_ANEXO, anexo.replace(" ", "%20"));			
 		}
 		return this;
 	}
@@ -185,10 +185,7 @@ public class APIQueryParamUtil {
 			return false;
 		APIQueryParamUtil other = (APIQueryParamUtil) obj;
 		if (mapQueryParam == null) {
-			if (other.mapQueryParam != null)
-				return false;
-			else
-				return true;
+			return other.mapQueryParam == null;
 		} else if (mapQueryParam != null && other.mapQueryParam == null)
 			return false;
 		

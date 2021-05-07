@@ -33,13 +33,16 @@ public class OpcoesCargaDadosRREO extends OpcoesCargaDados {
 		
 		private List<String> listaAnexos;
 		
-		public Builder() {}
+		public Builder() {
+			super();
+		}
 		
 		public Builder listaAnexos(List<String> listaAnexos) {
 			this.listaAnexos = listaAnexos;
 			return this;
 		}
 		
+		@Override
 		public OpcoesCargaDadosRREO build() {
 			return new OpcoesCargaDadosRREO(this);
 		}

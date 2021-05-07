@@ -11,7 +11,8 @@ public class OpcoesCargaDadosAnexoRelatorio extends OpcoesCargaDados{
 	}
 
 	public static class Builder extends OpcoesCargaDados.Builder<Builder> {
-
+		
+		@Override
 		public OpcoesCargaDadosAnexoRelatorio build() {
 			return new OpcoesCargaDadosAnexoRelatorio(this);
 		}

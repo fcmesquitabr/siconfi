@@ -31,7 +31,7 @@ public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 	
 	@SuppressWarnings("unchecked")
 	public List<Ente> consultarEntesNaBase(OpcoesCargaDados opcoes){		
-		logger.debug("Consultando a base com parâmetro: " + opcoes);
+		logger.debug("Consultando a base com parâmetro: {}", opcoes);
 		
 		StringBuilder queryBuilder = new StringBuilder("SELECT e FROM Ente e WHERE e.esfera IN (:listaEsfera) ");
 		if(opcoes.isExisteCodigosIbge()) {
@@ -89,10 +89,10 @@ public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 
 	public List<Ente> consultarEntesNaAPI(){
 		logger.debug("Consultando a API...");
-		List<Ente> listaTodosEntes = consultarNaApi(new APIQueryParamUtil());
-		return listaTodosEntes;		 
+		return consultarNaApi(new APIQueryParamUtil());		 
 	}
 
+	@Override
 	protected void consultarNaApiEGerarSaidaDados(OpcoesCargaDados opcoes){
 		List<Ente> listaEntes = obterListaEntesNaAPI(opcoes);
 		gerarSaidaDados(opcoes, listaEntes);
@@ -190,13 +190,12 @@ public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 		return obterListaCodigoIbge(consultarEntesNaBase(opcoes));
 	}
 
-	private List<String> obterListaCodigoIbge (List<Ente> listaEntes){
-		List<String> listaCodigoIbge = listaEntes.parallelStream().map(Ente::getCod_ibge).collect(Collectors.toList());
-		return listaCodigoIbge;
+	private List<String> obterListaCodigoIbge (List<Ente> listaEntes){		
+		return listaEntes.parallelStream().map(Ente::getCod_ibge).collect(Collectors.toList());
 	}
 
 	@Override
-	protected int excluir(OpcoesCargaDados opcoes) {
+	public int excluir(OpcoesCargaDados opcoes) {
 		return excluirTodos();
 	}
 

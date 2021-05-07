@@ -51,7 +51,9 @@ public class OpcoesCargaDadosRGF extends OpcoesCargaDados {
 		private List<String> listaAnexos;		
 		private List<Poder> listaPoderes;
 		
-		public Builder() {}
+		public Builder() {
+			super();
+		}
 		
 		public Builder listaAnexos(List<String> listaAnexos) {
 			this.listaAnexos = listaAnexos;
@@ -63,6 +65,7 @@ public class OpcoesCargaDadosRGF extends OpcoesCargaDados {
 			return this;
 		}
 
+		@Override
 		public OpcoesCargaDadosRGF build() {
 			return new OpcoesCargaDadosRGF(this);
 		}

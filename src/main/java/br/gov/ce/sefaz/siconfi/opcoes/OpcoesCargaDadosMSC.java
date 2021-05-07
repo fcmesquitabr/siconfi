@@ -44,7 +44,7 @@ public class OpcoesCargaDadosMSC extends OpcoesCargaDados {
 	}
 
 	public List<String> getListaCodigoTipoValor() {
-		if(listaTipoValor == null) return new ArrayList<String>();
+		if(listaTipoValor == null) return new ArrayList<>();
 		
 		List<String> listaCodigoTipoValor = new ArrayList<>();
 		for(TipoValorMatrizSaldoContabeis tipoValor: listaTipoValor) {
@@ -74,7 +74,9 @@ public class OpcoesCargaDadosMSC extends OpcoesCargaDados {
 		private List<Integer> listaClasseConta;		
 		private List<TipoValorMatrizSaldoContabeis> listaTipoValor;
 		
-		public Builder() {}
+		public Builder() {
+			super();
+		}
 		
 		public Builder listaClasseConta (List<Integer> listaClasseConta) {
 			this.listaClasseConta = listaClasseConta;
@@ -91,6 +93,7 @@ public class OpcoesCargaDadosMSC extends OpcoesCargaDados {
 			return this;
 		}
 
+		@Override
 		public OpcoesCargaDadosMSC build() {
 			return new OpcoesCargaDadosMSC(this);
 		}
