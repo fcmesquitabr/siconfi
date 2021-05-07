@@ -3,7 +3,9 @@ package br.gov.ce.sefaz.siconfi.util;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SiconfiResponse<T> {
 
 	private List<T> items;
