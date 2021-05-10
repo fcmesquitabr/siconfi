@@ -181,11 +181,11 @@ public class RGFServiceTest {
 	private RelatorioGestaoFiscal obterRelatorioGestaoFiscal() {
 		RelatorioGestaoFiscal rgf = new RelatorioGestaoFiscal();
 		rgf.setAnexo("RGF-Anexo 01");
-		rgf.setCo_poder(Poder.EXECUTIVO.getCodigo());
-		rgf.setCod_ibge("23");
+		rgf.setCodigoPoder(Poder.EXECUTIVO.getCodigo());
+		rgf.setCodigoIbge("23");
 		rgf.setExercicio(2019);
-		rgf.setCod_conta("101");
-		rgf.setConta("conta");
+		rgf.setCodigoConta("101");
+		rgf.setDescricaoConta("conta");
 		rgf.setPopulacao(1000000l);
 		rgf.setInstituicao("Governo");
 		rgf.setRotulo("padrão");

@@ -28,7 +28,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 			"RGF-Anexo 04", "RGF-Anexo 05", "RGF-Anexo 06");
 
 	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "periodicidade", "periodo", "uf",
-			"cod_ibge", "co_poder", "instituicao", "anexo", "cod_conta", "conta", "coluna", "rotulo", "populacao",
+			"codigoIbge", "codigoPoder", "instituicao", "anexo", "codigoConta", "descricaoConta", "coluna", "rotulo", "populacao",
 			"valorFormatado" };
 
 	private static final String NOME_PADRAO_ARQUIVO_CSV = "rgf.csv";

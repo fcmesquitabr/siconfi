@@ -9,6 +9,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
@@ -35,13 +36,15 @@ public class RelatorioGestaoFiscal {
 	private String instituicao;
 	
 	@Column(name = "COD_IBGE")
-	private String cod_ibge;
+	@JsonProperty("cod_ibge")
+	private String codigoIbge;
 	
-	@Column(name = "COD_UF")
+	@Column(name = "COD_UF")	
 	private String uf;
 	
 	@Column(name = "COD_PODER")
-	private String co_poder;
+	@JsonProperty("co_poder")
+	private String codigoPoder;
 	
 	@Column(name = "QTD_POPULACAO")
 	private Long populacao;
@@ -56,10 +59,12 @@ public class RelatorioGestaoFiscal {
 	private String coluna;
 	
 	@Column(name = "COD_CONTA")
-	private String cod_conta;
+	@JsonProperty("cod_conta")
+	private String codigoConta;
 	
 	@Column(name = "DSC_CONTA")
-	private String conta;
+	@JsonProperty("conta")
+	private String descricaoConta;
 	
 	@Column(name = "VLR_GESTAO_FISCAL")
 	private Double valor;
@@ -97,11 +102,11 @@ public class RelatorioGestaoFiscal {
 	public void setInstituicao(String instituicao) {
 		this.instituicao = instituicao;
 	}
-	public String getCod_ibge() {
-		return cod_ibge;
+	public String getCodigoIbge() {
+		return codigoIbge;
 	}
-	public void setCod_ibge(String cod_ibge) {
-		this.cod_ibge = cod_ibge;
+	public void setCodigoIbge(String codigoIbge) {
+		this.codigoIbge = codigoIbge;
 	}
 	public String getUf() {
 		return uf;
@@ -109,11 +114,11 @@ public class RelatorioGestaoFiscal {
 	public void setUf(String uf) {
 		this.uf = uf;
 	}
-	public String getCo_poder() {
-		return co_poder;
+	public String getCodigoPoder() {
+		return codigoPoder;
 	}
-	public void setCo_poder(String co_poder) {
-		this.co_poder = co_poder;
+	public void setCodigoPoder(String codigoPoder) {
+		this.codigoPoder = codigoPoder;
 	}
 	public Long getPopulacao() {
 		return populacao;
@@ -139,17 +144,17 @@ public class RelatorioGestaoFiscal {
 	public void setColuna(String coluna) {
 		this.coluna = Utils.removerQuebrasLinha(coluna);
 	}
-	public String getCod_conta() {
-		return cod_conta;
+	public String getCodigoConta() {
+		return codigoConta;
 	}
-	public void setCod_conta(String cod_conta) {
-		this.cod_conta = cod_conta;
+	public void setCodigoConta(String codigoConta) {
+		this.codigoConta = codigoConta;
 	}
-	public String getConta() {
-		return conta;
+	public String getDescricaoConta() {
+		return descricaoConta;
 	}
-	public void setConta(String conta) {
-		this.conta = Utils.removerQuebrasLinha(conta);
+	public void setDescricaoConta(String descricaoConta) {
+		this.descricaoConta = Utils.removerQuebrasLinha(descricaoConta);
 	}
 	public Double getValor() {
 		return valor;
@@ -158,15 +163,15 @@ public class RelatorioGestaoFiscal {
 		this.valor = valor;
 	}
 	public String getValorFormatado() {
-		if(valorFormatado == null) valorFormatado = Utils.getValorFormatado(valor.doubleValue());
+		if(valorFormatado == null) valorFormatado = Utils.getValorFormatado(valor);
 		return valorFormatado;
 	}
 	
 	@Override
 	public String toString() {
 		return "RelatorioGestaoFiscal [exercicio=" + exercicio + ", periodo=" + periodo + ", periodicidade="
-				+ periodicidade + ", instituicao=" + instituicao + ", cod_ibge=" + cod_ibge + ", uf=" + uf
-				+ ", co_poder=" + co_poder + ", populacao=" + populacao + ", anexo=" + anexo + ", rotulo=" + rotulo
-				+ ", coluna=" + coluna + ", cod_conta=" + cod_conta + ", conta=" + conta + ", valor=" + valor + "]";
+				+ periodicidade + ", instituicao=" + instituicao + ", cod_ibge=" + codigoIbge + ", uf=" + uf
+				+ ", co_poder=" + codigoPoder + ", populacao=" + populacao + ", anexo=" + anexo + ", rotulo=" + rotulo
+				+ ", coluna=" + coluna + ", cod_conta=" + codigoConta + ", conta=" + descricaoConta + ", valor=" + valor + "]";
 	}
 }

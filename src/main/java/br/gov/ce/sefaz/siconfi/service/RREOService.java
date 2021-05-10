@@ -29,7 +29,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 			"RREO-Anexo 13", "RREO-Anexo 14");
 
 	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "periodicidade", "periodo", "uf",
-			"cod_ibge", "instituicao", "demonstrativo", "anexo", "cod_conta", "conta", "coluna", "rotulo", "populacao",
+			"codigoIbge", "instituicao", "demonstrativo", "anexo", "codigoConta", "descricaoConta", "coluna", "rotulo", "populacao",
 			"valorFormatado" };
 	
 	private static final String NOME_PADRAO_ARQUIVO_CSV = "rreo.csv";

@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Table(schema = "TAB_SICONFI", name = "MATRIZ_SAL_CONT_ORCAMENT")
@@ -26,16 +27,20 @@ public class MatrizSaldoContabeisOrcamentaria extends MatrizSaldoContabeis {
     private String subfuncao;
 	
 	@Column(name = "NUM_EDUCACAO_SAUDE")
-    private Integer educacao_saude;
+	@JsonProperty("educacao_saude")
+    private Integer educacaoSaude;
 	
 	@Column(name = "DSC_NATUREZA_DESPESA")
-    private String natureza_despesa;
+	@JsonProperty("natureza_despesa")
+    private String naturezaDespesa;
 	
 	@Column(name = "NUM_ANO_INSCRICAO")
-    private Integer ano_inscricao;
+	@JsonProperty("ano_inscricao")
+    private Integer anoInscricao;
 	
 	@Column(name = "DSC_NATUREZA_RECEITA")
-    private String natureza_receita;
+	@JsonProperty("natureza_receita")
+    private String naturezaReceita;
 
 	@Column(name = "VLR_SALDO_ORCAMENTARIO")
 	private Double valor;
@@ -43,13 +48,13 @@ public class MatrizSaldoContabeisOrcamentaria extends MatrizSaldoContabeis {
 	@Override
 	public String toString() {
 		return "MatrizSaldoContabeisOrcamentaria [id=" + id + ", exercicio=" + exercicio + ", mes_referencia="
-				+ mes_referencia + ", cod_ibge=" + cod_ibge + ", poder_orgao=" + poder_orgao + ", tipo_matriz="
-				+ tipo_matriz + ", classe_conta=" + classe_conta + ", natureza_conta=" + natureza_conta
-				+ ", conta_contabil=" + conta_contabil + ", funcao=" + funcao + ", subfuncao=" + subfuncao
-				+ ", educacao_saude=" + educacao_saude + ", natureza_despesa=" + natureza_despesa + ", ano_inscricao="
-				+ ano_inscricao + ", natureza_receita=" + natureza_receita + ", ano_fonte_recursos="
-				+ ano_fonte_recursos + ", fonte_recursos=" + fonte_recursos + ", data_referencia=" + data_referencia
-				+ ", entrada_msc=" + entrada_msc + ", tipo_valor=" + tipo_valor + ", valor=" + valor + "]";
+				+ mesReferencia + ", cod_ibge=" + codigoIbge + ", poder_orgao=" + poderOrgao + ", tipo_matriz="
+				+ tipoMatriz + ", classe_conta=" + classeConta + ", natureza_conta=" + naturezaConta
+				+ ", conta_contabil=" + contaContabil + ", funcao=" + funcao + ", subfuncao=" + subfuncao
+				+ ", educacao_saude=" + educacaoSaude + ", natureza_despesa=" + naturezaDespesa + ", ano_inscricao="
+				+ anoInscricao + ", natureza_receita=" + naturezaReceita + ", ano_fonte_recursos="
+				+ anoFonteRecursos + ", fonte_recursos=" + fonteRecursos + ", data_referencia=" + dataReferencia
+				+ ", entrada_msc=" + entradaMsc + ", tipo_valor=" + tipoValor + ", valor=" + valor + "]";
 	}
 
 	public Integer getId() {
@@ -76,36 +81,36 @@ public class MatrizSaldoContabeisOrcamentaria extends MatrizSaldoContabeis {
 		this.subfuncao = subfuncao;
 	}
 
-	public Integer getEducacao_saude() {
-		return educacao_saude;
+	public Integer getEducacaoSaude() {
+		return educacaoSaude;
 	}
 
-	public void setEducacao_saude(Integer educacao_saude) {
-		this.educacao_saude = educacao_saude;
+	public void setEducacaoSaude(Integer educacaoSaude) {
+		this.educacaoSaude = educacaoSaude;
 	}
 
-	public String getNatureza_despesa() {
-		return natureza_despesa;
+	public String getNaturezaDespesa() {
+		return naturezaDespesa;
 	}
 
-	public void setNatureza_despesa(String natureza_despesa) {
-		this.natureza_despesa = natureza_despesa;
+	public void setNaturezaDespesa(String naturezaDespesa) {
+		this.naturezaDespesa = naturezaDespesa;
 	}
 
-	public Integer getAno_inscricao() {
-		return ano_inscricao;
+	public Integer getAnoInscricao() {
+		return anoInscricao;
 	}
 
-	public void setAno_inscricao(Integer ano_inscricao) {
-		this.ano_inscricao = ano_inscricao;
+	public void setAnoInscricao(Integer anoInscricao) {
+		this.anoInscricao = anoInscricao;
 	}
 
-	public String getNatureza_receita() {
-		return natureza_receita;
+	public String getNaturezaReceita() {
+		return naturezaReceita;
 	}
 
-	public void setNatureza_receita(String natureza_receita) {
-		this.natureza_receita = natureza_receita;
+	public void setNaturezaReceita(String naturezaReceita) {
+		this.naturezaReceita = naturezaReceita;
 	}
 
 	public Double getValor() {

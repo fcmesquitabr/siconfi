@@ -10,6 +10,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
 @MappedSuperclass
@@ -20,41 +22,53 @@ public abstract class MatrizSaldoContabeis {
 	protected Integer exercicio;
 	
 	@Column(name = "NUM_MES_REFERENCIA")
-	protected Integer mes_referencia;
+	@JsonProperty("mes_referencia")
+	protected Integer mesReferencia;
 	
 	@Column(name = "COD_IBGE")
-	protected String cod_ibge;
+	@JsonProperty("cod_ibge")
+	protected String codigoIbge;
 	
 	@Column(name = "DSC_PODER_ORGAO")
-	protected String poder_orgao;
+	@JsonProperty("poder_orgao")
+	protected String poderOrgao;
 	
 	@Column(name = "TIP_MATRIZ")
-	protected String tipo_matriz;	
+	@JsonProperty("tipo_matriz")
+	protected String tipoMatriz;	
 
 	@Column(name = "NUM_CLASSE_CONTA")
-	protected Integer classe_conta;
+	@JsonProperty("classe_conta")
+	protected Integer classeConta;
 	
 	@Column(name = "DSC_NATUREZA_CONTA")
-	protected String natureza_conta;
+	@JsonProperty("natureza_conta")
+	protected String naturezaConta;
 	
 	@Column(name = "COD_CONTA_CONTABIL")
-	protected String conta_contabil;
+	@JsonProperty("conta_contabil")
+	protected String contaContabil;
 	
 	@Column(name = "NUM_ANO_FONTE_RECURSOS")
-    protected Integer ano_fonte_recursos;
+	@JsonProperty("ano_fonte_recursos")
+    protected Integer anoFonteRecursos;
 	
 	@Column(name = "DSC_FONTE_RECURSOS")
-    protected String fonte_recursos;
+	@JsonProperty("fonte_recursos")
+    protected String fonteRecursos;
 
 	@Column(name = "DAT_REFERENCIA")
 	@Temporal(value = TemporalType.TIMESTAMP)
-	protected Date data_referencia;
+	@JsonProperty("data_referencia")
+	protected Date dataReferencia;
 	
 	@Column(name = "NUM_ENTRADA_MSC")
-	protected Integer entrada_msc;
+	@JsonProperty("entrada_msc")
+	protected Integer entradaMsc;
 	
 	@Column(name = "TIP_VALOR")
-	protected String tipo_valor;
+	@JsonProperty("tipo_valor")
+	protected String tipoValor;
 
 	public abstract Double getValor();
 
@@ -74,99 +88,99 @@ public abstract class MatrizSaldoContabeis {
 		this.exercicio = exercicio;
 	}
 
-	public Integer getMes_referencia() {
-		return mes_referencia;
+	public Integer getMesReferencia() {
+		return mesReferencia;
 	}
 
-	public void setMes_referencia(Integer mes_referencia) {
-		this.mes_referencia = mes_referencia;
+	public void setMesReferencia(Integer mesReferencia) {
+		this.mesReferencia = mesReferencia;
 	}
 
-	public String getCod_ibge() {
-		return cod_ibge;
+	public String getCodigoIbge() {
+		return codigoIbge;
 	}
 
-	public void setCod_ibge(String cod_ibge) {
-		this.cod_ibge = cod_ibge;
+	public void setCodigoIbge(String codigIbge) {
+		this.codigoIbge = codigIbge;
 	}
 
-	public String getTipo_matriz() {
-		return tipo_matriz;
+	public String getTipoMatriz() {
+		return tipoMatriz;
 	}
 
-	public void setTipo_matriz(String tipo_matriz) {
-		this.tipo_matriz = tipo_matriz;
+	public void setTipoMatriz(String tipoMatriz) {
+		this.tipoMatriz = tipoMatriz;
 	}
 
-	public String getPoder_orgao() {
-		return poder_orgao;
+	public String getPoderOrgao() {
+		return poderOrgao;
 	}
 
-	public void setPoder_orgao(String poder_orgao) {
-		this.poder_orgao = poder_orgao;
+	public void setPoderOrgao(String poderOrgao) {
+		this.poderOrgao = poderOrgao;
 	}
 
-	public Integer getAno_fonte_recursos() {
-		return ano_fonte_recursos;
+	public Integer getAnoFonteRecursos() {
+		return anoFonteRecursos;
 	}
 
-	public void setAno_fonte_recursos(Integer ano_fonte_recursos) {
-		this.ano_fonte_recursos = ano_fonte_recursos;
+	public void setAnoFonteRecursos(Integer anoFonteRecursos) {
+		this.anoFonteRecursos = anoFonteRecursos;
 	}
 
-	public String getFonte_recursos() {
-		return fonte_recursos;
+	public String getFonteRecursos() {
+		return fonteRecursos;
 	}
 
-	public void setFonte_recursos(String fonte_recursos) {
-		this.fonte_recursos = fonte_recursos;
+	public void setFonteRecursos(String fonteRecursos) {
+		this.fonteRecursos = fonteRecursos;
 	}
 
-	public Integer getClasse_conta() {
-		return classe_conta;
+	public Integer getClasseConta() {
+		return classeConta;
 	}
 
-	public void setClasse_conta(Integer classe_conta) {
-		this.classe_conta = classe_conta;
+	public void setClasseConta(Integer classeConta) {
+		this.classeConta = classeConta;
 	}
 
-	public String getNatureza_conta() {
-		return natureza_conta;
+	public String getNaturezaConta() {
+		return naturezaConta;
 	}
 
-	public void setNatureza_conta(String natureza_conta) {
-		this.natureza_conta = natureza_conta;
+	public void setNaturezaConta(String naturezaConta) {
+		this.naturezaConta = naturezaConta;
 	}
 
-	public String getConta_contabil() {
-		return conta_contabil;
+	public String getContaContabil() {
+		return contaContabil;
 	}
 
-	public void setConta_contabil(String conta_contabil) {
-		this.conta_contabil = conta_contabil;
+	public void setContaContabil(String contaContabil) {
+		this.contaContabil = contaContabil;
 	}
 
-	public Date getData_referencia() {
-		return data_referencia;
+	public Date getDataReferencia() {
+		return dataReferencia;
 	}
 
-	public void setData_referencia(Date data_referencia) {
-		this.data_referencia = data_referencia;
+	public void setDataReferencia(Date dataReferencia) {
+		this.dataReferencia = dataReferencia;
 	}
 
-	public Integer getEntrada_msc() {
-		return entrada_msc;
+	public Integer getEntradaMsc() {
+		return entradaMsc;
 	}
 
-	public void setEntrada_msc(Integer entrada_msc) {
-		this.entrada_msc = entrada_msc;
+	public void setEntradaMsc(Integer entradaMsc) {
+		this.entradaMsc = entradaMsc;
 	}
 
-	public String getTipo_valor() {
-		return tipo_valor;
+	public String getTipoValor() {
+		return tipoValor;
 	}
 
-	public void setTipo_valor(String tipo_valor) {
-		this.tipo_valor = tipo_valor;
+	public void setTipoValor(String tipoValor) {
+		this.tipoValor = tipoValor;
 	}
 }

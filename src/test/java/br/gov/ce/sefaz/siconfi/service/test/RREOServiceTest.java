@@ -196,7 +196,7 @@ public class RREOServiceTest {
 	private RelatorioResumidoExecucaoOrcamentaria obterRelatorioResumidoExecucaoOrcamentaria() {
 		RelatorioResumidoExecucaoOrcamentaria rreo = new RelatorioResumidoExecucaoOrcamentaria();
 		rreo.setAnexo("RREO-Anexo 01");
-		rreo.setCod_ibge("23");
+		rreo.setCodigoIbge("23");
 		rreo.setExercicio(2019);
 		rreo.setPeriodo(1);
 		rreo.setPeriodicidade(Periodicidade.BIMESTRAL.getCodigo());

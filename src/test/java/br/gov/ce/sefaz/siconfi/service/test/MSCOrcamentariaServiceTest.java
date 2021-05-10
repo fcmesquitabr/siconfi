@@ -189,10 +189,10 @@ public class MSCOrcamentariaServiceTest {
 	private MatrizSaldoContabeisOrcamentaria obterMSCOrcamentaria() {
 		MatrizSaldoContabeisOrcamentaria msco = new MatrizSaldoContabeisOrcamentaria();
 		msco.setExercicio(2019);
-		msco.setMes_referencia(1);
-		msco.setCod_ibge("23");
-		msco.setTipo_matriz(TipoMatrizSaldoContabeis.MSCC.getCodigo());
-		msco.setTipo_valor(TipoValorMatrizSaldoContabeis.period_change.getCodigo());
+		msco.setMesReferencia(1);
+		msco.setCodigoIbge("23");
+		msco.setTipoMatriz(TipoMatrizSaldoContabeis.MSCC.getCodigo());
+		msco.setTipoValor(TipoValorMatrizSaldoContabeis.period_change.getCodigo());
 		msco.setValor(10.1);
 		return msco;
 	}

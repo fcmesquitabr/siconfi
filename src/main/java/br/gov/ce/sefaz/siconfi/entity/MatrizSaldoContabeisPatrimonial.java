@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Table(schema = "TAB_SICONFI", name = "MATRIZ_SAL_CONT_PATRIMON")
@@ -20,10 +21,12 @@ public class MatrizSaldoContabeisPatrimonial extends MatrizSaldoContabeis {
 	private Integer id;
 
 	@Column(name = "NUM_FINANCEIRO_PERMANENTE")
-    private Integer financeiro_permanente;
+	@JsonProperty("financeiro_permanente")
+    private Integer financeiroPermanente;
 	
 	@Column(name = "NUM_DIVIDA_CONSOLIDADA")
-    private Integer divida_consolidada;
+	@JsonProperty("divida_consolidada")
+    private Integer dividaConsolidada;
 
 	@Column(name = "VLR_SALDO_PATRIMONIAL")
 	private Double valor;
@@ -31,12 +34,12 @@ public class MatrizSaldoContabeisPatrimonial extends MatrizSaldoContabeis {
 	@Override
 	public String toString() {
 		return "MatrizSaldoContabeisPatrimonial [id=" + id + ", exercicio=" + exercicio + ", mes_referencia="
-				+ mes_referencia + ", cod_ibge=" + cod_ibge + ", poder_orgao=" + poder_orgao + ", tipo_matriz="
-				+ tipo_matriz + ", classe_conta=" + classe_conta + ", natureza_conta=" + natureza_conta
-				+ ", conta_contabil=" + conta_contabil + ", financeiro_permanente=" + financeiro_permanente
-				+ ", ano_fonte_recursos=" + ano_fonte_recursos + ", fonte_recursos=" + fonte_recursos
-				+ ", divida_consolidada=" + divida_consolidada + ", data_referencia=" + data_referencia
-				+ ", entrada_msc=" + entrada_msc + ", tipo_valor=" + tipo_valor + ", valor=" + valor + "]";
+				+ mesReferencia + ", cod_ibge=" + codigoIbge + ", poder_orgao=" + poderOrgao + ", tipo_matriz="
+				+ tipoMatriz + ", classe_conta=" + classeConta + ", natureza_conta=" + naturezaConta
+				+ ", conta_contabil=" + contaContabil + ", financeiro_permanente=" + financeiroPermanente
+				+ ", ano_fonte_recursos=" + anoFonteRecursos + ", fonte_recursos=" + fonteRecursos
+				+ ", divida_consolidada=" + dividaConsolidada + ", data_referencia=" + dataReferencia
+				+ ", entrada_msc=" + entradaMsc + ", tipo_valor=" + tipoValor + ", valor=" + valor + "]";
 	}
 
 	public Integer getId() {
@@ -47,18 +50,18 @@ public class MatrizSaldoContabeisPatrimonial extends MatrizSaldoContabeis {
 		this.id = id;
 	}
 
-	public Integer getFinanceiro_permanente() {
-		return financeiro_permanente;
+	public Integer getFinanceiroPermanente() {
+		return financeiroPermanente;
 	}
-	public void setFinanceiro_permanente(Integer financeiro_permanente) {
-		this.financeiro_permanente = financeiro_permanente;
+	public void setFinanceiroPermanente(Integer financeiroPermanente) {
+		this.financeiroPermanente = financeiroPermanente;
 	}
 
-	public Integer getDivida_consolidada() {
-		return divida_consolidada;
+	public Integer getDividaConsolidada() {
+		return dividaConsolidada;
 	}
-	public void setDivida_consolidada(Integer divida_consolidada) {
-		this.divida_consolidada = divida_consolidada;
+	public void setDividaConsolidada(Integer dividaConsolidada) {
+		this.dividaConsolidada = dividaConsolidada;
 	}
 
 	public Double getValor() {

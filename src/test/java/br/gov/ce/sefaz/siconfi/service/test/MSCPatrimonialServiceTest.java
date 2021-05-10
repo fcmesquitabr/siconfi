@@ -187,19 +187,19 @@ public class MSCPatrimonialServiceTest {
 	private MatrizSaldoContabeisPatrimonial obterMSCPatrimonial() {
 		MatrizSaldoContabeisPatrimonial mscp = new MatrizSaldoContabeisPatrimonial();
 		mscp.setExercicio(2019);
-		mscp.setMes_referencia(1);
-		mscp.setCod_ibge("23");
-		mscp.setAno_fonte_recursos(2019);
-		mscp.setClasse_conta(1);
-		mscp.setConta_contabil("10000");
-		mscp.setDivida_consolidada(0);
-		mscp.setFinanceiro_permanente(0);
-		mscp.setNatureza_conta("C");
-		mscp.setFonte_recursos("");
-		mscp.setTipo_matriz(TipoMatrizSaldoContabeis.MSCC.getCodigo());
-		mscp.setTipo_valor(TipoValorMatrizSaldoContabeis.period_change.getCodigo());
+		mscp.setMesReferencia(1);
+		mscp.setCodigoIbge("23");
+		mscp.setAnoFonteRecursos(2019);
+		mscp.setClasseConta(1);
+		mscp.setContaContabil("10000");
+		mscp.setDividaConsolidada(0);
+		mscp.setFinanceiroPermanente(0);
+		mscp.setNaturezaConta("C");
+		mscp.setFonteRecursos("");
+		mscp.setTipoMatriz(TipoMatrizSaldoContabeis.MSCC.getCodigo());
+		mscp.setTipoValor(TipoValorMatrizSaldoContabeis.period_change.getCodigo());
 		mscp.setValor(10.1);
-		mscp.setPoder_orgao("1000");
+		mscp.setPoderOrgao("1000");
 		return mscp;
 	}
 

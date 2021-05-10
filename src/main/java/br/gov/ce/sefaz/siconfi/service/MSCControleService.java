@@ -12,10 +12,10 @@ public class MSCControleService extends MSCService<MatrizSaldoContabeisControle>
 
 	private Logger logger = null;
 
-	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "mes_referencia", "cod_ibge", "poder_orgao", "tipo_matriz",
-			"classe_conta", "natureza_conta", "conta_contabil", "funcao", "subfuncao", "educacao_saude", 
-			"natureza_despesa", "ano_inscricao", "ano_fonte_recursos", "fonte_recursos", 
-			"data_referencia", "entrada_msc", "tipo_valor", "valorFormatado"};
+	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "mesReferencia", "codigoIbge", "poderOrgao", "tipoMatriz",
+			"classeConta", "naturezaConta", "contaContabil", "funcao", "subfuncao", "educacaoSaude", 
+			"naturezaDespesa", "anoInscricao", "anoFonteRecursos", "fonteRecursos", 
+			"dataReferencia", "entradaMsc", "tipoValor", "valorFormatado"};
 	
 	private static final String NOME_PADRAO_ARQUIVO_CSV = "msc_controle.csv";
 

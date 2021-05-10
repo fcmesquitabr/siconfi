@@ -190,10 +190,10 @@ public class MSCControleTest {
 	private MatrizSaldoContabeisControle obterMSCControle() {
 		MatrizSaldoContabeisControle mscc = new MatrizSaldoContabeisControle();
 		mscc.setExercicio(2019);
-		mscc.setMes_referencia(1);
-		mscc.setCod_ibge("23");
-		mscc.setTipo_matriz(TipoMatrizSaldoContabeis.MSCC.getCodigo());
-		mscc.setTipo_valor(TipoValorMatrizSaldoContabeis.period_change.getCodigo());
+		mscc.setMesReferencia(1);
+		mscc.setCodigoIbge("23");
+		mscc.setTipoMatriz(TipoMatrizSaldoContabeis.MSCC.getCodigo());
+		mscc.setTipoValor(TipoValorMatrizSaldoContabeis.period_change.getCodigo());
 		mscc.setValor(10.1);
 		return mscc;
 	}

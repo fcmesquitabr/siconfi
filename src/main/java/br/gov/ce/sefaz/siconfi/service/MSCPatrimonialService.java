@@ -12,9 +12,9 @@ public class MSCPatrimonialService extends MSCService<MatrizSaldoContabeisPatrim
 
 	private static Logger logger = null;
 
-	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "mes_referencia", "cod_ibge", "poder_orgao", "tipo_matriz",
-			"classe_conta", "natureza_conta", "conta_contabil", "financeiro_permanente", "ano_fonte_recursos", "fonte_recursos", 
-			"divida_consolidada", "data_referencia", "entrada_msc", "tipo_valor", "valorFormatado"};
+	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "mesReferencia", "codigoIbge", "poderOrgao", "tipoMatriz",
+			"classeConta", "naturezaConta", "contaContabil", "financeiroPermanente", "anoFonteRecursos", "fonteRecursos", 
+			"dividaConsolidada", "dataReferencia", "entradaMsc", "tipoValor", "valorFormatado"};
 	
 	private static final String NOME_PADRAO_ARQUIVO_CSV = "msc_patrimonial.csv";
 

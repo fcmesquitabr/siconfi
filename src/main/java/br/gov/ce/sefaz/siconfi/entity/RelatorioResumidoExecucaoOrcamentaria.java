@@ -9,6 +9,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
@@ -38,7 +39,8 @@ public class RelatorioResumidoExecucaoOrcamentaria {
 	private String instituicao;
 		
 	@Column(name = "COD_IBGE")
-	private String cod_ibge;
+	@JsonProperty("cod_ibge")
+	private String codigoIbge;
 	
 	@Column(name = "COD_UF")
 	private String uf;
@@ -56,10 +58,12 @@ public class RelatorioResumidoExecucaoOrcamentaria {
 	private String coluna;
 	
 	@Column(name = "COD_CONTA")
-	private String cod_conta;
+	@JsonProperty("cod_conta")
+	private String codigoConta;
 	
 	@Column(name = "DSC_CONTA")
-	private String conta;
+	@JsonProperty("conta")
+	private String descricaoConta;
 	
 	@Column(name = "VLR_EXECUCAO_ORCAMENTARIA")
 	private Double valor; 
@@ -103,11 +107,11 @@ public class RelatorioResumidoExecucaoOrcamentaria {
 	public void setInstituicao(String instituicao) {
 		this.instituicao = instituicao;
 	}
-	public String getCod_ibge() {
-		return cod_ibge;
+	public String getCodigoIbge() {
+		return codigoIbge;
 	}
-	public void setCod_ibge(String cod_ibge) {
-		this.cod_ibge = cod_ibge;
+	public void setCodigoIbge(String codigoIbge) {
+		this.codigoIbge = codigoIbge;
 	}
 	public String getUf() {
 		return uf;
@@ -139,17 +143,17 @@ public class RelatorioResumidoExecucaoOrcamentaria {
 	public void setColuna(String coluna) {
 		this.coluna = coluna;
 	}
-	public String getCod_conta() {
-		return cod_conta;
+	public String getCodigoConta() {
+		return codigoConta;
 	}
-	public void setCod_conta(String cod_conta) {
-		this.cod_conta = cod_conta;
+	public void setCodigoConta(String codigoConta) {
+		this.codigoConta = codigoConta;
 	}
-	public String getConta() {
-		return conta;
+	public String getDescricaoConta() {
+		return descricaoConta;
 	}
-	public void setConta(String conta) {
-		this.conta = conta;
+	public void setDescricaoConta(String descricaoConta) {
+		this.descricaoConta = descricaoConta;
 	}
 	public Double getValor() {
 		return valor;
@@ -166,8 +170,8 @@ public class RelatorioResumidoExecucaoOrcamentaria {
 	public String toString() {
 		return "RelatorioResumidoExecucaoOrcamentaria [exercicio=" + exercicio + ", demonstrativo=" + demonstrativo
 				+ ", periodo=" + periodo + ", periodicidade=" + periodicidade + ", instituicao=" + instituicao
-				+ ", cod_ibge=" + cod_ibge + ", uf=" + uf + ", populacao=" + populacao + ", anexo=" + anexo
-				+ ", rotulo=" + rotulo + ", coluna=" + coluna + ", cod_conta=" + cod_conta + ", conta=" + conta
+				+ ", cod_ibge=" + codigoIbge + ", uf=" + uf + ", populacao=" + populacao + ", anexo=" + anexo
+				+ ", rotulo=" + rotulo + ", coluna=" + coluna + ", cod_conta=" + codigoConta + ", conta=" + descricaoConta
 				+ ", valor=" + getValorFormatado() + "]";
 	}	  	  
 }
