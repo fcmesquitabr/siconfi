@@ -10,7 +10,7 @@ import br.gov.ce.sefaz.siconfi.util.LoggerUtil;
 
 public class MSCPatrimonialService extends MSCService<MatrizSaldoContabeisPatrimonial> {
 
-	private static Logger logger = null;
+	private Logger logger = null;
 
 	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "mesReferencia", "codigoIbge", "poderOrgao", "tipoMatriz",
 			"classeConta", "naturezaConta", "contaContabil", "financeiroPermanente", "anoFonteRecursos", "fonteRecursos", 
