@@ -29,14 +29,14 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 	
 	protected CsvUtil<T> csvUtil;
 
-	protected ConsultaApiUtil<T> consultaApiUtil = new ConsultaApiUtil<T>(URL_SERVICE, getApiPath(), API_RESPONSE_TYPE);
+	protected ConsultaApiUtil<T> consultaApiUtil = new ConsultaApiUtil<>(URL_SERVICE, getApiPath(), API_RESPONSE_TYPE);
 
 	private EntityManagerFactory emf;
 	
 	private EntityManager em;
 	
 	public SiconfiService(){
-		csvUtil = new CsvUtil<T>(getEntityClass());
+		csvUtil = new CsvUtil<>(getEntityClass());
 	}
 	
 	protected abstract String getNomePadraoArquivoCSV();
@@ -102,6 +102,7 @@ public abstract class SiconfiService <T, O extends OpcoesCargaDados> {
 
 	protected void consultarNaApiEGerarSaidaDados(O opcoes){
 		for (Integer exercicio : getExercicios(opcoes)) {
+			getLogger().info("Consultando dados para o exercício: {}", exercicio);
 			consultarNaApiEGerarSaidaDados(opcoes, exercicio);
 		}
 	}
