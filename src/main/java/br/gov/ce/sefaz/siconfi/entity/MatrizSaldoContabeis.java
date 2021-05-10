@@ -66,14 +66,6 @@ public abstract class MatrizSaldoContabeis {
 		return valorFormatado;
 	}
 
-//	public Integer getId() {
-//		return id;
-//	}
-//
-//	public void setId(Integer id) {
-//		this.id = id;
-//	}
-
 	public Integer getExercicio() {
 		return exercicio;
 	}

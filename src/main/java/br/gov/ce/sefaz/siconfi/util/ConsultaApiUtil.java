@@ -46,8 +46,13 @@ public class ConsultaApiUtil<T> {
 
 	public List<T> lerEntidades(APIQueryParamUtil apiQueryParamUtil, Class<T> clazz) {
 		Response response = obterResponseAPI(apiQueryParamUtil);
-		if(response == null || response.getStatus() != Response.Status.OK.getStatusCode()) {
+		if(response == null) {
+			logger.info("API retornou resposta vazia");
 			return new ArrayList<>();
+		} else if(response.getStatus() != Response.Status.OK.getStatusCode()) {
+			String corpoResposta = response.readEntity(String.class);
+			logger.info("Corpo da Resposta: {}", corpoResposta);
+			return new ArrayList<>();			
 		}
 		
 		GenericType<SiconfiResponse<T>> genericType = new GenericType<>(new ParameterizedType() {
