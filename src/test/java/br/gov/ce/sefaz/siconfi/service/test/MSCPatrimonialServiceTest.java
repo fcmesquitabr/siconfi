@@ -31,6 +31,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
+import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.entity.MatrizSaldoContabeisPatrimonial;
 import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.enums.TipoMatrizSaldoContabeis;
@@ -48,9 +49,9 @@ import br.gov.ce.sefaz.siconfi.util.LoggerUtil;
 @PowerMockIgnore({ "javax.management.*", "javax.script.*" })
 public class MSCPatrimonialServiceTest {
 
-	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "mes_referencia", "cod_ibge", "poder_orgao", "tipo_matriz",
-			"classe_conta", "natureza_conta", "conta_contabil", "financeiro_permanente", "ano_fonte_recursos", "fonte_recursos", 
-			"divida_consolidada", "data_referencia", "entrada_msc", "tipo_valor", "valorFormatado"};	
+	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "mesReferencia", "codigoIbge", "poderOrgao", "tipoMatriz",
+			"classeConta", "naturezaConta", "contaContabil", "financeiroPermanente", "anoFonteRecursos", "fonteRecursos", 
+			"dividaConsolidada", "dataReferencia", "entradaMsc", "tipoValor", "valorFormatado" };	
 	private static final String NOME_PADRAO_ARQUIVO_CSV = "msc_patrimonial.csv";
 
 	private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
@@ -99,13 +100,13 @@ public class MSCPatrimonialServiceTest {
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.ARQUIVO)
 				.listaClasseConta(listaClassesConta).build();
 		MatrizSaldoContabeisPatrimonial mscp = obterMSCPatrimonial();
-		List<String> listaCodigoIbge = Arrays.asList("21", "22", "23");
-		when(enteService.obterListaCodigosIbgeNaAPI(opcoes)).thenReturn(listaCodigoIbge);
+		List<Ente> listaCodigoIbge = Arrays.asList(new Ente("21","E"), new Ente("22","E"), new Ente("23","E"));
+		when(enteService.obterListaEntesNaAPI(opcoes)).thenReturn(listaCodigoIbge);
 		when(consultaApiUtil.lerEntidades(any(), eq(MatrizSaldoContabeisPatrimonial.class)))
 				.thenReturn(Arrays.asList(mscp));
 
 		mscService.carregarDados(opcoes);
-		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
+		verify(enteService).obterListaEntesNaAPI(opcoes);
 		verify(consultaApiUtil,
 				times(listaClassesConta.size() * listaCodigoIbge.size() * TipoValorMatrizSaldoContabeis.values().length
 						* Constantes.MESES.size())).lerEntidades(any(), eq(MatrizSaldoContabeisPatrimonial.class));
@@ -129,21 +130,21 @@ public class MSCPatrimonialServiceTest {
 				.listaTipoValor(listaTipoValor)
 				.build();
 		MatrizSaldoContabeisPatrimonial mscp = obterMSCPatrimonial();
-		List<String> listaCodigoIbge = Arrays.asList("22", "23");
-		when(enteService.obterListaCodigosIbgeNaAPI(opcoes)).thenReturn(listaCodigoIbge);
+		List<Ente> listaEntes = Arrays.asList(new Ente("22","E"), new Ente("23","E"));
+		when(enteService.obterListaEntesNaAPI(opcoes)).thenReturn(listaEntes);
 		when(consultaApiUtil.lerEntidades(any(), eq(MatrizSaldoContabeisPatrimonial.class)))
 				.thenReturn(Arrays.asList(mscp));
 
 		mscService.carregarDados(opcoes);
-		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
+		verify(enteService).obterListaEntesNaAPI(opcoes);
 		verify(consultaApiUtil,
-				times(Constantes.CLASSES_CONTAS_PATRIMONIAIS.size() * listaTipoValor.size() * listaCodigoIbge.size() * Constantes.BIMESTRES.size()))
+				times(Constantes.CLASSES_CONTAS_PATRIMONIAIS.size() * listaTipoValor.size() * listaEntes.size() * Constantes.BIMESTRES.size()))
 						.lerEntidades(any(), eq(MatrizSaldoContabeisPatrimonial.class));
 
 		try {
 			verify(csvUtil).writeHeader(COLUNAS_ARQUIVO_CSV, "relatorio.csv");
 			verify(csvUtil,
-					times(Constantes.CLASSES_CONTAS_PATRIMONIAIS.size() * listaTipoValor.size() * listaCodigoIbge.size() * Constantes.BIMESTRES.size()))
+					times(Constantes.CLASSES_CONTAS_PATRIMONIAIS.size() * listaTipoValor.size() * listaEntes.size() * Constantes.BIMESTRES.size()))
 							.writeToFile(Arrays.asList(mscp), COLUNAS_ARQUIVO_CSV, "relatorio.csv");
 		} catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
 			e.printStackTrace();
@@ -174,12 +175,12 @@ public class MSCPatrimonialServiceTest {
 				.build();
 		iniciarDbUnit();
 
-		when(enteService.obterListaCodigosIbgeNaAPI(any())).thenReturn(Arrays.asList("23"));
+		when(enteService.obterListaEntesNaAPI(any())).thenReturn(Arrays.asList(new Ente("23","E")));
 		when(consultaApiUtil.lerEntidades(any(), eq(MatrizSaldoContabeisPatrimonial.class))).thenReturn(Arrays.asList(obterMSCPatrimonial()));
 
 		mscService.carregarDados(opcoes);
 		
-		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
+		verify(enteService).obterListaEntesNaAPI(opcoes);
 		verify(consultaApiUtil, times(Constantes.CLASSES_CONTAS_PATRIMONIAIS.size() * TipoValorMatrizSaldoContabeis.values().length)).lerEntidades(any(), eq(MatrizSaldoContabeisPatrimonial.class));		
 		verify(logger, times(Constantes.CLASSES_CONTAS_PATRIMONIAIS.size() * TipoValorMatrizSaldoContabeis.values().length)).info("Excluindo dados do banco de dados...");
 	}

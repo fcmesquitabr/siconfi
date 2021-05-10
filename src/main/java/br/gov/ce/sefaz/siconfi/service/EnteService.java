@@ -35,7 +35,7 @@ public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 		
 		StringBuilder queryBuilder = new StringBuilder("SELECT e FROM Ente e WHERE e.esfera IN (:listaEsfera) ");
 		if(opcoes.isExisteCodigosIbge()) {
-			queryBuilder.append(" AND e.cod_ibge IN (:codigosIbge) ");
+			queryBuilder.append(" AND e.codigoIbge IN (:codigosIbge) ");
 		}
 
 		if(!opcoes.isListaCodigosUfVazia()) {

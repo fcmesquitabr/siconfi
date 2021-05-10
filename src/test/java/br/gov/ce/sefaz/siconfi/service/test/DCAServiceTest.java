@@ -31,6 +31,7 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 import br.gov.ce.sefaz.siconfi.entity.DeclaracaoContasAnuais;
+import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.entity.ExtratoEntrega;
 import br.gov.ce.sefaz.siconfi.enums.Entregavel;
 import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
@@ -48,8 +49,8 @@ import br.gov.ce.sefaz.siconfi.util.LoggerUtil;
 @PowerMockIgnore( {"javax.management.*", "javax.script.*" })
 public class DCAServiceTest {
 
-	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "uf", "cod_ibge", "instituicao", "anexo",
-			"cod_conta", "conta", "coluna", "rotulo", "populacao", "valorFormatado" };	
+	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "uf", "codigoIbge", "instituicao", "anexo",
+			"codigoConta", "descricaoConta", "coluna", "rotulo", "populacao", "valorFormatado" };	
 	private static final String NOME_PADRAO_ARQUIVO_CSV = "dca.csv";
 
 	private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
@@ -95,11 +96,11 @@ public class DCAServiceTest {
 				.listaAnexos(Arrays.asList("DCA-Anexo I-C", "DCA-Anexo I-D", "DCA-Anexo I-E"))
 				.build();
 		DeclaracaoContasAnuais dca = obterDeclaracaoContasAnuais();
-		when(enteService.obterListaCodigosIbgeNaAPI(opcoes)).thenReturn(Arrays.asList("21","22","23"));
+		when(enteService.obterListaEntesNaAPI(opcoes)).thenReturn(Arrays.asList(new Ente("21","E"),new Ente("22","E"),new Ente("23","E")));
 		when(consultaApiUtil.lerEntidades(any(), eq(DeclaracaoContasAnuais.class))).thenReturn(Arrays.asList(dca));
 
 		dcaService.carregarDados(opcoes);
-		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
+		verify(enteService).obterListaEntesNaAPI(opcoes);
 		verify(consultaApiUtil, times(9)).lerEntidades(any(), eq(DeclaracaoContasAnuais.class));
 		
 		try {
@@ -117,11 +118,11 @@ public class DCAServiceTest {
 				.nomeArquivo("relatorio.csv")
 				.build();
 		DeclaracaoContasAnuais dca = obterDeclaracaoContasAnuais();
-		when(enteService.obterListaCodigosIbgeNaAPI(opcoes)).thenReturn(Arrays.asList("22","23"));
+		when(enteService.obterListaEntesNaAPI(opcoes)).thenReturn(Arrays.asList(new Ente("22","E"),new Ente("23","E")));
 		when(consultaApiUtil.lerEntidades(any(), eq(DeclaracaoContasAnuais.class))).thenReturn(Arrays.asList(dca));
 
 		dcaService.carregarDados(opcoes);
-		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
+		verify(enteService).obterListaEntesNaAPI(opcoes);
 		verify(consultaApiUtil, times(2)).lerEntidades(any(), eq(DeclaracaoContasAnuais.class));
 		
 		try {
@@ -169,12 +170,12 @@ public class DCAServiceTest {
 				.build();
 		iniciarDbUnit();
 
-		when(enteService.obterListaCodigosIbgeNaAPI(opcoes)).thenReturn(Arrays.asList("23"));
+		when(enteService.obterListaEntesNaAPI(opcoes)).thenReturn(Arrays.asList(new Ente("23","E")));
 		when(consultaApiUtil.lerEntidades(any(), eq(DeclaracaoContasAnuais.class))).thenReturn(Arrays.asList(obterDeclaracaoContasAnuais()));
 
 		dcaService.carregarDados(opcoes);
 		
-		verify(enteService, times(2)).obterListaCodigosIbgeNaAPI(opcoes);
+		verify(enteService).obterListaEntesNaAPI(opcoes);
 		verify(consultaApiUtil).lerEntidades(any(), eq(DeclaracaoContasAnuais.class));
 	
 		verify(logger).info("Excluindo dados do banco de dados...");		

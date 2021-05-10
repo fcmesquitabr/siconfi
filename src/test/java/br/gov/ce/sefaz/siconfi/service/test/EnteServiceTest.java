@@ -41,7 +41,7 @@ import br.gov.ce.sefaz.siconfi.util.CsvUtil;
 @PowerMockIgnore( {"javax.management.*", "javax.script.*" })
 public class EnteServiceTest {
 
-	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "cod_ibge", "ente", "capital", "regiao", "uf",
+	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "codigoIbge", "descricaoEnte", "capital", "regiao", "uf",
 			"esfera", "exercicio", "populacao", "cnpj" };	
 	private static final String NOME_PADRAO_ARQUIVO_CSV = "entes.csv";
 

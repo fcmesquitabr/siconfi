@@ -45,7 +45,7 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 
 		StringBuilder queryBuilder = new StringBuilder("DELETE FROM ExtratoEntrega ee WHERE ee.exercicio IN (:exercicios) ");
 		if(!Utils.isEmptyCollection(listaCodigoIbge)) {
-			queryBuilder.append(" AND ee.cod_ibge IN (:codigosIbge)");
+			queryBuilder.append(" AND ee.codigoIbge IN (:codigosIbge)");
 		}
 		
 		boolean transacaoAtiva = getEntityManager().getTransaction().isActive(); 
@@ -75,11 +75,11 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 		
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaBase(opcoes);		
 		
-		StringBuilder queryBuilder = new StringBuilder("SELECT ee FROM ExtratoEntrega ee WHERE ee.status_relatorio='HO' AND ee.exercicio = :exercicio ");
-		queryBuilder.append(" AND ee.data_status >= :dataMinima ");
+		StringBuilder queryBuilder = new StringBuilder("SELECT ee FROM ExtratoEntrega ee WHERE ee.statusRelatorio='HO' AND ee.exercicio = :exercicio ");
+		queryBuilder.append(" AND ee.statusData >= :dataMinima ");
 		queryBuilder.append(" AND ee.entregavel = :entregavel");
 		if(!Utils.isEmptyCollection(listaCodigoIbge)) {
-			queryBuilder.append(" AND ee.cod_ibge IN (:codigosIbge) ");
+			queryBuilder.append(" AND ee.codigoIbge IN (:codigosIbge) ");
 		}
 
 		if(!opcoes.isListaPeriodosVazia()) {

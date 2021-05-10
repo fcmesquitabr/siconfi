@@ -55,7 +55,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(filtro);
 		if (!Utils.isEmptyCollection(listaCodigoIbge)) {
-			queryBuilder.append(" AND rreo.cod_ibge IN (:codigosIbge)");
+			queryBuilder.append(" AND rreo.codigoIbge IN (:codigosIbge)");
 		}
 
 		if (!filtro.isListaAnexosVazia()) {

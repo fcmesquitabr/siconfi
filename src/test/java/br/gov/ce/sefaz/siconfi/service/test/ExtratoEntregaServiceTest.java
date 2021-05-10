@@ -34,6 +34,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
+import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.entity.ExtratoEntrega;
 import br.gov.ce.sefaz.siconfi.enums.Entregavel;
 import br.gov.ce.sefaz.siconfi.enums.Esfera;
@@ -53,8 +54,8 @@ import br.gov.ce.sefaz.siconfi.util.LoggerUtil;
 @PowerMockIgnore( {"javax.management.*", "javax.script.*" })
 public class ExtratoEntregaServiceTest {
 
-	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "cod_ibge", "populacao", "instituicao",
-			"entregavel", "periodo", "periodicidade", "status_relatorio", "dataFormatada", "forma_envio", "tipo_relatorio" };	
+	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "codigoIbge", "populacao", "instituicao",
+			"entregavel", "periodo", "periodicidade", "statusRelatorio", "dataFormatada", "formaEnvio", "tipoRelatorio" };	
 	private static final String NOME_PADRAO_ARQUIVO_CSV = "extrato-entrega.csv";
 	
 	private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
@@ -96,11 +97,11 @@ public class ExtratoEntregaServiceTest {
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.ARQUIVO)
 				.build();
 		ExtratoEntrega extrato = obterExtratoEntrega();
-		when(enteService.obterListaCodigosIbgeNaAPI(opcoes)).thenReturn(Arrays.asList("22","23"));
+		when(enteService.obterListaEntesNaAPI(opcoes)).thenReturn(Arrays.asList(new Ente("22","E"),new Ente("23","E")));
 		when(consultaApiUtil.lerEntidades(any(), eq(ExtratoEntrega.class))).thenReturn(Arrays.asList(extrato));
 
 		extratoEntregaService.carregarDados(opcoes);
-		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
+		verify(enteService).obterListaEntesNaAPI(opcoes);
 		verify(consultaApiUtil, times(2)).lerEntidades(any(), eq(ExtratoEntrega.class));
 		
 		try {
@@ -133,11 +134,11 @@ public class ExtratoEntregaServiceTest {
 		Logger logger = mockLogger();
 		ExtratoEntrega extrato = obterExtratoEntrega();
 		
-		when(enteService.obterListaCodigosIbgeNaAPI(opcoes)).thenReturn(Arrays.asList("22","23"));
+		when(enteService.obterListaEntesNaAPI(opcoes)).thenReturn(Arrays.asList(new Ente("22","E"), new Ente("23","E")));
 		when(consultaApiUtil.lerEntidades(any(), eq(ExtratoEntrega.class))).thenReturn(Arrays.asList(extrato));
 
 		extratoEntregaService.carregarDados(opcoes);
-		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
+		verify(enteService).obterListaEntesNaAPI(opcoes);
 		verify(consultaApiUtil, times(2)).lerEntidades(any(), eq(ExtratoEntrega.class));
 		verify(logger,times(2)).info("Excluindo dados do banco de dados...");
 		verify(logger,times(2)).info("Fazendo commit...");

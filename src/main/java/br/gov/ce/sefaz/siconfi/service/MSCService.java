@@ -28,19 +28,19 @@ public abstract class MSCService<T extends MatrizSaldoContabeis> extends Siconfi
 
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(filtro);
 		if(!Utils.isEmptyCollection(listaCodigoIbge)) {
-			queryBuilder.append(" AND msc.cod_ibge IN (:codigosIbge)");
+			queryBuilder.append(" AND msc.codigoIbge IN (:codigosIbge)");
 		}
 		if(!filtro.isListaPeriodosVazia()) {
-			queryBuilder.append(" AND msc.mes_referencia IN (:listaMeses)");
+			queryBuilder.append(" AND msc.mesReferencia IN (:listaMeses)");
 		}
 		if(filtro.getTipoMatrizSaldoContabeis()!=null){
-			queryBuilder.append(" AND msc.tipo_matriz=:codigoTipoMatriz");
+			queryBuilder.append(" AND msc.tipoMatriz=:codigoTipoMatriz");
 		}
 		if(!filtro.isListaClassesContaVazia()) {
-			queryBuilder.append(" AND msc.classe_conta IN (:listaClasseConta)");
+			queryBuilder.append(" AND msc.classeConta IN (:listaClasseConta)");
 		}
 		if(!filtro.isListaTipoValorVazia()) {
-			queryBuilder.append(" AND msc.tipo_valor IN (:listaTipoValor)");
+			queryBuilder.append(" AND msc.tipoValor IN (:listaTipoValor)");
 		}
 		
 		boolean transacaoAtiva = getEntityManager().getTransaction().isActive(); 

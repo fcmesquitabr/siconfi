@@ -47,7 +47,7 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 
 		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(filtro);
 		if(!Utils.isEmptyCollection(listaCodigoIbge)) {
-			queryBuilder.append(" AND dca.cod_ibge IN (:codigosIbge)");
+			queryBuilder.append(" AND dca.codigoIbge IN (:codigosIbge)");
 		}
 		if(!filtro.isListaAnexosVazia()) {
 			queryBuilder.append(" AND dca.anexo IN (:listaAnexos)");

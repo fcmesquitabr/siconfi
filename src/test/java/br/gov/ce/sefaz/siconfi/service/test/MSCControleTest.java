@@ -31,6 +31,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
+import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.entity.MatrizSaldoContabeisControle;
 import br.gov.ce.sefaz.siconfi.enums.OpcaoSalvamentoDados;
 import br.gov.ce.sefaz.siconfi.enums.TipoMatrizSaldoContabeis;
@@ -48,10 +49,10 @@ import br.gov.ce.sefaz.siconfi.util.LoggerUtil;
 @PowerMockIgnore({ "javax.management.*", "javax.script.*" })
 public class MSCControleTest {
 
-	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "mes_referencia", "cod_ibge", "poder_orgao", "tipo_matriz",
-			"classe_conta", "natureza_conta", "conta_contabil", "funcao", "subfuncao", "educacao_saude", 
-			"natureza_despesa", "ano_inscricao", "ano_fonte_recursos", "fonte_recursos", 
-			"data_referencia", "entrada_msc", "tipo_valor", "valorFormatado"};	
+	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "mesReferencia", "codigoIbge", "poderOrgao", "tipoMatriz",
+			"classeConta", "naturezaConta", "contaContabil", "funcao", "subfuncao", "educacaoSaude", 
+			"naturezaDespesa", "anoInscricao", "anoFonteRecursos", "fonteRecursos", 
+			"dataReferencia", "entradaMsc", "tipoValor", "valorFormatado" };	
 	private static final String NOME_PADRAO_ARQUIVO_CSV = "msc_controle.csv";
 
 	private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
@@ -100,19 +101,19 @@ public class MSCControleTest {
 				.opcaoSalvamentoDados(OpcaoSalvamentoDados.ARQUIVO)
 				.listaClasseConta(listaClassesConta).build();
 		MatrizSaldoContabeisControle mscc = obterMSCControle();
-		List<String> listaCodigoIbge = Arrays.asList("21", "22", "23");
-		when(enteService.obterListaCodigosIbgeNaAPI(opcoes)).thenReturn(listaCodigoIbge);
+		List<Ente> listaEntes = Arrays.asList(new Ente("21","E"), new Ente("22","E"), new Ente("23","E"));
+		when(enteService.obterListaEntesNaAPI(opcoes)).thenReturn(listaEntes);
 		when(consultaApiUtil.lerEntidades(any(), eq(MatrizSaldoContabeisControle.class)))
 				.thenReturn(Arrays.asList(mscc));
 
 		mscService.carregarDados(opcoes);
-		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
-		verify(consultaApiUtil, times(listaClassesConta.size() * listaCodigoIbge.size() * TipoValorMatrizSaldoContabeis.values().length * Constantes.MESES.size()))
+		verify(enteService).obterListaEntesNaAPI(opcoes);
+		verify(consultaApiUtil, times(listaClassesConta.size() * listaEntes.size() * TipoValorMatrizSaldoContabeis.values().length * Constantes.MESES.size()))
 				.lerEntidades(any(), eq(MatrizSaldoContabeisControle.class));
 
 		try {
 			verify(csvUtil).writeHeader(COLUNAS_ARQUIVO_CSV, NOME_PADRAO_ARQUIVO_CSV);
-			verify(csvUtil, times(listaClassesConta.size() * listaCodigoIbge.size() * TipoValorMatrizSaldoContabeis.values().length * Constantes.BIMESTRES.size()))
+			verify(csvUtil, times(listaClassesConta.size() * listaEntes.size() * TipoValorMatrizSaldoContabeis.values().length * Constantes.BIMESTRES.size()))
 					.writeToFile(Arrays.asList(mscc), COLUNAS_ARQUIVO_CSV, NOME_PADRAO_ARQUIVO_CSV);
 		} catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
 			e.printStackTrace();
@@ -129,13 +130,13 @@ public class MSCControleTest {
 				.listaTipoValor(listaTipoValor)
 				.build();
 		MatrizSaldoContabeisControle mscc = obterMSCControle();
-		List<String> listaCodigoIbge = Arrays.asList("22", "23");
-		when(enteService.obterListaCodigosIbgeNaAPI(opcoes)).thenReturn(listaCodigoIbge);
+		List<Ente> listaCodigoIbge = Arrays.asList(new Ente("22","E"), new Ente("23","E"));
+		when(enteService.obterListaEntesNaAPI(opcoes)).thenReturn(listaCodigoIbge);
 		when(consultaApiUtil.lerEntidades(any(), eq(MatrizSaldoContabeisControle.class)))
 				.thenReturn(Arrays.asList(mscc));
 
 		mscService.carregarDados(opcoes);
-		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
+		verify(enteService).obterListaEntesNaAPI(opcoes);
 		verify(consultaApiUtil,
 				times(Constantes.CLASSES_CONTAS_CONTROLE.size() * listaTipoValor.size() * listaCodigoIbge.size() * Constantes.BIMESTRES.size()))
 						.lerEntidades(any(), eq(MatrizSaldoContabeisControle.class));
@@ -175,12 +176,12 @@ public class MSCControleTest {
 				.build();
 		iniciarDbUnit();
 
-		when(enteService.obterListaCodigosIbgeNaAPI(any())).thenReturn(Arrays.asList("23"));
+		when(enteService.obterListaEntesNaAPI(any())).thenReturn(Arrays.asList(new Ente("23","E")));
 		when(consultaApiUtil.lerEntidades(any(), eq(MatrizSaldoContabeisControle.class))).thenReturn(Arrays.asList(obterMSCControle()));
 
 		mscService.carregarDados(opcoes);
 		
-		verify(enteService).obterListaCodigosIbgeNaAPI(opcoes);
+		verify(enteService).obterListaEntesNaAPI(opcoes);
 		verify(consultaApiUtil, times(Constantes.CLASSES_CONTAS_CONTROLE.size() * TipoValorMatrizSaldoContabeis.values().length)).lerEntidades(any(), eq(MatrizSaldoContabeisControle.class));
 		
 		verify(logger, times(Constantes.CLASSES_CONTAS_CONTROLE.size() * TipoValorMatrizSaldoContabeis.values().length)).info("Excluindo dados do banco de dados...");
