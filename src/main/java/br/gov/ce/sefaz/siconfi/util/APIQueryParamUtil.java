@@ -27,7 +27,9 @@ public class APIQueryParamUtil {
 
 	public static final String API_QUERY_PARAM_CLASSE_CONTA = "classe_conta"; 
 
-	public static final String API_QUERY_PARAM_ID_TV = "id_tv"; 
+	public static final String API_QUERY_PARAM_ID_TV = "id_tv";
+	
+	public static final String API_QUERY_PARAM_OFF_SET = "offset";
 
 	private Map<String, Object> mapQueryParam = new HashMap<>();
 	
@@ -161,6 +163,17 @@ public class APIQueryParamUtil {
 
 	public String getParamTipoValorMatriz() {
 		return (String) mapQueryParam.get(API_QUERY_PARAM_ID_TV);			
+	}
+
+	public APIQueryParamUtil addParamOffset(Integer offset) {
+		if(offset != null) {
+			mapQueryParam.put(API_QUERY_PARAM_OFF_SET, offset);			
+		}
+		return this;
+	}
+
+	public Integer getParamOffset() {
+		return (Integer) mapQueryParam.get(API_QUERY_PARAM_OFF_SET);			
 	}
 
 	public Map<String, Object> getMapQueryParam() {

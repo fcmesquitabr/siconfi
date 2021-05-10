@@ -45,17 +45,35 @@ public class ConsultaApiUtil<T> {
 	}
 
 	public List<T> lerEntidades(APIQueryParamUtil apiQueryParamUtil, Class<T> clazz) {
-		Response response = obterResponseAPI(apiQueryParamUtil);
-		if(response == null) {
-			logger.info("API retornou resposta vazia");
-			return new ArrayList<>();
-		} else if(response.getStatus() != Response.Status.OK.getStatusCode()) {
-			String corpoResposta = response.readEntity(String.class);
-			logger.info("Corpo da Resposta: {}", corpoResposta);
-			return new ArrayList<>();			
-		}
 		
-		GenericType<SiconfiResponse<T>> genericType = new GenericType<>(new ParameterizedType() {
+		List<T> listaEntidades = new ArrayList<>();
+		boolean aindaHaRegistros = true;
+		
+		do {
+			Response response = obterResponseAPI(apiQueryParamUtil);			
+			if(response == null) {
+				logger.info("API retornou resposta vazia");
+				break;
+			} 
+			
+			SiconfiResponse<T> siconfiResponse = response.readEntity(getGenericType(clazz));			
+			listaEntidades.addAll(siconfiResponse != null ? siconfiResponse.getItems() : new ArrayList<>());
+			
+			aindaHaRegistros = siconfiResponse != null && siconfiResponse.getHasMore(); 
+			
+			if(aindaHaRegistros) {
+				logger.info("API retornou que ainda há registros a serem consultados, consultando o próximo Offset");
+				apiQueryParamUtil.addParamOffset(siconfiResponse.getOffset() + siconfiResponse.getCount());
+			} 
+			
+		} while(aindaHaRegistros);
+		
+		return listaEntidades;
+	}
+
+	private GenericType<SiconfiResponse<T>> getGenericType(Class<T> clazz){
+
+		return new GenericType<>(new ParameterizedType() {
 			
 			  public Type[] getActualTypeArguments() {
 				    return new Type[]{clazz};
@@ -68,12 +86,9 @@ public class ConsultaApiUtil<T> {
 				  public Type getOwnerType() {
 				    return null;
 				  }
-		});
-
-		SiconfiResponse<T> siconfiResponse = response.readEntity(genericType);
-		return siconfiResponse != null ? siconfiResponse.getItems() : new ArrayList<>();
+		});		
 	}
-
+	
 	private Response obterResponseAPI(APIQueryParamUtil apiQueryParamUtil) {
 		
 		long ini = System.currentTimeMillis();			
@@ -91,9 +106,12 @@ public class ConsultaApiUtil<T> {
 			mensagemTempoConsultaAPI(ini);
 			logger.info("Código HTTP de retorno: {}", response.getStatus());
 			aguardarUmSegundo();			
-			
+						
 			if(response.getStatus() == Response.Status.OK.getStatusCode()) {
 				return response;				
+			} else {
+				String corpoResposta = response.readEntity(String.class);
+				logger.info("Corpo da Resposta: {}", corpoResposta);				
 			}
 			tentativa++;
 		}
@@ -110,7 +128,7 @@ public class ConsultaApiUtil<T> {
 	 */
 	private void aguardarUmSegundo() {
 		try {
-			Thread.sleep(1100); //Colocando 1,1s por margem de segurança
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			logger.error(e);
 			Thread.currentThread().interrupt();
