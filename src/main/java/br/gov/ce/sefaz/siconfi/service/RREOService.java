@@ -93,10 +93,11 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 	@Override
 	protected void consultarNaApiEGerarSaidaDados (OpcoesCargaDadosRREO opcoes, Integer exercicio) {
 
-		List<Integer> listaSemestres = !opcoes.isListaPeriodosVazia() ? opcoes.getPeriodos() : Constantes.BIMESTRES;
+		List<Integer> listaBimestres = !opcoes.isListaPeriodosVazia() ? opcoes.getPeriodos() : Constantes.BIMESTRES;
 
-		for (Integer semestre: listaSemestres) {
-			consultarNaApiEGerarSaidaDados(opcoes, exercicio, semestre);
+		for (Integer bimestre: listaBimestres) {
+			getLogger().info("Consultando dados para o bimestre: {}", bimestre);
+			consultarNaApiEGerarSaidaDados(opcoes, exercicio, bimestre);
 		}
 	}
 
@@ -104,8 +105,11 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 
 		List<Ente> listaEntes = getEnteService().obterListaEntesNaAPI(opcoes);
 		
+		int contadorEntes = 1;
 		for (Ente ente: listaEntes) {
+			getLogger().info("Consultando dados para o Ente: {} ({} de {} a serem consultados)", ente.getDescricaoEnte(), contadorEntes, listaEntes.size());
 			consultarNaApiEGerarSaidaDados(opcoes, exercicio, bimestre, ente);
+			contadorEntes++;
 		}
 	}
 

@@ -8,6 +8,7 @@ import javax.persistence.Query;
 import org.apache.logging.log4j.Logger;
 
 import br.gov.ce.sefaz.siconfi.entity.DeclaracaoContasAnuais;
+import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.entity.ExtratoEntrega;
 import br.gov.ce.sefaz.siconfi.enums.Entregavel;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDadosDCA;
@@ -84,26 +85,30 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 
 			List<ExtratoEntrega> listaExtrato = getExtratoEntregaService().consultarNaBase(opcoesCargaDados, exercicio, Entregavel.DCA);
 			for(ExtratoEntrega extrato: listaExtrato) {
-				consultarNaApiEGerarSaidaDados(opcoesCargaDados, exercicio, extrato.getCodigoIbge());
+				consultarNaApiEGerarSaidaDados(opcoesCargaDados, exercicio, new Ente(extrato.getCodigoIbge(),""));
 			}
 			
 		} else {
 			
-			List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(opcoesCargaDados);
-			for (String codigoIbge : listaCodigoIbge) {
-				consultarNaApiEGerarSaidaDados(opcoesCargaDados, exercicio, codigoIbge);
+			List<Ente> listaEntes = getEnteService().obterListaEntesNaAPI(opcoesCargaDados);
+			
+			int contadorEntes = 1;
+			for (Ente ente: listaEntes) {
+				getLogger().info("Consultando dados para o Ente: {} ({} de {} a serem consultados)", ente.getDescricaoEnte(), contadorEntes, listaEntes.size());
+				consultarNaApiEGerarSaidaDados(opcoesCargaDados, exercicio, ente);
+				contadorEntes++;
 			}	
 			
 		}		
 	}
 
 	private void consultarNaApiEGerarSaidaDados (OpcoesCargaDadosDCA opcoes,
-			Integer exercicio, String codigoIbge) {
+			Integer exercicio, Ente ente) {
 
 		if (opcoes.isListaAnexosVazia()) {
 			
 			APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil().addParamAnExercicio(exercicio)
-					.addParamIdEnte(codigoIbge);
+					.addParamIdEnte(ente.getCodigoIbge());
 			List<DeclaracaoContasAnuais> listaDca = consultarNaApi(apiQueryParamUtil);
 			gerarSaidaDados(opcoes, listaDca);
 
@@ -111,20 +116,21 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 			
 			for (String anexo : opcoes.getListaAnexos()) {
 				APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil().addParamAnExercicio(exercicio)
-						.addParamIdEnte(codigoIbge).addParamAnexo(anexo);
+						.addParamIdEnte(ente.getCodigoIbge()).addParamAnexo(anexo);
 				List<DeclaracaoContasAnuais> listaDcaParcial = consultarNaApi(apiQueryParamUtil);
-				gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, codigoIbge, anexo), listaDcaParcial);
+				gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, ente, anexo), listaDcaParcial);
 			}
 		}
 	}
 
 	private OpcoesCargaDadosDCA getOpcoesParcial(OpcoesCargaDadosDCA opcoes, Integer exercicio,
-			String codigoIbge, String anexo) {
+			Ente ente, String anexo) {
+		
 		OpcoesCargaDadosDCA opcoesParcial = new OpcoesCargaDadosDCA();
 		opcoesParcial.setOpcaoSalvamento(opcoes.getOpcaoSalvamento());
 		opcoesParcial.setNomeArquivo(opcoes.getNomeArquivo());
 		opcoesParcial.setExercicios(Arrays.asList(exercicio));
-		opcoesParcial.setCodigosIBGE(Arrays.asList(codigoIbge));
+		opcoesParcial.setCodigosIBGE(Arrays.asList(ente.getCodigoIbge()));
 		if(anexo != null) {
 			opcoesParcial.setListaAnexos(Arrays.asList(anexo));			
 		}

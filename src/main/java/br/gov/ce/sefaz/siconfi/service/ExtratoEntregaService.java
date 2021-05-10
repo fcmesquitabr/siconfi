@@ -10,6 +10,7 @@ import javax.persistence.Query;
 
 import org.apache.logging.log4j.Logger;
 
+import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.entity.ExtratoEntrega;
 import br.gov.ce.sefaz.siconfi.enums.Entregavel;
 import br.gov.ce.sefaz.siconfi.opcoes.OpcoesCargaDados;
@@ -116,23 +117,26 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 	@Override
 	protected void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosExtratoEntrega opcoes, Integer exercicio){
 		
-		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(opcoes);
+		List<Ente> listaEntes = getEnteService().obterListaEntesNaAPI(opcoes);
 		
-		for (String codigoIbge : listaCodigoIbge) {
+		int contadorEntes = 1;
+		for (Ente ente: listaEntes) {
+			getLogger().info("Consultando dados para o Ente: {} ({} de {} a serem consultados)", ente.getDescricaoEnte(), contadorEntes, listaEntes.size());
 			APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil().addParamAnReferencia(exercicio)
-					.addParamIdEnte(codigoIbge);
+					.addParamIdEnte(ente.getCodigoIbge());
 			List<ExtratoEntrega> listaExtratosParcial = consultarNaApi(apiQueryParamUtil);
-			gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, codigoIbge), listaExtratosParcial);
+			gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, ente), listaExtratosParcial);
+			contadorEntes++;
 		}
 	}
 
 	private OpcoesCargaDadosExtratoEntrega getOpcoesParcial(OpcoesCargaDadosExtratoEntrega opcoes, Integer exercicio,
-			String codigoIbge) {
+			Ente ente) {
 		OpcoesCargaDadosExtratoEntrega opcoesParcial = new OpcoesCargaDadosExtratoEntrega();
 		opcoesParcial.setOpcaoSalvamento(opcoes.getOpcaoSalvamento());
 		opcoesParcial.setNomeArquivo(opcoes.getNomeArquivo());
 		opcoesParcial.setExercicios(Arrays.asList(exercicio));
-		opcoesParcial.setCodigosIBGE(Arrays.asList(codigoIbge));
+		opcoesParcial.setCodigosIBGE(Arrays.asList(ente.getCodigoIbge()));
 		return opcoesParcial;
 	}
 	

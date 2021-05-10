@@ -103,6 +103,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 				: Constantes.QUADRIMESTRES;
 
 		for (Integer quadrimestre : listaQuadrimestres) {
+			getLogger().info("Consultando dados para o Período (quadrimestre ou semestre): {}", quadrimestre);
 			consultarNaApiEGerarSaidaDados(opcoes, exercicio, quadrimestre);
 		}
 	}
@@ -112,8 +113,11 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 
 		List<Ente> listaEntes = getEnteService().obterListaEntesNaAPI(filtroRGF);
 
+		int contadorEntes = 1;
 		for (Ente ente: listaEntes) {
+			getLogger().info("Consultando dados para o Ente: {} ({} de {} a serem consultados)", ente.getDescricaoEnte(), contadorEntes, listaEntes.size());
 			consultarNaApiEGerarSaidaDados(filtroRGF, exercicio, quadrimestre, ente);
+			contadorEntes++;
 		}
 	}
 

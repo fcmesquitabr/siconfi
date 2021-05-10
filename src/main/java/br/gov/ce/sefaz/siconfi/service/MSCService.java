@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.Query;
 
+import br.gov.ce.sefaz.siconfi.entity.Ente;
 import br.gov.ce.sefaz.siconfi.entity.MatrizSaldoContabeis;
 import br.gov.ce.sefaz.siconfi.enums.TipoMatrizSaldoContabeis;
 import br.gov.ce.sefaz.siconfi.enums.TipoValorMatrizSaldoContabeis;
@@ -17,10 +18,6 @@ public abstract class MSCService<T extends MatrizSaldoContabeis> extends Siconfi
 
 	private EnteService enteService;
 	
-	public MSCService() {
-		super();
-	}
-
 	protected abstract List<Integer> getClassContas();
 	
 	@Override
@@ -92,28 +89,32 @@ public abstract class MSCService<T extends MatrizSaldoContabeis> extends Siconfi
 
 	private void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosMSC filtro, Integer exercicio, Integer mes) {
 
-		List<String> listaCodigoIbge = getEnteService().obterListaCodigosIbgeNaAPI(filtro);
 		TipoMatrizSaldoContabeis tipoMatriz = filtro.getTipoMatrizSaldoContabeis() != null
 				? filtro.getTipoMatrizSaldoContabeis()
-				: TipoMatrizSaldoContabeis.MSCC;
+						: TipoMatrizSaldoContabeis.MSCC;
 
-		for (String codigoIbge : listaCodigoIbge) {
-			consultarNaApiEGerarSaidaDados(filtro, exercicio, mes, codigoIbge, tipoMatriz);
+		List<Ente> listaEntes = getEnteService().obterListaEntesNaAPI(filtro);		
+
+		int contadorEntes = 1;
+		for (Ente ente: listaEntes) {
+			getLogger().info("Consultando dados para o Ente: {} ({} de {} a serem consultados)", ente.getDescricaoEnte(), contadorEntes, listaEntes.size());
+			consultarNaApiEGerarSaidaDados(filtro, exercicio, mes, ente, tipoMatriz);
+			contadorEntes++;
 		}
 	}
 
 	private void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosMSC filtro, Integer exercicio, Integer mes,
-			String codigoIbge, TipoMatrizSaldoContabeis tipoMatriz) {
+			Ente ente, TipoMatrizSaldoContabeis tipoMatriz) {
 
 		List<Integer> listaClassesConta = !filtro.isListaClassesContaVazia()?filtro.getListaClasseConta():getClassContas();
 		
 		for (Integer classe: listaClassesConta) {
-			consultarNaApiEGerarSaidaDados(filtro, exercicio, mes, codigoIbge, tipoMatriz, classe);
+			consultarNaApiEGerarSaidaDados(filtro, exercicio, mes, ente, tipoMatriz, classe);
 		}
 	}
 
 	private void consultarNaApiEGerarSaidaDados(OpcoesCargaDadosMSC opcoes, Integer exercicio, Integer mes,
-			String codigoIbge, TipoMatrizSaldoContabeis tipoMatriz, Integer classeConta) {
+			Ente ente, TipoMatrizSaldoContabeis tipoMatriz, Integer classeConta) {
 
 		List<TipoValorMatrizSaldoContabeis> listaTipoValor = !opcoes.isListaTipoValorVazia()
 				? opcoes.getListaTipoValor()
@@ -123,26 +124,26 @@ public abstract class MSCService<T extends MatrizSaldoContabeis> extends Siconfi
 			APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil();
 			apiQueryParamUtil.addParamAnReferencia(exercicio)
 					.addParamMesReferencia(mes)
-					.addParamIdEnte(codigoIbge)
+					.addParamIdEnte(ente.getCodigoIbge())
 					.addParamClasseConta(classeConta)
 					.addParamTipoMatriz(tipoMatriz.getCodigo())
 					.addParamTipoValorMatriz(tipoValor.getCodigo());
 
 			List<T> listaMSCParcial = consultarNaApi(apiQueryParamUtil);
-			gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, mes, codigoIbge, classeConta, tipoMatriz, tipoValor),
+			gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, mes, ente, classeConta, tipoMatriz, tipoValor),
 					listaMSCParcial);
 		}
 	}
 
 	private OpcoesCargaDadosMSC getOpcoesParcial(OpcoesCargaDadosMSC opcoes, Integer exercicio, Integer mes,
-			String codigoIbge, Integer classeConta, TipoMatrizSaldoContabeis tipoMatriz,
+			Ente ente, Integer classeConta, TipoMatrizSaldoContabeis tipoMatriz,
 			TipoValorMatrizSaldoContabeis tipoValor) {
 		OpcoesCargaDadosMSC opcoesParcial = new OpcoesCargaDadosMSC();
 		opcoesParcial.setOpcaoSalvamento(opcoes.getOpcaoSalvamento());
 		opcoesParcial.setNomeArquivo(opcoes.getNomeArquivo());
 		opcoesParcial.setExercicios(Arrays.asList(exercicio));
 		opcoesParcial.setPeriodos(Arrays.asList(mes));
-		opcoesParcial.setCodigosIBGE(Arrays.asList(codigoIbge));
+		opcoesParcial.setCodigosIBGE(Arrays.asList(ente.getCodigoIbge()));
 		opcoesParcial.setListaClasseConta(Arrays.asList(classeConta));
 		opcoesParcial.setTipoMatrizSaldoContabeis(tipoMatriz);
 		opcoesParcial.setListaTipoValor(Arrays.asList(tipoValor));
