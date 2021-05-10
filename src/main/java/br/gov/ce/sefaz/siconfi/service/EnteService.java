@@ -18,7 +18,7 @@ public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 
 	private static final Logger logger = LogManager.getLogger(EnteService.class);
 	
-	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "cod_ibge", "ente", "capital", "regiao", "uf",
+	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "codigoIbge", "descricaoEnte", "capital", "regiao", "uf",
 			"esfera", "exercicio", "populacao", "cnpj" };
 	
 	private static final String NOME_PADRAO_ARQUIVO_CSV = "entes.csv";
@@ -143,7 +143,7 @@ public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 
 	private List<Ente> filtrarCodigoIbge(List<Ente> listaEntes, OpcoesCargaDados opcoes) {
 		if (opcoes.isExisteCodigosIbge()) {
-			return listaEntes.parallelStream().filter(ente -> opcoes.getCodigosIBGE().contains(ente.getCod_ibge()))
+			return listaEntes.parallelStream().filter(ente -> opcoes.getCodigosIBGE().contains(ente.getCodigoIbge()))
 					.collect(Collectors.toList());
 		} else {
 			return listaEntes;
@@ -191,7 +191,7 @@ public class EnteService extends SiconfiService <Ente, OpcoesCargaDados>{
 	}
 
 	private List<String> obterListaCodigoIbge (List<Ente> listaEntes){		
-		return listaEntes.parallelStream().map(Ente::getCod_ibge).collect(Collectors.toList());
+		return listaEntes.parallelStream().map(Ente::getCodigoIbge).collect(Collectors.toList());
 	}
 
 	@Override

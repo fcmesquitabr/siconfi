@@ -144,7 +144,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 				for (String anexo : opcoes.getListaAnexos()) {					
 					List<RelatorioGestaoFiscal> listaRGFParcial = consultarNaApi(
 							getAPIQueryParamUtil(exercicio, tipoDemonstrativo, quadrimestre, ente, poder, anexo));
-					gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, quadrimestre, ente.getCod_ibge(), poder, anexo),
+					gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, quadrimestre, ente.getCodigoIbge(), poder, anexo),
 							listaRGFParcial);
 				}			
 			}			
@@ -168,7 +168,7 @@ public class RGFService extends SiconfiService<RelatorioGestaoFiscal, OpcoesCarg
 						: Periodicidade.SEMESTRAL
 								.getCodigo())
 				.addParamPeriodo(quadrimestre)
-				.addParamIdEnte(ente.getCod_ibge())
+				.addParamIdEnte(ente.getCodigoIbge())
 				.addParamTipoDemonstrativo(tipoDemonstrativo.getCodigo())
 				.addParamPoder(poder.getCodigo());
 		

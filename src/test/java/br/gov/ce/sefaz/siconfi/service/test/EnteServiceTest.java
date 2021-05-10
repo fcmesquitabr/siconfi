@@ -185,7 +185,7 @@ public class EnteServiceTest {
 		Ente ente = obterEnte();
 		when(consultaApiUtil.lerEntidades(any(), eq(Ente.class))).thenReturn(Arrays.asList(ente));
 		List<String> listaCodigoIbge = enteService.obterListaCodigosIbgeNaAPI(opcoes);
-		assertArrayEquals(new String[] {ente.getCod_ibge()}, listaCodigoIbge.toArray());
+		assertArrayEquals(new String[] {ente.getCodigoIbge()}, listaCodigoIbge.toArray());
 		verify(consultaApiUtil).lerEntidades(any(), eq(Ente.class));		
 	}
 
@@ -260,9 +260,9 @@ public class EnteServiceTest {
 		Ente ente = new Ente();
 		ente.setCapital(0);
 		ente.setId(1l);
-		ente.setEnte("Ceará");
+		ente.setDescricaoEnte("Ceará");
 		ente.setUf("CE");
-		ente.setCod_ibge("23");
+		ente.setCodigoIbge("23");
 		ente.setExercicio(2020);
 		ente.setRegiao("NE");
 		ente.setEsfera("E");

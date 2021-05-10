@@ -10,7 +10,7 @@ import java.util.Locale;
 public class Utils {
 
 	public static String getValorFormatado(Double valor) {
-		return getValorFormatado(valor, Locale.GERMAN);
+		return getValorFormatado(valor, Locale.US);
 	}
 
 	public static String getValorFormatado(Double valor, Locale locale) {

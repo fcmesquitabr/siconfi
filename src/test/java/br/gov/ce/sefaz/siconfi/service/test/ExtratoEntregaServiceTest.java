@@ -239,17 +239,17 @@ public class ExtratoEntregaServiceTest {
 
 	private ExtratoEntrega obterExtratoEntrega() {
 		ExtratoEntrega extrato = new ExtratoEntrega();
-		extrato.setCod_ibge("23");
+		extrato.setCodigoIbge("23");
 		extrato.setExercicio(2019);
 		extrato.setPeriodo(1);
 		extrato.setPeriodicidade(Periodicidade.BIMESTRAL.getCodigo());
 		extrato.setInstituicao("Governo");
 		extrato.setId(1);
-		extrato.setData_status(Calendar.getInstance().getTime());
+		extrato.setStatusData(Calendar.getInstance().getTime());
 		extrato.setEntregavel("RREO");
-		extrato.setForma_envio("P");
-		extrato.setTipo_relatorio("CSV");
-		extrato.setStatus_relatorio("HO");
+		extrato.setFormaEnvio("P");
+		extrato.setTipoRelatorio("CSV");
+		extrato.setStatusRelatorio("HO");
 		return extrato;
 	}
 }

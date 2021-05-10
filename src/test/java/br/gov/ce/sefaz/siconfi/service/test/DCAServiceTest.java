@@ -212,7 +212,7 @@ public class DCAServiceTest {
 	
 	private ExtratoEntrega obterExtratoEntrega() {
 		ExtratoEntrega extrato = new ExtratoEntrega();
-		extrato.setCod_ibge("23");
+		extrato.setCodigoIbge("23");
 		extrato.setExercicio(2019);
 		extrato.setPeriodo(1);
 		extrato.setPeriodicidade(Periodicidade.ANUAL.getCodigo());

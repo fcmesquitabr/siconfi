@@ -124,7 +124,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 				for (String anexo : opcoes.getListaAnexos()) {
 					List<RelatorioResumidoExecucaoOrcamentaria> listaRREOParcial = consultarNaApi(
 							getAPIQueryParamUtil(exercicio, bimestre, ente, tipoDemonstrativo, anexo));
-					gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, bimestre, ente.getCod_ibge(), anexo),
+					gerarSaidaDados(getOpcoesParcial(opcoes, exercicio, bimestre, ente.getCodigoIbge(), anexo),
 							listaRREOParcial);
 				}
 			}
@@ -144,7 +144,7 @@ public class RREOService extends SiconfiService<RelatorioResumidoExecucaoOrcamen
 		APIQueryParamUtil apiQueryParamUtil = new APIQueryParamUtil();
 		apiQueryParamUtil.addParamAnExercicio(exercicio)
 				.addParamPeriodo(bimestre)
-				.addParamIdEnte(ente.getCod_ibge())
+				.addParamIdEnte(ente.getCodigoIbge())
 				.addParamTipoDemonstrativo(tipoDemonstrativo.getCodigo());
 		
 		if (!Utils.isStringVazia(anexo)) {

@@ -9,6 +9,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import br.gov.ce.sefaz.siconfi.enums.Esfera;
 import br.gov.ce.sefaz.siconfi.util.Utils;
@@ -24,10 +25,12 @@ public class Ente {
 	private Long id;
 
 	@Column(name = "COD_IBGE")
-	private String cod_ibge;
+	@JsonProperty("cod_ibge")
+	private String codigoIbge;
 	
 	@Column(name = "TXT_ENTE")
-	private String ente;
+	@JsonProperty("ente")
+	private String descricaoEnte;
 	
 	@Column(name = "NUM_CAPITAL")
 	private Integer capital;
@@ -48,6 +51,7 @@ public class Ente {
 	private Long populacao;
 
 	@Column(name = "NUM_CNPJ")
+	@JsonProperty("co_cnpj")
 	private Long numCnpj;
 	
 	@Transient
@@ -57,9 +61,9 @@ public class Ente {
 		super();
 	}
 		
-	public Ente(String cod_ibge, String esfera) {
+	public Ente(String codigoIbge, String esfera) {
 		super();
-		this.cod_ibge = cod_ibge;
+		this.codigoIbge = codigoIbge;
 		this.esfera = esfera;
 	}
 
@@ -73,18 +77,23 @@ public class Ente {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getCod_ibge() {
-		return cod_ibge;
+
+	public String getCodigoIbge() {
+		return codigoIbge;
 	}
-	public void setCod_ibge(String cod_ibge) {
-		this.cod_ibge = cod_ibge;
+
+	public void setCodigoIbge(String codigoIbge) {
+		this.codigoIbge = codigoIbge;
 	}
-	public String getEnte() {
-		return ente;
+
+	public String getDescricaoEnte() {
+		return descricaoEnte;
 	}
-	public void setEnte(String ente) {
-		this.ente = ente;
+
+	public void setDescricaoEnte(String descricaoEnte) {
+		this.descricaoEnte = descricaoEnte;
 	}
+
 	public Integer getCapital() {
 		return capital;
 	}
@@ -143,7 +152,7 @@ public class Ente {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((cod_ibge == null) ? 0 : cod_ibge.hashCode());
+		result = prime * result + ((codigoIbge == null) ? 0 : codigoIbge.hashCode());
 		return result;
 	}
 
@@ -156,17 +165,17 @@ public class Ente {
 		if (getClass() != obj.getClass())
 			return false;
 		Ente other = (Ente) obj;
-		if (cod_ibge == null) {
-			if (other.cod_ibge != null)
+		if (codigoIbge == null) {
+			if (other.codigoIbge != null)
 				return false;
-		} else if (!cod_ibge.equals(other.cod_ibge))
+		} else if (!codigoIbge.equals(other.codigoIbge))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Ente [cod_ibge=" + cod_ibge + ", ente=" + ente + ", capital=" + capital + ", regiao=" + regiao + ", uf="
+		return "Ente [cod_ibge=" + codigoIbge + ", ente=" + descricaoEnte + ", capital=" + capital + ", regiao=" + regiao + ", uf="
 				+ uf + ", esfera=" + esfera + ", exercicio=" + exercicio + ", populacao=" + populacao + ", cnpj=" + cnpj
 				+ "]";
 	}	

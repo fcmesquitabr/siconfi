@@ -23,8 +23,8 @@ public class ExtratoEntregaService extends SiconfiService <ExtratoEntrega, Opcoe
 
 	private Logger logger = null;
 
-	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "cod_ibge", "populacao", "instituicao",
-			"entregavel", "periodo", "periodicidade", "status_relatorio", "dataFormatada", "forma_envio", "tipo_relatorio" };
+	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "codigoIbge", "populacao", "instituicao",
+			"entregavel", "periodo", "periodicidade", "statusRelatorio", "dataFormatada", "formaEnvio", "tipoRelatorio" };
 	
 	private static final String NOME_PADRAO_ARQUIVO_CSV = "extrato-entrega.csv";
 	

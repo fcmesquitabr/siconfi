@@ -10,7 +10,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
@@ -28,7 +30,8 @@ public class ExtratoEntrega {
 	private Integer exercicio;
 	
 	@Column(name = "COD_IBGE")
-	private String cod_ibge;
+	@JsonProperty("cod_ibge")
+	private String codigoIbge;
 	
 	@Column(name = "QTD_POPULACAO")
 	private Long populacao;
@@ -46,16 +49,20 @@ public class ExtratoEntrega {
 	private String periodicidade;
 	
 	@Column(name = "STA_RELATORIO")
-	private String status_relatorio;
+	@JsonAlias("status_relatorio")
+	private String statusRelatorio;
 	
 	@Column(name = "DAT_STATUS")
-	private Date data_status;
+	@JsonAlias("data_status")
+	private Date statusData;
 	
 	@Column(name = "DSC_FORMA_ENVIO")
-	private String forma_envio;
+	@JsonAlias("forma_envio")
+	private String formaEnvio;
 	
 	@Column(name = "TIP_RELATORIO")
-	private String tipo_relatorio;
+	@JsonAlias("tipo_relatorio")
+	private String tipoRelatorio;
 	
 	@Transient
 	private String dataFormatada;
@@ -72,11 +79,11 @@ public class ExtratoEntrega {
 	public void setExercicio(Integer exercicio) {
 		this.exercicio = exercicio;
 	}
-	public String getCod_ibge() {
-		return cod_ibge;
+	public String getCodigoIbge() {
+		return codigoIbge;
 	}
-	public void setCod_ibge(String cod_ibge) {
-		this.cod_ibge = cod_ibge;
+	public void setCodigoIbge(String codIbge) {
+		this.codigoIbge = codIbge;
 	}
 	public Long getPopulacao() {
 		return populacao;
@@ -108,42 +115,42 @@ public class ExtratoEntrega {
 	public void setPeriodicidade(String periodicidade) {
 		this.periodicidade = periodicidade;
 	}
-	public String getStatus_relatorio() {
-		return status_relatorio;
+	public String getStatusRelatorio() {
+		return statusRelatorio;
 	}
-	public void setStatus_relatorio(String status_relatorio) {
-		this.status_relatorio = status_relatorio;
+	public void setStatusRelatorio(String statusRelatorio) {
+		this.statusRelatorio = statusRelatorio;
 	}
 	
-	public Date getData_status() {
-		return data_status;
+	public Date getStatusData() {
+		return statusData;
 	}
-	public void setData_status(Date data_status) {
-		this.data_status = data_status;
+	public void setStatusData(Date statusData) {
+		this.statusData = statusData;
 	}
 	public String getDataFormatada() {
-		if(dataFormatada == null) dataFormatada = Utils.getDataFormatada(data_status);
+		if(dataFormatada == null) dataFormatada = Utils.getDataFormatada(statusData);
 		return dataFormatada;
 	}
 
-	public String getForma_envio() {
-		return forma_envio;
+	public String getFormaEnvio() {
+		return formaEnvio;
 	}
-	public void setForma_envio(String forma_envio) {
-		this.forma_envio = forma_envio;
+	public void setFormaEnvio(String formaEnvio) {
+		this.formaEnvio = formaEnvio;
 	}
-	public String getTipo_relatorio() {
-		return tipo_relatorio;
+	public String getTipoRelatorio() {
+		return tipoRelatorio;
 	}
-	public void setTipo_relatorio(String tipo_relatorio) {
-		this.tipo_relatorio = tipo_relatorio;
+	public void setTipoRelatorio(String tipoRelatorio) {
+		this.tipoRelatorio = tipoRelatorio;
 	}
 	
 	@Override
 	public String toString() {
-		return "ExtratoEntrega [exercicio=" + exercicio + ", cod_ibge=" + cod_ibge + ", populacao=" + populacao
+		return "ExtratoEntrega [exercicio=" + exercicio + ", cod_ibge=" + codigoIbge + ", populacao=" + populacao
 				+ ", instituicao=" + instituicao + ", entregavel=" + entregavel + ", periodo=" + periodo
-				+ ", periodicidade=" + periodicidade + ", status_relatorio=" + status_relatorio + ", data_status="
-				+ data_status + ", forma_envio=" + forma_envio + ", tipo_relatorio=" + tipo_relatorio + "]";
+				+ ", periodicidade=" + periodicidade + ", status_relatorio=" + statusRelatorio + ", data_status="
+				+ statusData + ", forma_envio=" + formaEnvio + ", tipo_relatorio=" + tipoRelatorio + "]";
 	}
 }

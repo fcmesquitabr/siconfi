@@ -84,7 +84,7 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 
 			List<ExtratoEntrega> listaExtrato = getExtratoEntregaService().consultarNaBase(opcoesCargaDados, exercicio, Entregavel.DCA);
 			for(ExtratoEntrega extrato: listaExtrato) {
-				consultarNaApiEGerarSaidaDados(opcoesCargaDados, exercicio, extrato.getCod_ibge());
+				consultarNaApiEGerarSaidaDados(opcoesCargaDados, exercicio, extrato.getCodigoIbge());
 			}
 			
 		} else {
