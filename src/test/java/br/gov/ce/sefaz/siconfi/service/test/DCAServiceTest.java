@@ -198,10 +198,10 @@ public class DCAServiceTest {
 		DeclaracaoContasAnuais dca = new DeclaracaoContasAnuais();
 		dca.setAnexo("anexo");
 		dca.setExercicio(2019);
-		dca.setCod_ibge("23");
-		dca.setCod_conta("100");
+		dca.setCodigoIbge("23");
+		dca.setCodigoConta("100");
 		dca.setColuna("coluna");
-		dca.setConta("conta");
+		dca.setDescricaoConta("conta");
 		dca.setInstituicao("Governo");
 		dca.setRotulo("rotulo");
 		dca.setUf("CE");

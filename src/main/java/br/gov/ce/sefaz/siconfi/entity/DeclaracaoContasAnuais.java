@@ -9,6 +9,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import br.gov.ce.sefaz.siconfi.util.Utils;
 
@@ -29,7 +30,8 @@ public class DeclaracaoContasAnuais {
 	private String instituicao;
 	
 	@Column(name = "COD_IBGE")
-	private String cod_ibge;
+	@JsonProperty("cod_ibge")
+	private String codigoIbge;
 	
 	@Column(name = "COD_UF")
 	private String uf;
@@ -44,10 +46,12 @@ public class DeclaracaoContasAnuais {
 	private String coluna;
 	
 	@Column(name = "COD_CONTA")
-	private String cod_conta;
+	@JsonProperty("cod_conta")
+	private String codigoConta;
 	
 	@Column(name = "DSC_CONTA")
-	private String conta;
+	@JsonProperty("conta")
+	private String descricaoConta;
 	
 	@Column(name = "VLR_DECLARACAO_ANUAL")
 	private Double valor;
@@ -76,11 +80,11 @@ public class DeclaracaoContasAnuais {
 	public void setInstituicao(String instituicao) {
 		this.instituicao = instituicao;
 	}
-	public String getCod_ibge() {
-		return cod_ibge;
+	public String getCodigoIbge() {
+		return codigoIbge;
 	}
-	public void setCod_ibge(String cod_ibge) {
-		this.cod_ibge = cod_ibge;
+	public void setCodigoIbge(String codigoIbge) {
+		this.codigoIbge = codigoIbge;
 	}
 	public String getUf() {
 		return uf;
@@ -106,17 +110,17 @@ public class DeclaracaoContasAnuais {
 	public void setColuna(String coluna) {
 		this.coluna = Utils.removerQuebrasLinha(coluna);
 	}
-	public String getCod_conta() {
-		return cod_conta;
+	public String getCodigoConta() {
+		return codigoConta;
 	}
-	public void setCod_conta(String cod_conta) {
-		this.cod_conta = cod_conta;
+	public void setCodigoConta(String codigoConta) {
+		this.codigoConta = codigoConta;
 	}
-	public String getConta() {
-		return conta;
+	public String getDescricaoConta() {
+		return descricaoConta;
 	}
-	public void setConta(String conta) {
-		this.conta = Utils.removerQuebrasLinha(conta);
+	public void setDescricaoConta(String conta) {
+		this.descricaoConta = Utils.removerQuebrasLinha(conta);
 	}
 	public Double getValor() {
 		return valor;
@@ -141,8 +145,8 @@ public class DeclaracaoContasAnuais {
 	@Override
 	public String toString() {
 		return "DeclaracaoContasAnuais [id=" + id + ", exercicio=" + exercicio + ", instituicao=" + instituicao
-				+ ", cod_ibge=" + cod_ibge + ", uf=" + uf + ", anexo=" + anexo + ", rotulo=" + rotulo + ", coluna="
-				+ coluna + ", cod_conta=" + cod_conta + ", conta=" + conta + ", valor=" + getValorFormatado() + ", populacao="
+				+ ", cod_ibge=" + codigoIbge + ", uf=" + uf + ", anexo=" + anexo + ", rotulo=" + rotulo + ", coluna="
+				+ coluna + ", cod_conta=" + codigoConta + ", conta=" + descricaoConta + ", valor=" + getValorFormatado() + ", populacao="
 				+ populacao + "]";
 	}
 }

@@ -23,8 +23,8 @@ public class DCAService extends SiconfiService<DeclaracaoContasAnuais, OpcoesCar
 			"Anexo I-F", "Anexo I-G", "Anexo I-HI", "DCA-Anexo I-AB", "DCA-Anexo I-C", "DCA-Anexo I-D", 
 			"DCA-Anexo I-E", "DCA-Anexo I-F", "DCA-Anexo I-G", "DCA-Anexo I-HI");
 	
-	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "uf", "cod_ibge", "instituicao", "anexo",
-			"cod_conta", "conta", "coluna", "rotulo", "populacao", "valorFormatado" };
+	private static final String[] COLUNAS_ARQUIVO_CSV = new String[] { "exercicio", "uf", "codigoIbge", "instituicao", "anexo",
+			"codigoConta", "descricaoConta", "coluna", "rotulo", "populacao", "valorFormatado" };
 	
 	private static final String NOME_PADRAO_ARQUIVO_CSV = "dca.csv";
 
